@@ -1,0 +1,9 @@
+<stack>
+  <description brief="jsk_smart_apps">jsk_smart_apps</description>
+  <author>Maintained by H. Azuma and K. Murase</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/jsk_smart_apps</url>
+  <depend stack="ros" />
+
+</stack>
