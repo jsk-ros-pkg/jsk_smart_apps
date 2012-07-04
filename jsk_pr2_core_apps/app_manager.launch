@@ -1,0 +1,21 @@
+<launch>
+
+  <param name="robot/name" value="local_computer"/>
+  <!-- rosparam param="robot/name" file="/proc/sys/kernel/hostname" /-->
+  <param name="robot/type" value="laptop"/> <!-- only pr2,turtlebot ?? -->
+  <!-- param name="robot/exchange_url" value="https://kforge.ros.org/pr2apps/pr2_exchange/raw-file/tip" /-->
+
+  <node pkg="app_manager" type="appmaster" name="appmaster" args="-p 11312"/>
+
+  <node pkg="app_manager" type="app_manager" name="app_manager" args="--applist $(find local_app_manager)/mock_apps" output="screen" cwd="node">
+        <param name="interface_master" value="http://localhost:11312"/>
+  </node>
+
+  <!-- Laptop Battery Diagnostics
+  <node pkg="turtlebot_node" type="laptop_battery.py" name="turtlebot_laptop_battery">
+  </node>
+  <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator" >
+    <rosparam command="load" file="$(find local_app_manager)/config/diagnostics.yaml" />
+  </node>
+  -->
+</launch>

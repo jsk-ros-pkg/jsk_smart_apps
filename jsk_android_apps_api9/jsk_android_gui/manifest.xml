@@ -1,0 +1,19 @@
+<package>
+  <description brief="jsk_android_gui">
+
+     jsk_android_gui written in android api-9
+
+  </description>
+  <author>Haseru Azuma</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/jsk_android_gui</url>
+
+  <depend package="appmanandroid"/>
+  <depend package="jsk_gui_msgs"/>
+  <export>
+    <rosjava-android-app target="android-9" />
+  </export>
+
+</package>
+

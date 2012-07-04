@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="hrp4_pan_tilt" type="hrp4c-pan-tilt.l" name="hrp4_pan_tilt" />
+</launch>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:title="Kill" android:id="@+id/kill"></item>
+  <item android:title="GetSpot" android:id="@+id/getspot"></item>
+  <item android:title="SetDrawLine" android:id="@+id/setdrawline"></item>
+  <item android:title="OpenDoor" android:id="@+id/opendoor"></item>
+
+  <item android:title="SetRightArm" android:id="@+id/setrarm"></item>
+  <item android:title="SetLeftArm" android:id="@+id/setlarm"></item>
+  <item android:title="OpenGripper" android:id="@+id/opengripper"></item>
+  <item android:title="CloseGripper" android:id="@+id/closegripper"></item>
+  <item android:title="SetResetAll" android:id="@+id/resetall"></item>
+</menu>

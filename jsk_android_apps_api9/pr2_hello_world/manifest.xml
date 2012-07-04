@@ -1,0 +1,14 @@
+<package>
+  <description brief="pr2_hello_world">
+
+     pr2_hello_world
+
+  </description>
+  <author>Manabu Saito</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/pr2_hello_world</url>
+
+</package>
+
+

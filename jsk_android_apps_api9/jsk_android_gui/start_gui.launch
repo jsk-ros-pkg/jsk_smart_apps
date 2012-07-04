@@ -1,0 +1,13 @@
+<launch>
+  <!-- <param name="pyramidlevels" type="int" value="2" /> -->
+  <!-- <node ns="prosilica" pkg="image_proc" type="image_proc" respawn="true"  -->
+  <!-- 	name="prosilica_image_proc" /> -->
+  <!-- <node name="tablet_receiver" pkg="jsk_android_gui" -->
+  <!--       type="tablet_receiver.l" output="screen" respawn="true" -->
+  <!-- 	args="(execute-main)" > -->
+  <!--   <param name="~ray_srv" value="/pointcloud_screenpoint_nodelet/screen_to_point"/> -->
+  <!-- </node> -->
+  <!--   <remap from="image" to="prosilica/image_rect_color" /> -->
+  <!--   <remap from="camera_info" to="prosilica/camera_info" /> -->
+  <!-- </node> -->
+</launch>

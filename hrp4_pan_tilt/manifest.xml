@@ -1,0 +1,16 @@
+<package>
+  <description brief="hrp4_pan_tilt">
+
+     hrp4_pan_tilt
+
+  </description>
+  <author>Manabu Saito</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/hrp4_pan_tilt</url>
+
+  <depend package="hrpsys" />
+
+</package>
+
+
