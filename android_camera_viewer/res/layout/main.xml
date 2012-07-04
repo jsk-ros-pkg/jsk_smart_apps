@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
+  <org.ros.android.view.RosImageView
+    android:id="@+id/image"
+    android:layout_width="360dip"
+    android:layout_height="270dip"
+   android:src="@drawable/icon"
+   >
+  </org.ros.android.view.RosImageView>
+
+    <org.ros.android.view.camera.RosCameraPreviewView
+        android:id="@+id/ros_camera_preview_view"
+        android:layout_width="160dip"
+        android:layout_height="120dip" />
+
+</LinearLayout>

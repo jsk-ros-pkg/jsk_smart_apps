@@ -14,4 +14,5 @@
  * the License.
  */
 
-include 'android_gingerbread_mr1_tmp', 'my_android_package','android_camera_viewer'
+debug.dependsOn project(':android_gingerbread_mr1_tmp').tasks.debug
+
