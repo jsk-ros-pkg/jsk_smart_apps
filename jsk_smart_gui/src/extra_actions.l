@@ -1,0 +1,176 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; extra actions: push pick open pick
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun push-cb (hand c);;maybe should check free
+  (show-markers (list (send c :worldpos)))
+  ;;  (move-arm hand (send (send c :copy-worldcoords) :translate #f(-200 0 0)) :sec 3000)
+  (move-arm hand (send (send c :copy-worldcoords) :translate #f(-100 0 0)) :rotation-axis t :rthre (deg2rad 55) :sec 3000)
+  ;;  (move-arm hand (send (send c :copy-worldcoords) :translate #f(10 0 0)) :sec 1000)
+  (move-arm hand (send (send c :copy-worldcoords) :translate #f(10 0 0)) :rotation-axis t :rthre (deg2rad 35) :sec 1000)
+  )
+
+(defun pick-cb (hand c)
+  (ros::spin-once)
+  (let* ((av (send *ri* :state :potentio-vector))
+	 (tuckarm (check-tuckarm-pose))
+	 (isfreearm (eq hand tuckarm)) (di pi/2) ;;(di pi/2) ;; 0 for tate rimokon
+	 tmp issuccess ravs rtms)
+    (show-markers (list (send c :worldpos)))
+    (setq tmp (copy-object (send *pr2* :angle-vector)))
+    (unless isfreearm
+      (pr2-reset-pose)
+      (setq tmp (copy-object (send *pr2* :angle-vector))))
+    ;;    (setq issuccess (send *ri* :move-end-coords-plan (send (send (send c :copy-worldcoords) :translate #f(-100 0 0) :local) :rotate 0 :x) :move-target hand))
+    (setq issuccess (send *ri* :move-end-coords-plan 
+			  (send (make-coords :pos (send (send c :copy-worldcoords) :worldpos) :rpy (float-vector di pi/2 0)) :translate #f(0 0 200) :world)
+			  :move-target hand))
+    (send *ri* :wait-interpolation)
+    (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+    (print 'finished-openrave)
+    (cond (issuccess
+	   (print 'solved)
+	   (send *ri* :move-gripper hand 0.09 :effort 30 :wait t)
+	   (send *ri* :wait-interpolation)
+	   (move-arm hand (send (make-coords :pos (send (send c :copy-worldcoords) :worldpos) :rpy (float-vector di pi/2 0)) :translate #f(0 0 -30) :world) :rotation-axis t :rthre (deg2rad 15) :sec 1000)
+	   (send *ri* :move-gripper hand 0.005 :effort 30 :wait t)
+	   (send *ri* :wait-interpolation)
+	   (move-arm hand (send (make-coords :pos (send (send c :copy-worldcoords) :worldpos) :rpy (float-vector di pi/2 0)) :translate #f(0 0 100) :world) :rotation-axis t :rthre (deg2rad 15) :sec 1000)
+	   (setq ravs (copy-object (elt issuccess 0)) rtms (copy-object (elt issuccess 1)))
+	   (send *ri* :angle-vector-sequence (append (cdr (reverse ravs))(list tmp)) (reverse rtms))
+	   (send *ri* :wait-interpolation)
+	   )
+	  (t
+	   (print 'unsolved)
+	   ;;(send *pr2* :torso :waist-z :joint-angle 300)
+	   (send *pr2* :reset-manip-pose)
+	   (send *ri* :angle-vector (send *pr2* :angle-vector))
+	   (send *ri* :wait-interpolation)
+
+	   (move-arm hand (send (make-coords :pos #f(560 0 1220) :rpy (float-vector di pi/2 0)) :translate #f(0 0 0) :world) :rotation-axis t :rthre (deg2rad 35) :sec 5000 :revert-if-fail nil)
+
+	   (send *ri* :move-gripper hand 0.09 :effort 30 :wait t)
+	   (send *ri* :wait-interpolation)
+	   (move-arm hand (send (make-coords :pos (send (send c :copy-worldcoords) :worldpos) :rpy (float-vector di pi/2 0)) :translate #f(0 0 20) :world) :rotation-axis t :rthre (deg2rad 35) :sec 2000)
+	   (move-arm hand (send (make-coords :pos (send (send c :copy-worldcoords) :worldpos) :rpy (float-vector di pi/2 0)) :translate #f(0 0 -50) :world) :rotation-axis t :rthre (deg2rad 15) :sec 1000)
+	   (send *ri* :move-gripper hand 0.005 :effort 30 :wait t)
+	   (send *ri* :wait-interpolation)
+	   (move-arm hand (send (make-coords :pos (send (send c :copy-worldcoords) :worldpos) :rpy (float-vector di pi/2 0)) :translate #f(0 0 100) :world) :rotation-axis t :rthre (deg2rad 15) :sec 1000)
+	   (pr2-tuckarm-pose hand)
+
+	   (send *pr2* :torso :waist-z :joint-angle 100)
+	   (send *ri* :angle-vector (send *pr2* :angle-vector))
+	   (send *ri* :wait-interpolation)
+	   ))
+    (unix::sleep 2)
+    (pr2-tuckarm-pose hand)
+    ))
+
+;; (defun give-cb (hand)
+;;   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+;;   (send *pr2* :head :neck-p :joint-angle 20)
+;;   (send *pr2* :head :neck-y :joint-angle 0)
+;;   (send *ri* :angle-vector (send *pr2* :angle-vector))
+
+;;   (move-arm hand (make-coords :pos #f(800 0 800) :rpy (float-vector 0 0 pi/2)))
+;;   (send *ri* :move-gripper hand 0.09 :effort 30 :wait t)
+;;   (send *ri* :wait-interpolation)
+;;   (pr2-tuckarm-pose hand)
+;;   )
+
+(setq *circle-div* 40)
+(defun OpenDoorInputExecute (arm touches &key (grab t))
+  (if (or (null (elt *door* 0)) (null (elt *door* 1))
+	  (return-from OpenDoorInputExecute nil)))
+  (let* ((a (elt *door* 0))(b (elt *door* 1))
+	 (c (screenpoint-srvcall (send (elt touches 2) :x) (send (elt touches 2) :y)))
+	 (di 0));;Todo
+    (setf (elt *door* 2) (send c :pos))
+    (if (null c) (return-from OpenDoorInputExecute nil))
+    (ros::ros-info "OpenDoorInputExecute: Actual point = ~A" c)
+    (setq *ret* (generate-circle-path (send c :pos) a b (* *default-deg* 2) :div *circle-div*))
+    (ros::ros-info "OpenDoorInputExecute: Actual point end")
+    (setq *range* (make-list (length *ret*)));;
+    (dotimes (i (length *ret*)) (setf (elt *range* i) i));;
+    (setq *visualize* t)
+    (show-markers (mapcar #'(lambda(x)(copy-object (send x :worldpos))) *ret*))
+    ;;From now, We assume that PR2 head will not move until this function ends
+    (mapcar #'(lambda(x y) (send *tfb* :send-transform x "base_footprint" (format nil "/ret~A" y)) (format nil "/ret~A" y)) *ret* *range*)
+    (mapcar #'(lambda(x y)
+    		(setq tpos (send x :worldpos))
+    		(setq tbcolor (+ (* (/ y (* (length *range*) 1.0)) 0.5) 0.5))
+    		(setq tacolor (* (/ y (* (length *range*) 1.0)) 1.0))
+		(apply #'visualize-point
+		       (flatten (point2pixel :px (aref tpos 0) :py (aref tpos 1) :pz (aref tpos 2)) (list :b tbcolor :a tacolor :i y :lifetime 0))))
+    	    *ret* *range*)
+    (setq *ret2d* (mapcar #'(lambda(x) (point2pixel :px (aref (send x :worldpos) 0) :py (aref (send x :worldpos) 1) :pz (aref (send x :worldpos) 2))) *ret*))
+
+    ;;TODO grab shuold be separated
+    (when grab
+      (send *ri* :move-end-coords-plan (send (send (send (elt *ret* 0) :copy-worldcoords) :translate #f(-250 0 0) :local) :rotate di :x) :move-arm arm)
+      (send *ri* :wait-interpolation)
+      (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+      (print 'finished-openrave)
+      (cond
+       ((and (move-arm arm (send (send (send (elt *ret* 0) :copy-worldcoords) :translate #f(-200 0 0) :local) :rotate di :x) :rotation-axis :y)
+	     (move-arm arm (send (send (send (elt *ret* 0) :copy-worldcoords) :translate #f(-200 0 0) :local) :rotate di :x) :rotation-axis t))
+	(setq *current-arm* arm))
+       (t
+	(ros::ros-warn "Could not solve ik, return from OpenDoorInputExecute")
+	(return-from OpenDoorInputExecute nil)))
+      (open-gripper *current-arm*)
+      (move-arm *current-arm* (send (send (send (elt *ret* 0) :copy-worldcoords) :translate #f(30 0 0) :local) :rotate di :x) :rotation-axis t)
+      (grasp-gripper *current-arm*)
+      )
+    ))
+
+(defun OpenDoorExecute (hand chosen-ret)
+  (let ((a (elt *door* 0))(b (elt *door* 1))(c (elt *door* 2))
+	(di 0) (ra :x) ret avs tms uavs utms deg current-angle)
+    (if (< chosen-ret (/ *circle-div* 2))
+	(progn
+	  (setq deg (* (/ *chosen-ret* (* (length *range*) 1.0)) (* *default-deg*) 2))
+	  (setq ret (generate-circle-path c a b deg)))
+      (progn
+	(setq deg (* (/ (- *circle-div* *chosen-ret*) (* (length *range*) 1.0)) (* *default-deg*) 2))
+	(setq ret (generate-circle-path c b a deg))))
+    (ros::ros-warn "Evaluated degree: ~A [deg]" (rad2deg deg))
+    (show-markers (mapcar #'(lambda(x) (copy-object (send x :worldpos))) ret))
+    (stop-visualize-point)
+
+    ;; (send *ri* :move-end-coords-plan (send (send (send (elt ret 0) :copy-worldcoords) :translate #f(-100 0 0) :local) :rotate di :x) :move-target hand)
+    ;; (send *ri* :wait-interpolation)
+    ;; (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+    ;; (print 'finished-openrave)
+
+    ;; (cond
+    ;;  ((and (move-arm hand (send (send (send (elt ret 0) :copy-worldcoords) :translate #f(-80 0 0) :local) :rotate di :x) :rotation-axis :y)
+    ;;   (move-arm hand (send (send (send (elt ret 0) :copy-worldcoords) :translate #f(-80 0 0) :local) :rotate di :x) :rotation-axis t))
+    ;;   (setq *current-arm* hand))
+    ;;  (t
+    ;;   (ros::ros-warn "Could not solve ik, return from OpenDoorExecute")
+    ;;   (return-from OpenDoorExecute nil)))
+    ;; (open-gripper *current-arm*)
+    ;; (move-arm *current-arm* (send (send (send (elt ret 0) :copy-worldcoords) :translate #f(30 0 0) :local) :rotate di :x) :rotation-axis t)
+    ;; (grasp-gripper *current-arm*)
+    ;;    (unix::sleep 1)
+    (dolist (r (cdr ret))
+      (setq rr (send r :copy-worldcoords))
+      (when (send *pr2* :inverse-kinematics (send (send (send rr :copy-worldcoords) :translate #f(0 0 0) :local) :rotate di :x) :move-arm *current-arm* :rotation-axis t :debug-view nil) ;; :thre 20);;:rthre (deg2rad 30) 
+	(if (boundp '*current-angle6*)
+	    (progn
+	      (setq current-angle (send *pr2* *current-arm* :angle-vector))
+	      (setf (aref current-angle 6) (+ (aref current-angle 6) *current-num6*))
+	      (send *pr2* *current-arm* :angle-vector current-angle)))
+	(push (send *pr2* :angle-vector) avs)(push 400 tms))
+      ;; (when (send *pr2* :inverse-kinematics (send (send (send rr :copy-worldcoords) :translate #f(30 0 -30) :world) :rotate di :x) :move-arm *current-arm* :rotation-axis :y :debug-view nil)
+      ;; 	(push (send *pr2* :angle-vector) uavs)(push 400 utms))
+      )
+    (send *ri* :angle-vector-sequence (reverse avs) tms)
+    (setq *close* (copy-object avs));;
+    (send *ri* :wait-interpolation)
+    ;; (open-gripper *current-arm*)
+    ;; (pr2-tuckarm-pose hand)
+    (setq *door* (make-list 3))
+    (setq *visualize* nil *chosen-ret* nil)
+    ))

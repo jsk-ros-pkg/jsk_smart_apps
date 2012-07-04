@@ -1,0 +1,14 @@
+<package>
+  <description brief="jsk_smart_gui">
+
+     jsk_smart_gui for tablets
+
+  </description>
+  <author>chen</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/jsk_smart_gui</url>
+
+</package>
+
+
