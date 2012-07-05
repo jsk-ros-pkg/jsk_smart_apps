@@ -87,8 +87,24 @@
 <div class="highlight-bash"><div class="highlight"><pre>roslaunch android_camera_viewer usb_cam.launch
 </pre></div>
 </div>
-<img alt="_images/image1.png" src="_images/image1.png" />
-<img alt="_images/image2.jpeg" src="_images/image2.jpeg" />
+<img alt="_images/image1.png" src="_images/image1.png" style="width: 200px;" />
+<p>This application communicates the camera image on the PC with the camera image on the android.</p>
+<p>(PC)</p>
+<ol class="arabic simple">
+<li>start up roscore</li>
+<li>launch usb_cam.launch</li>
+</ol>
+<p>(android)</p>
+<ol class="arabic simple" start="3">
+<li>put ROS_MASTER_URI into the text box</li>
+<li>push OK button</li>
+</ol>
+<img alt="_images/image3.png" src="_images/image3.png" style="width: 400px;" />
+<p>(android)</p>
+<ol class="arabic simple" start="5">
+<li>tap the screen to change in/out camera</li>
+</ol>
+<p>please download from <a class="reference external" href="http://play.google.com/store/apps/details?id=org.ros.android.android_camera_viewer&amp;feature=search_result#?t=W251bGwsMSwxLDEsIm9yZy5yb3MuYW5kcm9pZC5hbmRyb2lkX2NhbWVyYV92aWV3ZXIiXQ..">this URL</a></p>
 <div class="section" id="contents">
 <h3>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;launch&gt;</span>
@@ -130,7 +146,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011, Damon Kohler (damonkohler@google.com).
-      Last updated on 23:00:21 Jul 04, 2012.
+      Last updated on 13:38:59 Jul 05, 2012.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>

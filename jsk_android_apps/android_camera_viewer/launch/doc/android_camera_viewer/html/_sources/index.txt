@@ -20,8 +20,28 @@ usb_cam.launch
 
 
 .. image:: launch/images/image1.png
+  :width: 200
+This application communicates the camera image on the PC with the camera image on the android.
 
-.. image:: launch/images/image2.jpeg
+(PC)
+
+1. start up roscore
+2. launch usb_cam.launch
+
+(android)
+
+3. put ROS_MASTER_URI into the text box
+4. push OK button
+
+.. image:: launch/images/image3.png
+  :width: 400
+
+(android)
+
+5. tap the screen to change in/out camera
+
+please download from `this URL <http://play.google.com/store/apps/details?id=org.ros.android.android_camera_viewer&feature=search_result#?t=W251bGwsMSwxLDEsIm9yZy5yb3MuYW5kcm9pZC5hbmRyb2lkX2NhbWVyYV92aWV3ZXIiXQ..>`_
+
    
 
 Contents
