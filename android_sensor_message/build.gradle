@@ -14,4 +14,9 @@
  * the License.
  */
 
-include 'android_gingerbread_mr1_tmp', 'my_android_package','android_camera_viewer', 'android_sensor_message'
+dependencies {
+  compile 'ros.rosjava_core:rosjava_tutorial_pubsub:0.0.0-SNAPSHOT'
+}
+
+debug.dependsOn project(':android_gingerbread_mr1_tmp').tasks.debug
+
