@@ -1,0 +1,15 @@
+<package>
+
+
+  <description brief="android_sensor_message">
+     android_sensor_message
+  </description>
+  <author>Damon Kohler</author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/android_tutorial_pubsub</url>
+
+  <depend package="jsk_gui_msgs"/>
+
+</package>
+
