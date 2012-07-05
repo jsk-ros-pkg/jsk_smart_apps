@@ -49,7 +49,7 @@ public class MainActivity extends RosActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
+    //    requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     setContentView(R.layout.main);
     rosCameraPreviewView = (RosCameraPreviewView) findViewById(R.id.ros_camera_preview_view);
