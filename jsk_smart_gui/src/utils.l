@@ -15,7 +15,7 @@
   (not (ros::wait-for-service srv 2)))
 
 (defun point2pixel (&key (px 1000.0) (py 0.0) (pz 1000.0))
-  (let ((req (instance jsk_ipad_gui::point2screenpointRequest :init))
+  (let ((req (instance jsk_smart_gui::point2screenpointRequest :init))
   	(po (instance geometry_msgs::PointStamped :init)) res)
     (send po :header :seq 0)
     (send po :header :stamp (ros::time 0))

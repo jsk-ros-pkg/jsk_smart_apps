@@ -1,7 +1,7 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "jsk_smart_gui")
 ;;(ros::load-ros-manifest "jsk_android_gui")
-(ros::load-ros-manifest "jsk_ipad_gui")
+;;(ros::load-ros-manifest "jsk_ipad_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
 
 (ros::roseus "tablet-robot-controller")
