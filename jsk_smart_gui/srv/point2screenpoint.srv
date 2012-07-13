@@ -1,0 +1,6 @@
+# position in actual world
+geometry_msgs/PointStamped point
+---
+# screen point
+float32 x
+float32 y
