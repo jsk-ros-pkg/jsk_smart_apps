@@ -1,7 +1,7 @@
 <launch>
-  <node name="tablet_receiver_for_ipad" pkg="jsk_smart_gui"
-        type="tablet_receiver.l" output="screen" respawn="true"
-	args="(execute-main)" >
+  <node name="tablet_receiver_for_ipad" pkg="roseus"
+        type="roseus" output="screen" respawn="true"
+	args="$(find jsk_smart_gui)/src/tablet_receiver.l (execute-main)" >
     <param name="~ray_srv" value="/pointcloud_screenpoint_nodelet/screen_to_point"/>
   </node>
 </launch>
