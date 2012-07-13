@@ -9,6 +9,10 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/jsk_smart_gui</url>
 
+  <depend package="roseus"/>
+  <depend package="jsk_gui_msgs"/>
+  <depend package="jsk_pcl_ros"/>
+  <depend package="sound_play"/>
 </package>
 
 
