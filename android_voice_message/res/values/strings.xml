@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AndroidVoiceMessage</string>
+    <string name="app_about">About Android Voice Message</string>
+	<string name="str_exit">Exit</string>
+	<string name="app_about_message">This App uses Rosjava to publish your Android\'s sensors as ROS\'s sensor_msgs topics.</string>
+	<string name="str_ok">OK</string>
+</resources>
