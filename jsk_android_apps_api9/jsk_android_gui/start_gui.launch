@@ -1,12 +1,4 @@
 <launch>
-  <node name="kinect_image_throttle" pkg="topic_tools" type="throttle"
-        args="messages /camera/rgb/image_rect_color/compressed 10.0" />
-  <node name="tablet_receiver_for_ipad" pkg="roseus"
-        type="roseus" output="screen" respawn="true"
-	args="$(find jsk_smart_gui)/src/tablet_receiver.l (execute-main)" >
-    <param name="~ray_srv" value="/pointcloud_screenpoint_nodelet/screen_to_point"/>
-  </node>
-
   <sphinxdoc><![CDATA[
   jsk_android_gui: tap, pinch and sweep and use multi fingers to manipulate the Robots.
   Avaiable on Google Play.

@@ -46,7 +46,7 @@ public class JskAndroidGui extends RosAppActivity {
 	if (getIntent().hasExtra("camera_topic")) {
 	    cameraTopic = getIntent().getStringExtra("camera_topic");
 	} else {
-	    cameraTopic = "image_rect_color/compressed_throttle";
+	    cameraTopic = "/camera/rgb/image_rect_color/compressed_throttle";
 	}
 	joystickView = (JoystickView) findViewById(R.id.joystick);
 	joystickView.setBaseControlTopic("android/cmd_vel");
