@@ -131,6 +131,10 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.SendCloseGripperMsg();
 	    Log.i("JskAndroidGui:ItemSeleted", "Send CloseGripperMsg");
 	    return true;
+	case R.id.changetouchmode:
+	    cameraView.ChangeTouchMode();
+	    Log.i("JskAndroidGui:ItemSeleted", "Change TouchMode");
+	    return true;
 	case R.id.resetall:
 	    cameraView.SetResetAll();
 	    isDrawLine = false;

@@ -35,7 +35,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     private boolean isDrawLine = false, isMovingFingerInfo = false;
     private int count = 0, debug_count = 0, fingerCount = 0,
 	fingerCountOver = 0, SwipeCounter = 0, SwipeDetectedType,
-	RobotArmId = Action.LARMID;
+	RobotArmId = Action.LARMID, TouchMode = 0;
     private float MaxHeight, MaxWidth;
     private ArrayList<Integer> startXList = new ArrayList(), startYList = new ArrayList(), curXList = new ArrayList(), curYList = new ArrayList(), fingerList = new ArrayList();
 
@@ -83,6 +83,14 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void unSetDrawLine () {isDrawLine = false;}
     public void SetMovingFingerInfo () {isMovingFingerInfo = true;}
     public void unSetMovingFingerInfo () {isMovingFingerInfo = false;}
+    public void ChangeTouchMode () {
+	if (TouchMode == 0) {
+	    TouchMode++;
+	} else if (TouchMode == 1) {
+	    TouchMode = 0;
+	}
+    }
+
     public void SetResetAll () {ResetValue(); isDrawLine = false; isMovingFingerInfo = false; SendCommandMsg("ResetAll", 0, "SengMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);}
 
     public void SendCommandMsg(String task_name, int arm_id, String state, float state_value, String direction, float direction_value, ArrayList<Integer> fingerList, ArrayList<Integer> xList, ArrayList<Integer> yList, int touch_x, int touch_y) {
@@ -278,8 +286,13 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
 	    if ( fingerCount == 1 && curXList.size() == 0 ) {
 		fingerList.add(0);
-		SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
-			       fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		if (TouchMode == 0) {
+		    SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
+				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		} else if (TouchMode == 1) {
+		    SendCommandMsg("Show3DScreenPoint", 0, "TOUCH", 0, null, 0,
+				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		}
 		SendDebugMsg("TOUCH", 0, startXList.get(0), startYList.get(0));
 	    } else if ( fingerCount == 1 && curXList.size() > 0 ) {
 		final float swipeLength =
