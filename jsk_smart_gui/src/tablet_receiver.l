@@ -158,7 +158,8 @@
 
   (ros::advertise "robotsound_jp" sound_play::SoundRequest 5)
   (ros::advertise "ray_coords" geometry_msgs::PoseStamped 1)
-  (ros::advertise "ipad_marker_array" visualization_msgs::MarkerArray 10)
+  (ros::advertise "tablet_marker_array" visualization_msgs::MarkerArray 10)
+  (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
   (ros::advertise "image_marker" image_view2::ImageMarker2 10)
   (subscribe-tablet)
   ;;(start-prosilica)

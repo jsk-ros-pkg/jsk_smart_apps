@@ -34,6 +34,9 @@
       ('MoveCameraCenter
        (ros::ros-info "MoveCameraCenter called")
        (MoveCameraCenterExecute (send msg :action :touch_x) (send msg :action :touch_y)))
+      ('Show3DScreenPoint
+       (ros::ros-info "Show3DScreenPoint called")
+       (Show3DScreenPointExecute (send msg :action :touch_x) (send msg :action :touch_y)))
       ('ZoomCamera
        (ros::ros-info "ZoomCamera called")
        (ZoomCameraExecute (send msg :action :touch_x) (send msg :action :touch_y) (send msg :action :state_value)))
@@ -183,8 +186,18 @@
   (let (c)
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (setq c (make-camera-from-ros-camera-info-aux 640 480 #f(892.302 0.0 422.326 0.0 0.0 892.302 268.051 0.0 0.0 0.0 1.0 0.0) (make-cascoords :pos (send *pr2* :wide_stereo-left :worldpos))))
-    (send *pr2* :head :look-at (send (send (send *pr2* :wide_stereo-left :copy-worldcoords) :translate (scale 30000 (send c :ray x y))) :worldpos)) ;;TODO
+    (send *pr2* :head :look-at (send (send (send *pr2* :wide_stereo-left :copy-worldcoords) :translate (scale 30000 (send c :ray x y))) :worldpos))
     (send *ri* :angle-vector (send *pr2* :angle-vector) 500)))
+
+(defun Show3DScreenPointExecute (x y)
+  (let ((c (screenpoint-srvcall x y)))
+    (if (null c) (return-from Show3DScreenPointExecute nil))
+    (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+    (visualize-point x y :sca 10 :r 1.0 :lifetime 10)
+    (show-marker (send (send c :copy-worldcoords) :pos) :lifetime 10)
+    (show-line (send (send c :copy-worldcoords) :pos) (send (send *pr2* :camera-rgb :copy-worldcoords) :pos) :lifetime 10)
+    (ros::ros-info "Show3DScreenPointExecute: showing for 5 seconds")
+    ))
 
 (defun MoveNeckExecute (direction value)
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))

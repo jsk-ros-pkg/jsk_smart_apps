@@ -212,10 +212,20 @@
     (send li-msg :ns ns)
     (send li-msg :lifetime (ros::time lf))
     (send msg :markers (list li-msg))
-    (ros::publish "ipad_marker_array" msg)
+    (ros::publish "tablet_marker_array" msg)
     ))
 
 ;;frame_id is based on "base_footprint"
+(defun show-marker
+  (p &key ((:lifetime lf) 60) (col #f(1 0 1)) (ns "3d_point"))
+  (let* ((header (instance std_msgs::header :init
+			   :stamp (ros::time-now) :frame_id "base_footprint"))
+	 (msg (sphere->marker-msg (make-sphere 20 :pos p) header :color col :alpha 1.0)))
+    (send msg :lifetime (ros::time lf))
+    (send msg :ns ns)
+    (ros::publish "tablet_marker" msg)
+    ))
+
 (defun show-markers 
   (pl &key ((:lifetime lf) 60) (col #f(0 0 1)) (ns "3d_points"))
   (unless (listp pl)
@@ -230,11 +240,11 @@
 		(send x :ns ns)) mks)
     (dotimes (x (length mks)) (send (elt mks x) :id x))
     (send msg :markers mks)
-    (ros::publish "ipad_marker_array" msg)
+    (ros::publish "tablet_marker_array" msg)
     ))
 
 (defun grasp-gripper (arm);;:gain 0.01  
-;;  (send *ri* :move-gripper arm range :effort (* 2000 g) :wait t))
+  ;;  (send *ri* :move-gripper arm range :effort (* 2000 g) :wait t))
   (send *ri* :start-grasp arm))
 (defun close-gripper (arm)
   (send *ri* :start-grasp arm))
@@ -269,9 +279,9 @@
     (setq current-angle (send *pr2* arm :angle-vector))
     (ros::ros-info "RotateGripper: current-angle = ~A" (elt current-angle 6))
     (setf (aref current-angle 6) (+ (aref current-angle 6) num))
-  (send *pr2* arm :angle-vector current-angle)
-  (send *ri* :angle-vector (send *pr2* :angle-vector))
-  (send *ri* :wait-interpolation)
-  (setq *current-angle6* (aref current-angle 6)) ;;
-  (setq *current-num6* num) ;;
-  ))
+    (send *pr2* arm :angle-vector current-angle)
+    (send *ri* :angle-vector (send *pr2* :angle-vector))
+    (send *ri* :wait-interpolation)
+    (setq *current-angle6* (aref current-angle 6)) ;;
+    (setq *current-num6* num) ;;
+    ))
