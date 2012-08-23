@@ -254,6 +254,3 @@
       (ros::service-call "prosilica_driver/set_parameters" req)
       (unix::usleep (* 500 1000))
       )))
-
-
-
