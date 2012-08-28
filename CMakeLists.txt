@@ -13,5 +13,9 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 # properly.  CMake 2.4 seems to have unpredictable scoping rules for such
 # variables.
 #list(APPEND CPACK_SOURCE_IGNORE_FILES /core/experimental)
-
 rosbuild_make_distribution(0.1.0)
+rosbuild_find_ros_stack(android_core)
+set(android_gingerbread_mr1_path "${android_core_STACK_PATH}/android_gingerbread_mr1")
+EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+        ${android_gingerbread_mr1_path} "${PROJECT_SOURCE_DIR}/android_gingerbread_mr1"
+       )

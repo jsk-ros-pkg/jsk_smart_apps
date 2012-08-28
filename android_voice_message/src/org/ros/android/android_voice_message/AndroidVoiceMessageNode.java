@@ -46,7 +46,7 @@ public class AndroidVoiceMessageNode implements NodeMain,SensorEventListener {
      
 	@Override
 	  public GraphName getDefaultNodeName() {
-	    return new GraphName("jsk_gui_msgs/VoiceMessage");
+	    return GraphName.of("jsk_gui_msgs/VoiceMessage");
 	  }
 
 public AndroidVoiceMessageNode(SensorManager manager,SpeechRecognizer sr,String package_name){
