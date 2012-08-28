@@ -47,10 +47,10 @@ public class AndroidSensorMessageNode implements NodeMain {
     
  
 	
-	@Override
+    @Override
 	  public GraphName getDefaultNodeName() {
-	    return new GraphName("sensor_msgs/Imu");
-	  }
+	return GraphName.of("sensor_msgs/Imu");
+		    }
 
 public AndroidSensorMessageNode(SensorManager manager,List<Sensor> sensors,int[] usedflag){
 	mSensorManager = manager;
