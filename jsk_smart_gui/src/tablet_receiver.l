@@ -1,14 +1,17 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "jsk_smart_gui")
-;;(ros::load-ros-manifest "jsk_android_gui")
-;;(ros::load-ros-manifest "jsk_ipad_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
 
+;;(ros::load-ros-manifest "jsk_android_gui")
+;;(ros::load-ros-manifest "jsk_ipad_gui")
+
 (ros::roseus "tablet-robot-controller")
+
 (load "package://pr2eus_openrave/pr2eus-openrave.l")
 (load "package://jsk_smart_gui/src/utils.l")
 (load "package://jsk_smart_gui/src/tablet_callback.l")
 (load "package://jsk_2011_07_pr2_semantic/euslisp/actions.l")
+
 (defconstant *default-deg* pi)
 
 ;; load eng*-scene.l , make *scene* and return spots
@@ -153,8 +156,8 @@
   ;;load all current spot and convert to javascript
   ;;  (make-spots-js (get-current-spot))
 
-  (setq *tfl* (instance ros::transform-listener :init))
-  (setq *tfb* (instance ros::transform-broadcaster :init))
+  (defvar *tfl* (instance ros::transform-listener :init))
+  (defvar *tfb* (instance ros::transform-broadcaster :init))
 
   (ros::advertise "robotsound_jp" sound_play::SoundRequest 5)
   (ros::advertise "ray_coords" geometry_msgs::PoseStamped 1)
@@ -163,7 +166,6 @@
   (ros::advertise "image_marker" image_view2::ImageMarker2 10)
   (subscribe-tablet)
   ;;(start-prosilica)
-
   (setq *time-count* (ros::time-now))
   (ros::rate 10)
   (ros::ros-info "begin tablet controller")
@@ -173,8 +175,9 @@
 
   (while (ros::ok)
     (ros::spin-once)
-    (ros::sleep)
-    ))
+    (ros::sleep))
+  (ros::exit))
+
 
 ;;(execute-main)
 

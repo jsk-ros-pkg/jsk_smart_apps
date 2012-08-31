@@ -6,14 +6,22 @@
 
   (ros::subscribe "/Tablet/Task"
 		  jsk_gui_msgs::Tablet #'tablet-task-cb)
-  ;; for getting spot
+
   (ros::subscribe "/Tablet/GetSpot"
 		  std_msgs::Empty #'tablet-getspot-cb)
 
-  ;; TODO !!!!!!! speak translate !!!!!!!
+  (ros::subscribe "/Tablet/MoveToSpot"
+		  roseus::StringStamped #'tablet-movetospot-cb)
+
   ;; (ros::subscribe "/Tablet/CommandDebug"
   ;; 		  jsk_gui_msgs::Tablet #'tablet-command-debug-cb)
   )
+
+(defun tablet-movetospot-cb(msg)
+  (if (is-old-msg msg) (return-from tablet-movetospot-cb nil))
+  (ros::ros-info "tablet-movetospot-cb called")
+  (let ((spot (send msg :data)))
+    (move-to-spot spot)))
 
 (defun tablet-getspot-cb(msg)
   (ros::ros-info "tablet-getspot-cb called")
@@ -37,6 +45,9 @@
       ('Show3DScreenPoint
        (ros::ros-info "Show3DScreenPoint called")
        (Show3DScreenPointExecute (send msg :action :touch_x) (send msg :action :touch_y)))
+      ('SwitchSensor
+       (ros::ros-info "SwitchSensor called")
+       (SwitchSensorExecute (send msg :action :state)))
       ('ZoomCamera
        (ros::ros-info "ZoomCamera called")
        (ZoomCameraExecute (send msg :action :touch_x) (send msg :action :touch_y) (send msg :action :state_value)))
@@ -52,13 +63,6 @@
        (send *ri* :angle-vector (send *pr2* :angle-vector))
        ;; (send *ri* :wait-interpolation)
        )
-      ('StopMotion
-       (ros::ros-info "StopMotion called")
-       (ros::spin-once)
-       (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
-       (unix:usleep 100)
-       (send *ri* :angle-vector (send *pr2* :angle-vector))
-       (send *ri* :wait-interpolation))
       ('StopMotion
        (ros::ros-info "StopMotion called")
        (ros::spin-once)
@@ -92,7 +96,7 @@
       ;;  (hand-over hand))
       )))
 
-;; this callback uses screenpoint-srvcall or point2pixel
+;; task concering open or pull
 (defun tablet-task-cb (msg)
   (if (or (is-old-msg msg) (check-ray-srv)) (return-from tablet-task-cb nil))
   (let* ((touches (send msg :touches))
@@ -196,8 +200,33 @@
     (visualize-point x y :sca 10 :r 1.0 :lifetime 10)
     (show-marker (send (send c :copy-worldcoords) :pos) :lifetime 10)
     (show-line (send (send c :copy-worldcoords) :pos) (send (send *pr2* :camera-rgb :copy-worldcoords) :pos) :lifetime 10)
-    (ros::ros-info "Show3DScreenPointExecute: showing for 5 seconds")
+    (ros::ros-info "Show3DScreenPointExecute: showing for 10 seconds")
     ))
+
+(ros::load-ros-manifest "jsk_pcl_ros_unreleased");; will change to jsk_pcl_ros
+;;example (setq str "((:image /r_forearm_cam) (:points /camera/rgb/points))")
+(defun SwitchSensorExecute (switch-str)
+  (let* ((switch-lst (read-from-string switch-str))
+	 (image (assoc :image switch-lsg))(points (assoc :points switch-lsg)))
+    (if (or (null image) (null points))
+	(progn (ros::ros-warn "SwitchSensorExecute: nor image or points")
+	       (return-from SwitchSensorExecute nil)))
+    (let ((mux-req1 (instance topic_tools::MuxSelectRequest :init))
+	  (mux-req2 (instance topic_tools::MuxSelectRequest :init))
+	  (switch-req (instance jsk_pcl_ros_unreleased::SwitchTopicRequest :init)))
+      (when (ros::service-exists "camera_info_mux/select");;for image_view2
+	(send mux-req1 :topic (format nil "~A/camera_info" (elt image 1)))
+	(ros::service-call "camera_info_mux/select" mux-req1))
+      (when (ros::service-exists "image_mux/select");;for image_view2
+	(send mux-req1 :topic (format nil "~A/image_rect_color" (elt image 1)))
+	(ros::service-call "image_mux/select" mux-req2))
+      (when (ros::service-exists "/depth_image_creator_nodelet/switch_topic")
+	;;for depth_image_creator
+	(send switch-req :camera_info (format nil "~A/camera_info" (elt image 1)))
+	(send switch-req :points (format nil "~A" (elt points 1)))
+	(ros::service-call "/depth_image_creator_nodelet/switch_topic" req)
+	(ros::ros-warn "switch request always returns fail, but that's ok"))
+      )))
 
 (defun MoveNeckExecute (direction value)
   (send *pr2* :angle-vector (send *ri* :state :potentio-vector))

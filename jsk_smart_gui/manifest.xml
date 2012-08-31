@@ -11,11 +11,11 @@
   <depend package="tf"/>
   <depend package="roseus"/>
   <depend package="sensor_msgs"/>
-  <depend package="jsk_gui_msgs"/>
   <depend package="geometry_msgs"/>
+  <depend package="jsk_gui_msgs"/>
   <depend package="jsk_pcl_ros"/>
   <depend package="sound_play"/>
-
+  <depend package="topic_tools"/>
   <depend package="image_view2"/>
   <depend package="dynamic_reconfigure"/>
   <depend package="image_transport"/>
