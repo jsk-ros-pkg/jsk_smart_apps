@@ -1,0 +1,4 @@
+UserList: [chen , other]
+User:
+    chen: [MainDemo, OpenRefridge, PickBottle,GoToElevator]
+    other: [MainDemo, HandInObject, Greeting]

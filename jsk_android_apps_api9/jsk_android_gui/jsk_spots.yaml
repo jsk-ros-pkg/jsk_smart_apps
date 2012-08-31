@@ -1,0 +1,7 @@
+eng2:
+    2f:
+      spots: [/eng2/2f/elevator_inside_panel, /eng2/2f/elevator_inside_panel-front, /eng2/2f/elevator_call_panel, /eng2/2f/elevator_call_panel-front, /eng2/2f/elevator-outside, /eng2/2f/subway-lunchset, /eng2/2f/subway-register, /eng2/2f/subway-front]
+    7f:
+      spots: [/eng2/7f/elevator_inside_panel, /eng2/7f/elevator_inside_panel-front, /eng2/7f/elevator_call_panel, /eng2/7f/elevator_call_panel-front, /eng2/7f/elevator-outside, /eng2/7f/room73B1-kurotobi, /eng2/7f/room73B1-nakanishi, /eng2/7f/room73B2-sink-front, /eng2/7f/room73B2-trashbox-front, /eng2/7f/room73B2-chair-back, /eng2/7f/room73B2-table-front, /eng2/7f/room73B2-fridge-front, /eng2/7f/room73B2-kitchen-drawer, /eng2/7f/room73B2-coe-shelf, /eng2/7f/room73A1-front, /eng2/7f/room73A2-front, /eng2/7f/room73A3-base, /eng2/7f/room73A3-front, /eng2/7f/room73A3-printer-front, /eng2/7f/room73A4-front, /eng2/7f/mini-kitchen-A-inside, /eng2/7f/combustible-trashbox-front, /eng2/7f/non-combustible-trashbox-front]
+    8f:
+      spots: [/eng2/8f/elevator_inside_panel, /eng2/8f/elevator_inside_panel-front, /eng2/8f/elevator_call_panel, /eng2/8f/elevator_call_panel-front, /eng2/8f/elevator-outside, /eng2/8f/mini-kitchen-A-inside]

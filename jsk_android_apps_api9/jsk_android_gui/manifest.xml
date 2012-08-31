@@ -9,6 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/jsk_android_gui</url>
 
+  <depend package="roseus"/> <!--for StringStamped message-->
   <depend package="appmanandroid"/>
   <depend package="jsk_gui_msgs"/>
   <export>

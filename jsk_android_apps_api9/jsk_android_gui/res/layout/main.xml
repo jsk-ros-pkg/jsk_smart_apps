@@ -43,9 +43,26 @@
 		     android:text="right" />
       </RadioGroup>
       <Spinner android:id="@+id/spinner_spots"
+	       android:singleLine="true"
+	       android:ellipsize="start"
       	       android:layout_width="fill_parent"
       	       android:layout_height="wrap_content" />
+
       <Spinner android:id="@+id/spinner_tasks"
+	       android:singleLine="true"
+	       android:ellipsize="start"
+      	       android:layout_width="fill_parent"
+      	       android:layout_height="wrap_content" />
+      <Spinner android:id="@+id/spinner_image"
+	       android:textSize="12sp"
+	       android:singleLine="true"
+	       android:ellipsize="start"
+      	       android:layout_width="fill_parent"
+      	       android:layout_height="wrap_content" />
+      <Spinner android:id="@+id/spinner_points"
+	       android:textSize="12sp"
+	       android:singleLine="true"
+	       android:ellipsize="start"
       	       android:layout_width="fill_parent"
       	       android:layout_height="wrap_content" />
       <Button

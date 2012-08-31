@@ -9,7 +9,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.MotionEvent;
+import android.widget.Toast;
 import android.widget.ImageView;
+
 
 import org.ros.node.Node;
 import org.ros.node.topic.Subscriber;
@@ -23,6 +25,8 @@ import org.ros.message.geometry_msgs.PointStamped;
 import org.ros.message.jsk_gui_msgs.Tablet;
 import org.ros.message.jsk_gui_msgs.Touch;
 import org.ros.message.jsk_gui_msgs.Action;
+
+import ros.android.activity.RosAppActivity;
 
 import java.util.ArrayList;
 
@@ -90,6 +94,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	    TouchMode = 0;
 	}
     }
+    public void PubSwitchSensor (String str) {SendCommandMsg("SwitchSensor", 0, str, 0, null, 0, fingerList, startXList, startYList, 0, 0);}
 
     public void SetResetAll () {ResetValue(); isDrawLine = false; isMovingFingerInfo = false; SendCommandMsg("ResetAll", 0, "SengMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);}
 
@@ -162,6 +167,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     }
 
     public void MoveNeck(String direction, float direction_value) {
+	//safeToastStatus("neck moving: " + direction + " ");
 	SendCommandMsg("MoveNeck", 0, "SWIPE", 0, direction, direction_value, fingerList, startXList, startYList, 0, 0);
     }
 
