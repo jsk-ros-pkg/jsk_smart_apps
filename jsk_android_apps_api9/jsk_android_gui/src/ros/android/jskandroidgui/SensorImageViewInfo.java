@@ -35,7 +35,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     private boolean isDrawLine = false, isMovingFingerInfo = false;
     private int count = 0, debug_count = 0, fingerCount = 0,
 	fingerCountOver = 0, SwipeCounter = 0, SwipeDetectedType,
-	RobotArmId = Action.LARMID, TouchMode = 0;
+	RobotArmId = Action.LARMID, TouchMode = 1;
     private float MaxHeight, MaxWidth;
     private ArrayList<Integer> startXList = new ArrayList(), startYList = new ArrayList(), curXList = new ArrayList(), curYList = new ArrayList(), fingerList = new ArrayList();
 

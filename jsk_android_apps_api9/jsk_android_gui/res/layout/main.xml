@@ -11,6 +11,7 @@
   <LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent">
+
     <ros.android.jskandroidgui.SensorImageViewInfo android:layout_width="fill_parent"
                                        android:layout_height="fill_parent"
                                        android:layout_weight=".25"
@@ -22,11 +23,37 @@
                   android:layout_height="fill_parent"
                   android:layout_weight=".75">
       <ros.android.views.JoystickView android:layout_width="fill_parent"
-				      android:layout_height="fill_parent"
+				      android:layout_height="wrap_content"
 				      android:adjustViewBounds="true"
-				      android:gravity="bottom"
+				      android:gravity="top"
 				      android:src="@drawable/joystick_white"
 				      android:id="@+id/joystick"/>
+
+      <RadioGroup android:id="@+id/radiogroup"
+		  android:orientation="horizontal"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content">
+        <RadioButton android:id="@+id/radiobutton_L"
+		     android:layout_width="wrap_content"
+		     android:layout_height="wrap_content"
+		     android:text="left" />
+        <RadioButton android:id="@+id/radiobutton_R"
+		     android:layout_width="wrap_content"
+		     android:layout_height="wrap_content"
+		     android:text="right" />
+      </RadioGroup>
+      <Spinner android:id="@+id/spinner_spots"
+      	       android:layout_width="fill_parent"
+      	       android:layout_height="wrap_content" />
+      <Spinner android:id="@+id/spinner_tasks"
+      	       android:layout_width="fill_parent"
+      	       android:layout_height="wrap_content" />
+      <Button
+	 android:id="@+id/button_demo"
+	 android:layout_width="fill_parent"
+	 android:layout_height="wrap_content"
+	 android:gravity="bottom"
+	 android:text="@string/button_label_demo"/>
     </LinearLayout>
   </LinearLayout>
 </LinearLayout>

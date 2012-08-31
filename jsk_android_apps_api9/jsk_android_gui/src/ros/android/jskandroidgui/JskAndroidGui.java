@@ -8,6 +8,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.MotionEvent;
 import android.widget.Toast;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.hardware.SensorManager;
 
 import org.ros.node.Node;
@@ -35,13 +39,40 @@ public class JskAndroidGui extends RosAppActivity {
     private SensorImageViewInfo cameraView;
     private JoystickView joystickView;
     private Publisher<Empty> GetSpotPub;
-
+    private RadioGroup radioGroup;
+    private Spinner spots_spinner;
+    private Spinner tasks_spinner;
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 	setDefaultAppName("jsk_gui/jsk_android_gui");
 	setDashboardResource(R.id.top_bar);
 	setMainWindowResource(R.layout.main);
 	super.onCreate(savedInstanceState);
+	radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
+	radioGroup.check(R.id.radiobutton_L);
+	radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+		public void onCheckedChanged(RadioGroup group, int checkedId) {
+		    RadioButton radioButton = (RadioButton) findViewById(checkedId);
+		    if (radioButton.getText().equals("left")){
+			cameraView.SetRobotArm(Action.LARMID);
+			Log.i("JskAndroidGui:ItemSeleted", "Set arm to :larm");
+		    } else {
+			cameraView.SetRobotArm(Action.RARMID);
+			Log.i("JskAndroidGui:ItemSeleted", "Set arm to :rarm");
+		    }
+		}
+	    });
+	spots_spinner = (Spinner)findViewById(R.id.spinner_spots);
+	String[] items_spots = {"spots"};
+	ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this, R.layout.list, items_spots);
+	spots_spinner.setAdapter(adapter_spots);
+	spots_spinner.setPromptId(R.string.SpinnerPrompt_spots);
+
+	tasks_spinner = (Spinner)findViewById(R.id.spinner_tasks);
+	String[] items_tasks = {"tasks"};
+	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list, items_tasks);
+	tasks_spinner.setAdapter(adapter_tasks);
+	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
 
 	if (getIntent().hasExtra("camera_topic")) {
 	    cameraTopic = getIntent().getStringExtra("camera_topic");
@@ -91,22 +122,22 @@ public class JskAndroidGui extends RosAppActivity {
     @Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	switch (item.getItemId()) {
-	case R.id.kill:
-	    android.os.Process.killProcess(android.os.Process.myPid());
-	    return true;
+	// case R.id.kill:
+	//     android.os.Process.killProcess(android.os.Process.myPid());
+	//     return true;
 	case R.id.getspot:
 	    Empty EmptyMsg = new Empty();
 	    GetSpotPub.publish( EmptyMsg );
 	    Log.i("JskAndroidGui:ItemSeleted", "Sending GetSpot messgae");
 	    return true;
-	case R.id.setrarm:
-	    cameraView.SetRobotArm(Action.RARMID);
-	    Log.i("JskAndroidGui:ItemSeleted", "Set arm to :rarm");
-	    return true;
-	case R.id.setlarm:
-	    cameraView.SetRobotArm(Action.LARMID);
-	    Log.i("JskAndroidGui:ItemSeleted", "Set arm to :larm");
-	    return true;
+	// case R.id.setrarm:
+	//     cameraView.SetRobotArm(Action.RARMID);
+	//     Log.i("JskAndroidGui:ItemSeleted", "Set arm to :rarm");
+	//     return true;
+	// case R.id.setlarm:
+	//     cameraView.SetRobotArm(Action.LARMID);
+	//     Log.i("JskAndroidGui:ItemSeleted", "Set arm to :larm");
+	//     return true;
 	case R.id.setdrawline:
 	    if (isDrawLine) {
 		Log.i("JskAndroidGui:ItemSeleted", "unSet DrawLine");
@@ -123,11 +154,11 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.SendOpenDoorMsg();
 	    Log.i("JskAndroidGui:ItemSeleted", "Send OpenDoorMsg");
 	    return true;
-	case R.id.opengripper:
+	case R.id.opengripper: //todo
 	    cameraView.SendOpenGripperMsg();
 	    Log.i("JskAndroidGui:ItemSeleted", "Send OpenGripperMsg");
 	    return true;
-	case R.id.closegripper:
+	case R.id.closegripper: //todo
 	    cameraView.SendCloseGripperMsg();
 	    Log.i("JskAndroidGui:ItemSeleted", "Send CloseGripperMsg");
 	    return true;
