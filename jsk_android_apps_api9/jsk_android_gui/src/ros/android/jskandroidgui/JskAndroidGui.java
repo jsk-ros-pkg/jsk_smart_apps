@@ -97,7 +97,7 @@ public class JskAndroidGui extends RosAppActivity {
 	image_spinner.setAdapter(adapter_image);
 
 	points_spinner = (Spinner)findViewById(R.id.spinner_points);
-	String[] points_list = {"points", "/camera/rgb/points", "tilt_laser_cloud2"};
+	String[] points_list = {"points", "/camera/rgb/points", "/tilt_laser_cloud2"};
 	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
 	points_spinner.setAdapter(adapter_points);
 
@@ -121,10 +121,6 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.post(new Runnable() {
 		    @Override
 			public void run() {
-			// if(isNotParamInit){ // need check
-			//     GetParamAndSetSpinner();
-			//     isNotParamInit = false;
-			// }
 			cameraView.setSelected(true);
 		    }
 		});
