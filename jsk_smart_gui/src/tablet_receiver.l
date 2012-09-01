@@ -151,6 +151,7 @@
 
   ;;Default *ray_srv* is "/pointcloud_screenpoint_nodelet/screen_to_point"
   (setq *ray_srv* (ros::get-param "~ray_srv"))
+  (setq *current-camera* "/camera/rgb")
   (change-inflation-range 0.15)
 
   ;;load all current spot and convert to javascript
