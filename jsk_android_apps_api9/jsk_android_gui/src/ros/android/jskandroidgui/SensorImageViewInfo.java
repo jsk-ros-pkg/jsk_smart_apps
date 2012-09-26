@@ -36,7 +36,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     private final float DefaultHeight = 480F, DefaultWidth = 640F; //
 
     private Bitmap bitmap;
-    private boolean isDrawLine = false, isMovingFingerInfo = false;
+    private boolean isDrawLine = false, isMovingFingerInfo = false, isPushOnce = false, isPickOnce = false;
     private int count = 0, debug_count = 0, fingerCount = 0,
 	fingerCountOver = 0, SwipeCounter = 0, SwipeDetectedType,
 	RobotArmId = Action.LARMID, TouchMode = 1;
@@ -87,12 +87,11 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void unSetDrawLine () {isDrawLine = false;}
     public void SetMovingFingerInfo () {isMovingFingerInfo = true;}
     public void unSetMovingFingerInfo () {isMovingFingerInfo = false;}
+    public void SetPushOnce () {isPushOnce = true;}
+    public void SetPickOnce () {isPickOnce = true;}
     public void ChangeTouchMode () {
-	if (TouchMode == 0) {
-	    TouchMode++;
-	} else if (TouchMode == 1) {
-	    TouchMode = 0;
-	}
+	if (TouchMode == 0) {TouchMode++;}
+	else if (TouchMode == 1) {TouchMode = 0;}
     }
     public void PubSwitchSensor (String str) {SendCommandMsg("SwitchSensor", 0, str, 0, null, 0, fingerList, startXList, startYList, 0, 0);}
 
@@ -104,7 +103,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	TabletMsg.header.seq = count++; //TabletMsg.header.frame_id = "";
 	TabletMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
 	TabletMsg.hardware_name = "Android"; // Get From hardware?
-	TabletMsg.hardware_id = "JSK Acer"; // Get From hardware?
+	TabletMsg.hardware_id = "JSK Acer";
 	if( task_name != null ) TabletMsg.action.task_name = task_name;
 	if( arm_id != 0 ) TabletMsg.action.arm_id = arm_id;
 	if( state != null ) TabletMsg.action.state = state;
@@ -292,7 +291,15 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
 	    if ( fingerCount == 1 && curXList.size() == 0 ) {
 		fingerList.add(0);
-		if (TouchMode == 0) {
+		if (isPushOnce) {
+		    isPushOnce = false;
+		    SendCommandMsg("PushOnce", 0, "TOUCH", 0, null, 0,
+				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		} else if (isPickOnce) {
+		    isPickOnce = false;
+		    SendCommandMsg("PickOnce", 0, "TOUCH", 0, null, 0,
+				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		} else if (TouchMode == 0) {
 		    SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
 				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
 		} else if (TouchMode == 1) {

@@ -33,7 +33,7 @@ import org.ros.message.jsk_gui_msgs.Action;
 import ros.android.views.JoystickView;
 import ros.android.activity.RosAppActivity;
 import java.util.ArrayList;
-import java.util.*;
+//import java.util.*;
 
 /**
  * @author chen@jsk.t.u-tokyo.ac.jp (Haseru Azuma)
@@ -51,9 +51,8 @@ public class JskAndroidGui extends RosAppActivity {
     private Button demo_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
-    // private String[] items_spots,items_tasks;
     private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList();
-    private String defaultCamera = "/camera/rgb", defaultPoints = "/camera/rgb/points";
+    private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points";
     private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true;
 
     @Override
@@ -63,7 +62,7 @@ public class JskAndroidGui extends RosAppActivity {
 	setMainWindowResource(R.layout.main);
 	super.onCreate(savedInstanceState);
 
-	demo_button = (Button)findViewById(R.id.button_demo);
+	//demo_button = (Button)findViewById(R.id.button_demo);
 	radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
 	radioGroup.check(R.id.radiobutton_L);
 	radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -92,19 +91,19 @@ public class JskAndroidGui extends RosAppActivity {
 	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
 
 	image_spinner = (Spinner)findViewById(R.id.spinner_image);
-	String[] image_list = {"cameras", "/camera/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"};
+	String[] image_list = {"cameras", "/openni/rgb", "/camera/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"}; //Todo, get active camera list
 	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list, image_list);
 	image_spinner.setAdapter(adapter_image);
 
 	points_spinner = (Spinner)findViewById(R.id.spinner_points);
-	String[] points_list = {"points", "/camera/rgb/points", "/tilt_laser_cloud2"};
+	String[] points_list = {"points", "/openni/depth_registered/points", "/camera/rgb/points", "/tilt_laser_cloud2"};
 	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
 	points_spinner.setAdapter(adapter_points);
 
 	if (getIntent().hasExtra("camera_topic")) {
 	    cameraTopic = getIntent().getStringExtra("camera_topic");
 	} else {
-	    cameraTopic = "/camera/marked/image_rect_color/compressed_throttle";
+	    cameraTopic = "/openni/marked/image_rect_color/compressed_throttle";
 	}
 	joystickView = (JoystickView) findViewById(R.id.joystick);
 	joystickView.setBaseControlTopic("android/cmd_vel");
@@ -137,23 +136,23 @@ public class JskAndroidGui extends RosAppActivity {
 	MoveToSpotPub =
 	    node.newPublisher( "/Tablet/MoveToSpot" , "roseus/StringStamped" );
 
-	demo_button.setOnClickListener(new OnClickListener(){
-		public void onClick(View viw) {
-		    Button button = (Button)viw;
-		    // button.setText("starting");
-		    StringStamped StrMsg = new StringStamped();
-		    StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
-		    StrMsg.data = "StartMainDemo";
-		    StartDemoPub.publish( StrMsg );
-		    safeToastStatus("demo: " + "StartMainDemo");
-		    Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo main messgae");
-		}});
+	// demo_button.setOnClickListener(new OnClickListener(){
+	// 	public void onClick(View viw) {
+	// 	    Button button = (Button)viw;
+	// 	    // button.setText("starting");
+	// 	    StringStamped StrMsg = new StringStamped();
+	// 	    StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	// 	    StrMsg.data = "StartMainDemo";
+	// 	    StartDemoPub.publish( StrMsg );
+	// 	    safeToastStatus("demo: " + "StartMainDemo");
+	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo main messgae");
+	// 	}});
 
 	params = node.newParameterTree();
 	/* for spots */
 	try{
 	    String defaultSpot_ns = "/jsk_spots";
-	    String targetSpot = "/eng2/7f"; //todo
+	    String targetSpot = "/eng2/7f"; // Todo get current targetSpot
 	    GraphName param_ns = new GraphName(defaultSpot_ns + targetSpot);
 	    NameResolver resolver = node.getResolver().createResolver(param_ns);
 	    Object[] spots_param_list = params.getList(resolver.resolve("spots")).toArray();
@@ -290,6 +289,14 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.unSetMovingFingerInfo();
 	    cameraView.SendOpenDoorMsg();
 	    Log.i("JskAndroidGui:ItemSeleted", "Send OpenDoorMsg");
+	    return true;
+	case R.id.pushonce:
+	    Log.i("JskAndroidGui:ItemSeleted", "Set PushOnce");
+	    cameraView.SetPushOnce();
+	    return true;
+	case R.id.pickonce:
+	    Log.i("JskAndroidGui:ItemSeleted", "Set PickOnce");
+	    cameraView.SetPickOnce();
 	    return true;
 	case R.id.opengripper: //DEPRECATED
 	    cameraView.SendOpenGripperMsg();

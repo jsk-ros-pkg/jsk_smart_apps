@@ -22,13 +22,6 @@
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
                   android:layout_weight=".75">
-      <ros.android.views.JoystickView android:layout_width="fill_parent"
-				      android:layout_height="wrap_content"
-				      android:adjustViewBounds="true"
-				      android:gravity="top"
-				      android:src="@drawable/joystick_white"
-				      android:id="@+id/joystick"/>
-
       <RadioGroup android:id="@+id/radiogroup"
 		  android:orientation="horizontal"
 		  android:layout_width="fill_parent"
@@ -65,12 +58,16 @@
 	       android:ellipsize="start"
       	       android:layout_width="fill_parent"
       	       android:layout_height="wrap_content" />
-      <Button
-	 android:id="@+id/button_demo"
-	 android:layout_width="fill_parent"
-	 android:layout_height="wrap_content"
-	 android:gravity="bottom"
-	 android:text="@string/button_label_demo"/>
+      <!--Button android:id="@+id/button_demo"
+	      android:layout_width="fill_parent"
+	      android:layout_height="wrap_content"
+	      android:text="@string/button_label_demo" /-->
+
+      <ros.android.views.JoystickView android:layout_width="fill_parent"
+				      android:layout_height="wrap_content"
+				      android:adjustViewBounds="true"
+				      android:src="@drawable/joystick_white"
+				      android:id="@+id/joystick"/>
     </LinearLayout>
   </LinearLayout>
 </LinearLayout>
