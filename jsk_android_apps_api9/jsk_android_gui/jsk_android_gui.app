@@ -11,4 +11,4 @@ clients:
     intent-action: ros.android.jskandroidgui.JskAndroidGui
   app: 
     gravityMode: 0
-    camera_topic: /camera/marked/image_rect_color/compressed_throttle
+    camera_topic: /openni/marked/image_rect_color/compressed_throttle
