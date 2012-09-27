@@ -10,6 +10,7 @@
 (load "package://pr2eus_openrave/pr2eus-openrave.l")
 (load "package://jsk_smart_gui/src/utils.l")
 (load "package://jsk_smart_gui/src/tablet_callback.l")
+(load "package://jsk_smart_gui/src/get_spot.l")
 (load "package://jsk_2011_07_pr2_semantic/euslisp/actions.l")
 
 (defconstant *default-deg* pi)
@@ -90,8 +91,8 @@
 
 (defun move-to-spot (spot &key (frame-id "/world")) ;;&optional (spot "/eng2/7f/room73A3-front"))
   (let* ((s1 (send *scene* :find-object spot))
-	 (temp-scene (make-temp-scene))
-	 (s2 (send temp-scene :find-object spot)))
+	 ;;(temp-scene (make-temp-scene))
+	 (s2 nil));;(send temp-scene :find-object spot)))
     (cond ((null (or s1 s2))
 	   (ros::ros-warn "no such place like ~A" spot)
 	   (return-from move-to-spot nil))
@@ -155,7 +156,8 @@
   (change-inflation-range 0.15)
 
   ;;load all current spot and convert to javascript
-  ;;  (make-spots-js (get-current-spot))
+ ;; make-spots-js (get-current-spot))
+ (get-current-spot)
 
   (defvar *tfl* (instance ros::transform-listener :init))
   (defvar *tfb* (instance ros::transform-broadcaster :init))

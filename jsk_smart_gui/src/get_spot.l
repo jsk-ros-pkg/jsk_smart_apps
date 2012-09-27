@@ -6,14 +6,14 @@
 rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
 |#
 
-(defun init-setting ()
+(defun spot-init-setting ()
   (ros::subscribe "/Tablet/GetSpot"
 		  std_msgs::Empty #'get-spot-cb)
   (setq *tfl* (instance ros::transform-listener :init))
   (setq *time-count* (ros::time-now))
   (make-spots-js (get-current-spot)))
 
-(defun execute-main ()
+(defun spot-execute-main ()
   (ros::rate 10)
   (ros::ros-info "get_spot::start running")
   (while (ros::ok)
