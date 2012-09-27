@@ -35,8 +35,8 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	SWIPE_UP = 1, SWIPE_DOWN = 2, SWIPE_RIGHT = 3, SWIPE_LEFT = 4;
     private final float DefaultHeight = 480F, DefaultWidth = 640F; //
 
-    private Bitmap bitmap;
-    private boolean isDrawLine = false, isMovingFingerInfo = false, isPushOnce = false, isPickOnce = false;
+    private Bitmap bitmap,bitmap_tmp;
+    private boolean isDrawLine = false, isMovingFingerInfo = false, isPushOnce = false, isPickOnce = false, isPlaceOnce = false, isPassToHumanOnce = false;
     private int count = 0, debug_count = 0, fingerCount = 0,
 	fingerCountOver = 0, SwipeCounter = 0, SwipeDetectedType,
 	RobotArmId = Action.LARMID, TouchMode = 1;
@@ -75,8 +75,20 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	imageSub = null;
     }
     @Override
-	public void onNewMessage(CompressedImage message) {
+    public void onNewMessage(CompressedImage message) {
 	bitmap = BitmapFactory.decodeByteArray(message.data, 0, message.data.length);
+	// final int Width = bitmap.getWidth();
+	// final int Height = bitmap.getHeight();
+	// Bitmap bitmap_tmp = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
+	// int[] pixels = new int[Width*Height];
+	// bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	// for(int x = 0; x < Width; x++){
+	//     for(int y = 0; y < Height; y++){
+	// 	int pixel = pixels[x + y * Width];
+	// 	pixels[x + y * Width] = Color.rgb(Color.blue(pixel), Color.green(pixel), Color.red(pixel));
+	//     }
+	// }
+	// bitmap_tmp.setPixels(pixels, 0, Width, 0, 0, Width, Height);
 	post(this);
     }
 
@@ -88,7 +100,9 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void SetMovingFingerInfo () {isMovingFingerInfo = true;}
     public void unSetMovingFingerInfo () {isMovingFingerInfo = false;}
     public void SetPushOnce () {isPushOnce = true;}
+    public void SetPlaceOnce () {isPlaceOnce = true;}
     public void SetPickOnce () {isPickOnce = true;}
+    public void SetPassToHumanOnce () {isPassToHumanOnce = true;}
     public void ChangeTouchMode () {
 	if (TouchMode == 0) {TouchMode++;}
 	else if (TouchMode == 1) {TouchMode = 0;}
@@ -177,6 +191,23 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void SendOpenDoorMsg () {
 	SendCommandMsg("OpenDoor", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
 	unSetMovingFingerInfo();
+    }
+
+    public void SendCloseDoorMsg () {
+	SendCommandMsg("CloseDoor", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
+	unSetMovingFingerInfo();
+    }
+
+    public void SendTuckArmPoseMsg () {
+	SendCommandMsg("TuckArmPose", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
+    }
+
+    public void SendTorsoUpMsg () {
+	SendCommandMsg("TorsoUp", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
+    }
+
+    public void SendTorsoDownMsg () {
+	SendCommandMsg("TorsoUp", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
     }
 
     public void SendOpenGripperMsg () {
@@ -284,7 +315,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	    // 	SendTaskMsg("OpenDoor", RobotArmID, "TOUCH", 0, null, 0,
 	    // 		    fingerList, startXList, startYList, 0, 0);
 	    // 	unSetMovingFingerInfo();
-	    // } else 
+	    // } else
 	    if ( isMovingFingerInfo ) {
 		return true;
 	    }
@@ -298,6 +329,14 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 		} else if (isPickOnce) {
 		    isPickOnce = false;
 		    SendCommandMsg("PickOnce", 0, "TOUCH", 0, null, 0,
+				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		} else if (isPlaceOnce) {
+		    isPlaceOnce = false;
+		    SendCommandMsg("PlaceOnce", 0, "TOUCH", 0, null, 0,
+				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+		} else if (isPassToHumanOnce) {
+		    isPassToHumanOnce = false;
+		    SendCommandMsg("PassToHumanOnce", 0, "TOUCH", 0, null, 0,
 				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
 		} else if (TouchMode == 0) {
 		    SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
@@ -435,11 +474,14 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	    Log.v("JskAndroidGui:onNewMessage","[changing Bitmap] changing now " + (SwipeCounter + 1) + " / " + SWIPE_WAIT_TIME);
 	    this.invalidate();
 	    SwipeCounter++;
+	    //final int Width = bitmap_tmp.getWidth();
+	    //final int Height = bitmap_tmp.getHeight();
 	    final int Width = bitmap.getWidth();
 	    final int Height = bitmap.getHeight();
 	    Bitmap bitmap_output = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
 	    int[] pixels = new int[Width*Height];
 	    bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    //bitmap_tmp.getPixels(pixels, 0, Width, 0, 0, Width, Height);
 	    for(int x = 0; x < Width; x++){
 		for(int y = 0; y < Height; y++){
 		    // int pixel = pixels[x + y * Width];
@@ -461,6 +503,20 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	    Log.v("JskAndroidGui:onNewMessage","[changing Bitmap] back to normal");
 	    unSetSwipeDetected();
 	} else {
+	    //this.invalidate();
+	    // final int Width = bitmap.getWidth();
+	    // final int Height = bitmap.getHeight();
+	    // Bitmap bitmap_output = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
+	    // int[] pixels = new int[Width*Height];
+	    // bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    // for(int x = 0; x < Width; x++){
+	    // 	for(int y = 0; y < Height; y++){
+	    // 	    int pixel = pixels[x + y * Width];
+	    // 	    pixels[x + y * Width] = Color.rgb(Color.blue(pixel), Color.green(pixel), Color.red(pixel));
+	    // 	}
+	    // }
+	    // bitmap_output.setPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    // setImageBitmap(bitmap_output);
 	    setImageBitmap(bitmap);
 	}
     }

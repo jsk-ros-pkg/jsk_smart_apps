@@ -285,6 +285,10 @@ public class JskAndroidGui extends RosAppActivity {
 		isDrawLine = true;
 	    }
 	    return true;
+	case R.id.pickonce:
+	    Log.i("JskAndroidGui:ItemSeleted", "Set PickOnce");
+	    cameraView.SetPickOnce();
+	    return true;
 	case R.id.opendoor:
 	    cameraView.unSetMovingFingerInfo();
 	    cameraView.SendOpenDoorMsg();
@@ -294,9 +298,31 @@ public class JskAndroidGui extends RosAppActivity {
 	    Log.i("JskAndroidGui:ItemSeleted", "Set PushOnce");
 	    cameraView.SetPushOnce();
 	    return true;
-	case R.id.pickonce:
-	    Log.i("JskAndroidGui:ItemSeleted", "Set PickOnce");
-	    cameraView.SetPickOnce();
+	case R.id.placeonce:
+	    Log.i("JskAndroidGui:ItemSeleted", "Set PlaceOnce");
+	    cameraView.SetPlaceOnce();//
+	    return true;
+	case R.id.closedoor:
+	    Log.i("JskAndroidGui:ItemSeleted", "Send CloseDoorMsg");
+	    cameraView.SendCloseDoorMsg();//
+	    return true;
+
+	case R.id.passtohumanonce:
+	    Log.i("JskAndroidGui:ItemSeleted", "Set PassToHuman");
+	    cameraView.SetPassToHumanOnce();//
+	    return true;
+
+	case R.id.tuckarmpose:
+	    Log.i("JskAndroidGui:ItemSeleted", "TuckArmPose");
+	    cameraView.SendTuckArmPoseMsg();//
+	    return true;
+	case R.id.torsoup: //DEPRECATED
+	    cameraView.SendTorsoUpMsg();//
+	    Log.i("JskAndroidGui:ItemSeleted", "Send TorsoUpMsg");
+	    return true;
+	case R.id.torsodown: //DEPRECATED
+	    cameraView.SendTorsoDownMsg();//
+	    Log.i("JskAndroidGui:ItemSeleted", "Send TorsoDownMsg");
 	    return true;
 	case R.id.opengripper: //DEPRECATED
 	    cameraView.SendOpenGripperMsg();
