@@ -2,17 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <!-- <item android:title="Kill" android:id="@+id/kill"></item> -->
 
-  <item android:title="PICK" android:id="@+id/pickonce"></item>
-  <item android:title="OPEN" android:id="@+id/opendoor"></item>
-  <item android:title="PUSH" android:id="@+id/pushonce"></item>
-  <item android:title="PLACE" android:id="@+id/placeonce"></item>
-  <item android:title="CLOSE" android:id="@+id/closedoor"></item>
+  <item android:title="Tasks" android:id="@+id/manipulation">
+    <menu>
+      <item android:title="PICK" android:id="@+id/pickonce"></item>
+      <item android:title="OPEN" android:id="@+id/opendoor"></item>
+      <item android:title="PUSH" android:id="@+id/pushonce"></item>
+      <item android:title="PLACE" android:id="@+id/placeonce"></item>
+      <item android:title="CLOSE" android:id="@+id/closedoor"></item>
+      <item android:title="SetDrawLine" android:id="@+id/setdrawline"></item>
+    </menu>
+  </item>
 
-  <item android:title="ResetAll" android:id="@+id/resetall"></item>
-  <item android:title="GetSpot" android:id="@+id/getspot"></item>
-  <item android:title="PassToHuman" android:id="@+id/passtohumanonce"></item>
-  <item android:title="SetDrawLine" android:id="@+id/setdrawline"></item>
+  <item android:title="Utils" android:id="@+id/manipulation">
+    <menu>
+      <item android:title="ResetAll" android:id="@+id/resetall"></item>
+      <item android:title="GetSpot" android:id="@+id/getspot"></item>
+      <item android:title="PassToHuman" android:id="@+id/passtohumanonce"></item>
   <item android:title="ChangeTouchMode" android:id="@+id/changetouchmode"></item>
+    </menu>
+  </item>
+
   <item android:title="Manipulation" android:id="@+id/manipulation">
     <menu>
       <item android:title="TuckArmPose" android:id="@+id/tuckarmpose"></item>

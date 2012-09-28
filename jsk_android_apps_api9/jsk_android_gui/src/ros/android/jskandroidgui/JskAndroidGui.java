@@ -1,6 +1,7 @@
 package ros.android.jskandroidgui;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +34,8 @@ import org.ros.message.jsk_gui_msgs.Action;
 import ros.android.views.JoystickView;
 import ros.android.activity.RosAppActivity;
 import java.util.ArrayList;
+//import java.util.Timer;
+//import java.util.TimerTask;
 //import java.util.*;
 
 /**
@@ -54,6 +57,9 @@ public class JskAndroidGui extends RosAppActivity {
     private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList();
     private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points";
     private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true;
+
+    //private Timer   mTimer;
+    private Handler mHandler;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -109,6 +115,8 @@ public class JskAndroidGui extends RosAppActivity {
 	joystickView.setBaseControlTopic("android/cmd_vel");
 	cameraView = (SensorImageViewInfo) findViewById(R.id.image);
 	cameraView.setClickable(true);
+	//mTimer = null;
+	mHandler = new Handler();
     }
 
     @Override
@@ -120,6 +128,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.post(new Runnable() {
 		    @Override
 			public void run() {
+			Log.i("JskAndroidGui:debug", "cameraView run");
 			cameraView.setSelected(true);
 		    }
 		});
@@ -183,6 +192,8 @@ public class JskAndroidGui extends RosAppActivity {
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
+		    safeToastStatus("Updating Param");
+		    GetParamAndSetSpinner();
 		}});
 	/* for tasks */
 	try{
@@ -224,6 +235,8 @@ public class JskAndroidGui extends RosAppActivity {
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
+		    safeToastStatus("Updating Param");
+		    GetParamAndSetSpinner();
 		}});
 
 	/* for camera */
@@ -237,6 +250,8 @@ public class JskAndroidGui extends RosAppActivity {
 		    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
 		}
 		public void onNothingSelected(AdapterView parent) {
+		    safeToastStatus("Updating Param");
+		    GetParamAndSetSpinner();
 		}});
 
 	/* for points */
@@ -250,7 +265,17 @@ public class JskAndroidGui extends RosAppActivity {
 		    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
 		}
 		public void onNothingSelected(AdapterView parent) {
+		    safeToastStatus("Updating Param");
+		    GetParamAndSetSpinner();
 		}});
+	Log.i("JskAndroidGui:debug", "before first spinner update");
+	mHandler.post(new Runnable() {
+		public void run() {
+		    Log.i("JskAndroidGui:debug", "spinner updating");
+		    GetParamAndSetSpinner();
+		}
+	    });
+	Log.i("JskAndroidGui:debug", "before after spinner update");
     }
 
     @Override
@@ -262,6 +287,7 @@ public class JskAndroidGui extends RosAppActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 	MenuInflater inflater = getMenuInflater();
 	inflater.inflate(R.menu.jsk_android_gui, menu);
+	isAdapterSet_spots = false; isAdapterSet_tasks = false;
 	GetParamAndSetSpinner();
 	return true;
     }
