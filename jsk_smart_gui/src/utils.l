@@ -285,3 +285,39 @@
     (setq *current-angle6* (aref current-angle 6)) ;;
     (setq *current-num6* num) ;;
     ))
+
+(defun hand-over2 (arm &key (wait-shock nil))
+  (ros::spin-once)
+  (let* ((av (send *ri* :state :potentio-vector))
+	(tuckarm (check-tuckarm-pose))
+	(isfreearm (eq arm tuckarm))
+	;; this is for :larm
+	(avs (list #f(12 0 64 70 -122 50 -115 160 -4 74 -105 -90 70 -5 20 2 15)
+		   #f(12 6 9 106 -77 35 -124 -128 -4 75 -104 -89 70 0 20 3 30)
+		   #f(12 13 21 62 -105 -117 -66 -71 -4 74 -104 -89 70 -5 20 4 40)
+		   #f(12 9 24 50 -94 -158 -70 39 -4 74 -104 -89 70 -5 20 5 30)))
+	(tms (make-list (length avs) :initial-element 1000))
+	(l-r-reverse #f(1  -1 1 -1 1 -1 1 -1  -1 1 -1 1 -1 1 -1  -1 1)))
+    ;;
+    (if (eq arm :rarm)
+	(setq avs
+	      (mapcar #'(lambda(av)
+			  (map float-vector #'*
+			       (concatenate float-vector
+					    (subseq av 0 1) (subseq av 8 15)
+					    (subseq av 1 8) (subseq av 15 17))
+			       l-r-reverse))
+			  avs)))
+    ;;
+    (unless isfreearm
+      (pr2-reset-pose)
+      (setq avs (subseq avs (- (length avs) 2))
+	    tms (subseq tms (- (length avs) 2))
+	    av (send *ri* :state :potentio-vector))
+      (setq tuckarm arm))
+    ;;
+    (send *ri* :angle-vector-sequence avs tms)
+    (send *ri* :wait-interpolation)
+    ;;
+    ))
+

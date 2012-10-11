@@ -134,12 +134,13 @@
     (ros::service-call "prosilica_driver/set_parameters" req)
     ))
 
-(defun speak-jp (jp-str)
-  (ros::publish "robotsound_jp"
-                (instance sound_play::SoundRequest :init
-                          :sound sound_play::SoundRequest::*say*
-                          :command sound_play::SoundRequest::*play_once*
-                          :arg jp-str)))
+(load "package://pr2eus/speak.l")
+;; (defun speak-jp (jp-str)
+ ;;  (ros::publish "robotsound_jp"
+ ;;                (instance sound_play::SoundRequest :init
+ ;;                          :sound sound_play::SoundRequest::*say*
+ ;;                          :command sound_play::SoundRequest::*play_once*
+ ;;                          :arg jp-str)))
 
 ;; send (car (send *scene* :find-object "/eng2/7f/room73B2-sink-front")) :worldcoords
 ;; send *ri* :move-to  (car (send *scene* :find-object "/eng2/7f/room73B2-sink-front"))
