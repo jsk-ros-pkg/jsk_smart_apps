@@ -3,6 +3,7 @@ package ros.android.jskandroidgui;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,6 +35,7 @@ import org.ros.message.jsk_gui_msgs.Action;
 import ros.android.views.JoystickView;
 import ros.android.activity.RosAppActivity;
 import java.util.ArrayList;
+
 //import java.util.Timer;
 //import java.util.TimerTask;
 //import java.util.*;
@@ -97,12 +99,12 @@ public class JskAndroidGui extends RosAppActivity {
 	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
 
 	image_spinner = (Spinner)findViewById(R.id.spinner_image);
-	String[] image_list = {"cameras", "/openni/rgb", "/camera/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"}; //Todo, get active camera list
+	String[] image_list = {"cameras", "/openni/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"}; //Todo, get active camera list
 	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list, image_list);
 	image_spinner.setAdapter(adapter_image);
 
 	points_spinner = (Spinner)findViewById(R.id.spinner_points);
-	String[] points_list = {"points", "/openni/depth_registered/points", "/camera/rgb/points", "/tilt_laser_cloud2"};
+	String[] points_list = {"points", "/openni/depth_registered/points", "/tilt_laser_cloud2"};
 	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
 	points_spinner.setAdapter(adapter_points);
 

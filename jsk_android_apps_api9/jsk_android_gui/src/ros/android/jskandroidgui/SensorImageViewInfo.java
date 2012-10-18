@@ -12,7 +12,6 @@ import android.view.MotionEvent;
 import android.widget.Toast;
 import android.widget.ImageView;
 
-
 import org.ros.node.Node;
 import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.Publisher;
@@ -31,6 +30,12 @@ import ros.android.activity.RosAppActivity;
 import java.util.ArrayList;
 
 public class SensorImageViewInfo extends ImageView implements MessageListener<CompressedImage>, Runnable {
+
+    static{
+    	System.loadLibrary("calculate");
+    }
+    public native long translateBGRtoRGB(int[] src,int width,int height);
+
     private final int minLength = 30, SWIPE_WAIT_TIME = 1, SWIPE_NONE = 0,
 	SWIPE_UP = 1, SWIPE_DOWN = 2, SWIPE_RIGHT = 3, SWIPE_LEFT = 4;
     private final float DefaultHeight = 480F, DefaultWidth = 640F; //
@@ -77,18 +82,6 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     @Override
     public void onNewMessage(CompressedImage message) {
 	bitmap = BitmapFactory.decodeByteArray(message.data, 0, message.data.length);
-	// final int Width = bitmap.getWidth();
-	// final int Height = bitmap.getHeight();
-	// Bitmap bitmap_tmp = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
-	// int[] pixels = new int[Width*Height];
-	// bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
-	// for(int x = 0; x < Width; x++){
-	//     for(int y = 0; y < Height; y++){
-	// 	int pixel = pixels[x + y * Width];
-	// 	pixels[x + y * Width] = Color.rgb(Color.blue(pixel), Color.green(pixel), Color.red(pixel));
-	//     }
-	// }
-	// bitmap_tmp.setPixels(pixels, 0, Width, 0, 0, Width, Height);
 	post(this);
     }
 
@@ -470,18 +463,26 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
     @Override
 	public void run() {
-	if ( SwipeDetectedType != SWIPE_NONE && SwipeCounter < SWIPE_WAIT_TIME ){
+	final int bWidth = bitmap.getWidth();
+	final int bHeight = bitmap.getHeight();
+	Bitmap bitmap_tmp = Bitmap.createBitmap(bWidth, bHeight, Bitmap.Config.ARGB_8888);
+	int[] bpixels = new int[bWidth*bHeight];
+	bitmap.getPixels(bpixels, 0, bWidth, 0, 0, bWidth, bHeight);
+	translateBGRtoRGB(bpixels,bWidth,bHeight);
+	bitmap_tmp.setPixels(bpixels, 0, bWidth, 0, 0, bWidth, bHeight);
+
+	if (SwipeDetectedType != SWIPE_NONE && SwipeCounter < SWIPE_WAIT_TIME ){
 	    Log.v("JskAndroidGui:onNewMessage","[changing Bitmap] changing now " + (SwipeCounter + 1) + " / " + SWIPE_WAIT_TIME);
 	    this.invalidate();
 	    SwipeCounter++;
-	    //final int Width = bitmap_tmp.getWidth();
-	    //final int Height = bitmap_tmp.getHeight();
-	    final int Width = bitmap.getWidth();
-	    final int Height = bitmap.getHeight();
+	    final int Width = bitmap_tmp.getWidth();
+	    final int Height = bitmap_tmp.getHeight();
+	    //final int Width = bitmap.getWidth();
+	    //final int Height = bitmap.getHeight();
 	    Bitmap bitmap_output = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
 	    int[] pixels = new int[Width*Height];
-	    bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
-	    //bitmap_tmp.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    //bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    bitmap_tmp.getPixels(pixels, 0, Width, 0, 0, Width, Height);
 	    for(int x = 0; x < Width; x++){
 		for(int y = 0; y < Height; y++){
 		    // int pixel = pixels[x + y * Width];
@@ -498,26 +499,12 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
 	    // Matrix matrix = new Matrix(); matrix.postSkew(skew_x, skew_y);
 	    // final Bitmap bitmap_output = Bitmap.createBitmap(bitmap2, 0, 0, w, h, matrix, true);
-
 	} else if (SwipeCounter >= SWIPE_WAIT_TIME){
 	    Log.v("JskAndroidGui:onNewMessage","[changing Bitmap] back to normal");
 	    unSetSwipeDetected();
 	} else {
 	    //this.invalidate();
-	    // final int Width = bitmap.getWidth();
-	    // final int Height = bitmap.getHeight();
-	    // Bitmap bitmap_output = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
-	    // int[] pixels = new int[Width*Height];
-	    // bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
-	    // for(int x = 0; x < Width; x++){
-	    // 	for(int y = 0; y < Height; y++){
-	    // 	    int pixel = pixels[x + y * Width];
-	    // 	    pixels[x + y * Width] = Color.rgb(Color.blue(pixel), Color.green(pixel), Color.red(pixel));
-	    // 	}
-	    // }
-	    // bitmap_output.setPixels(pixels, 0, Width, 0, 0, Width, Height);
-	    // setImageBitmap(bitmap_output);
-	    setImageBitmap(bitmap);
+	    setImageBitmap(bitmap_tmp);
 	}
     }
 }
