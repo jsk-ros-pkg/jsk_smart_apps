@@ -35,7 +35,7 @@
 (defun make-spots-js (spots)
   (let* ((js_dir (ros::resolve-ros-path (format nil "package://jsk_ipad_gui/src/jsk_ipad_gui/jslib")))
 	 (js_file (format nil "~A/spots.js" js_dir)))
-    (ros::ros-info "tablet_receiver:: creating spots for tablet")
+    (ros::ros-info "tablet_receiver:: creating spots.js for tablet")
     (with-open-file
      (f js_file :direction :output)
      (format f "current_spots = new Array(~%")
@@ -43,6 +43,48 @@
      (dolist (spot (cdr spots))
        (format f ",\"~A\"~%" spot))
      (format f ")~%"))
+    ))
+
+
+(load "package://euslib/irteus_proposals/string.l")
+;; create jsk_spots.yaml in jsk_android_gui/jslib
+(defun make-spots-yaml (spots &key (remove-panel t))
+  (let* ((yaml_dir (ros::resolve-ros-path (format nil "package://jsk_android_gui")))
+	 (yaml_file (format nil "~A/jsk_spots.yaml" yaml_dir))
+	 buildings floors)
+    (ros::ros-info "tablet_receiver:: creating jsk_spots.yaml for tablet")
+    (dolist (spot spots)
+      (let ((ss (split-string spot #\/))
+	    (building-exist-flag nil) (floor-exist-flag nil))
+	(when (eq (length ss) 4)
+	  (mapcar #'(lambda(x) (if (equal (elt ss 1) x) (setq building-exist-flag t))) buildings)
+	  (mapcar #'(lambda(x) (if (equal (elt ss 2) x) (setq floor-exist-flag t))) floors)
+	  (unless building-exist-flag (push (elt ss 1) buildings))
+	  (unless floor-exist-flag (push (elt ss 2) floors))
+	  )))
+    (print (list buildings floors))
+    (with-open-file
+     (f yaml_file :direction :output)
+     (dolist (building (reverse buildings))
+       (format f "~A:~%" building)
+       (dolist (floor (reverse floors))
+	 (let (existed-spot)
+	   (dolist (spot spots)
+	     (if (string-left= (format nil "/~A/~A/" building floor) spot)
+		 (if (and remove-panel
+			    (or (string-right= "call_panel" spot)
+				(string-right= "inside_panel" spot)
+				(string-right= "panel-front" spot)))
+		       (format nil "removing panel spots when makeing yaml")
+		     (push spot existed-spot))))
+	   (when existed-spot
+	     (format f "    ~A:~%" floor)
+	     (format f "      spots: [")
+	     (format f "~A" (car existed-spot))
+	     (dolist (spot (cdr existed-spot))
+	       (format f ", ~A" spot))
+	     (format f "]~%"))
+	   ))))
     ))
 
 (defun make-temp-spots-cb ()
@@ -157,8 +199,9 @@
   (change-inflation-range 0.15)
 
   ;;load all current spot and convert to javascript
- ;; make-spots-js (get-current-spot))
- (get-current-spot)
+  ;; make-spots-js (get-current-spot))
+  ;; (get-current-spot)
+  (make-spots-yaml (get-current-spot))
 
   (defvar *tfl* (instance ros::transform-listener :init))
   (defvar *tfb* (instance ros::transform-broadcaster :init))
