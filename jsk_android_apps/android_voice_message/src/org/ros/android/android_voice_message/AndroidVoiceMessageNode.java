@@ -176,7 +176,7 @@ public AndroidVoiceMessageNode(SensorManager manager,SpeechRecognizer sr,String 
 				voice_msg = voice_pub.newMessage();
 
 				ArrayList<String> candidates = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-				  voice_msg.setWords(candidates);
+				  voice_msg.setTexts(candidates);
 					Log.v("test","publish ready");
 				  if(startFlag==1){
 					  voice_pub.publish(voice_msg);
