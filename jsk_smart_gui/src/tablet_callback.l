@@ -1,3 +1,7 @@
+(load "package://jsk_smart_gui/src/utils.l")
+(load "package://jsk_smart_gui/src/get_spot.l")
+(load "package://jsk_smart_gui/src/get_template.l")
+
 (load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://jsk_smart_gui/src/greetings.l")
 
@@ -24,9 +28,7 @@
   (if (is-old-msg msg) (return-from tablet-movetospot-cb nil))
   (ros::ros-info "tablet-movetospot-cb called")
   (let ((spot (send msg :data)))
-    ;;(ros::ros-warn "debugging: (move-to-spot called)")
-    (move-to-spot spot)
-    ))
+    (move-to-spot spot)))
 
 (defun tablet-startdemo-cb(msg)
   (if (is-old-msg msg) (return-from tablet-startdemo-cb nil))
@@ -77,6 +79,9 @@
       ('Show3DScreenPoint
        (ros::ros-info "Show3DScreenPoint called")
        (Show3DScreenPointExecute (send msg :action :touch_x) (send msg :action :touch_y) *current-camera*))
+      ('GetTemplate
+       (ros::ros-info "GetTemplate called")
+       (GetTemplateExecute (send msg :action :touch_x) (send msg :action :touch_y)))
       ('SwitchSensor
        (ros::ros-info "SwitchSensor called")
        (SwitchSensorExecute (send msg :action :state)))
@@ -130,7 +135,7 @@
 
 ;; task concering open or pull
 (defun tablet-task-cb (msg)
-  (if (or (is-old-msg msg) (check-ray-srv)) (return-from tablet-task-cb nil))
+  (if (or (is-old-msg msg) (check-not-ray-srv)) (return-from tablet-task-cb nil))
   (let* ((touches (send msg :touches))
 	 (taskname (read-from-string (send msg :action :task_name)))
 	 (arm-id-raw (send msg :action :arm_id))
@@ -172,7 +177,7 @@
 ;;        (print (list *chosen-ret* *range* ))
 ;;        (execute-slide2 hand (send (elt *ret* *chosen-ret*) :worldpos))))
 
-(defun DrawLineExecute (touches) ;; currently not drawing but setting points
+(defun DrawLineExecute (touches)
   (unless (eq (length touches) 2)
     (ros::ros-warn "DrawLineExecute: ~A touches, returning" (length touches))
     (return-from DrawLineExecute nil))
@@ -204,12 +209,11 @@
     (ros::ros-warn "MovingPointInfoExecute: ~A touches, returning" (length touches))
     (return-from MovingPointInfoExecute nil))
   (let* ((tx (send (car touches) :x)) (ty (send (car touches) :y))
-;;	 (c (screenpoint-srvcall tx ty))
+	 ;;(c (screenpoint-srvcall tx ty))
 	 (fi (list tx ty)))
     ;; (if (null c) (return-from MovingPointInfoExecute nil))
     ;;    (print c)
     (print fi)
-
     (visualize-line fi (point2pixel :px (aref *fp* 0) :py (aref *fp* 1) :pz (aref *fp* 2)))
     (setq *finger1* fi)
     (setq *chosen-ret* (position
@@ -236,13 +240,19 @@
     (visualize-point x y :sca 10 :r 1.0 :lifetime 10)
     (show-marker (send (send c :copy-worldcoords) :pos) :lifetime 10)
     ;; for old pr2.l
-    (if (eq cam-method-name :camera-rgb) (setq cam-method-name :openni-rgb))
+    ;;(if (eq cam-method-name :camera-rgb) (setq cam-method-name :openni-rgb))
     (show-line (send (send c :copy-worldcoords) :pos)
 	       (send (funcall 'send *pr2* cam-method-name :copy-worldcoords) :pos) :lifetime 10)
     (ros::ros-info "Show3DScreenPointExecute: showing for 10 seconds")
     ))
 
-;; example (setq str "((:image /r_forearm_cam) (:points /camera/rgb/points))")
+;; moved to get_template.l
+;; (defun GetTemplateExecute (x y)
+;;   (let* ((c (screenpoint-srvcall x y))
+;; 	 )
+;;     ))
+
+;; Example: (setq str "((:image /r_forearm_cam) (:points /camera/rgb/points))")
 (defun SwitchSensorExecute (switch-str)
   (let* ((switch-lst (read-from-string switch-str))
 	 (image (assoc :image switch-lst))(points (assoc :points switch-lst)))
@@ -253,7 +263,6 @@
     (let ((mux-req1 (instance topic_tools::MuxSelectRequest :init))
 	  (mux-req2 (instance topic_tools::MuxSelectRequest :init))
 	  (mux-req3 (instance topic_tools::MuxSelectRequest :init)))
-	  ;;(switch-req (instance jsk_pcl_ros::SwitchTopicRequest :init)))
       (when (ros::service-exists "camera_info_mux/select")
 	;;for image_view2 and depth_image_creator
 	(send mux-req1 :topic (format nil "~A/camera_info" (elt image 1)))
@@ -264,9 +273,6 @@
       (when (ros::service-exists "points_mux/select");;for depth_image_creator
 	(send mux-req3 :topic (format nil "~A" (elt points 1)))
 	(ros::service-call "points_mux/select" mux-req3))
-      ;;(when (ros::service-exists "/depth_image_creator_nodelet/switch_topic")
-      ;;  (send switch-req :camera_info (format nil "~A/camera_info" (elt image 1))) (send switch-req :points (format nil "~A" (elt points 1)))
-      ;;  (ros::service-call "/depth_image_creator_nodelet/switch_topic" switch-req))
       )))
 
 (defun MoveNeckExecute (direction value)

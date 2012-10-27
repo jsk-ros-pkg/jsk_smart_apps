@@ -11,7 +11,7 @@
 	   (ros::ros-debug "message is old, return with no action")
 	   t))))
 
-(defun check-ray-srv (&optional (srv *ray_srv*))
+(defun check-not-ray-srv (&optional (srv *ray_srv*))
   (not (ros::wait-for-service srv 2)))
 
 (defun point2pixel (&key (px 1000.0) (py 0.0) (pz 1000.0))
@@ -73,44 +73,44 @@
 	(send target-coords :rotate (acos (v. v d)) (v* d v) :world))
     target-coords))
 
-(defun point-srvcall (msg) ;; deprecated
-  (let* ((x (send msg :point :x)) (y (send msg :point :y))
-	 (req (instance jsk_pcl_ros::TransformScreenpointRequest :init
-			:x x :y y)) res)
-    ;;(ros::wait-for-service *ray_srv* 1)
-    (setq res (ros::service-call *ray_srv* req))
-    (if (equal (send res :header :frame_id) "")
-	(progn
-	  (ros::ros-warn "detected service fail")
-	  (return-from point-srvcall nil)))
-    (let* ((frame (send res :header :frame_id))
-	   (header (instance std_msgs::header :init
-			     :stamp (ros::time-now)
-			     :frame_id frame))
-	   (p1 (ros::tf-point->pos (send res :point)))
-	   (av (ros::tf-translation->pos (send res :vector)))
-	   ;; (xv #f(1 0 0)) (bv (v* av xv)) (cv (v* av bv))
-	   ;; (dm (matrix (normalize-vector av)
-	   ;; 	       (normalize-vector bv)
-	   ;; 	       (normalize-vector cv)))
-	   (cam-cds (send *tfl* :lookup-transform
-			  "base_footprint" frame (ros::time 0)))
-	   ;; (base-cds (send cam-cds :transform (make-coords :pos p1 :rot dm)))
-	   (ros::ros-error "error:~A" cam-cds)
-	   (if (null cam-cds)
-	       (progn
-		 (ros::ros-warn "detected service fail2")
-		 (return-from point-srvcall nil)))
-	   (base-cds (send cam-cds :transform
-			   (set-z-coordinate-axis
-			    (make-coords :pos p1) (scale 1.0 av) :x)))
-	   (rmsg (instance geometry_msgs::PoseStamped :init)))
-      (ros::ros-warn "estimated cds is  ~A" base-cds)
-      (send rmsg :header header)
-      (send rmsg :pose (ros::coords->tf-pose base-cds))
-      (ros::publish "ray_coords" rmsg)
-      base-cds
-      )))
+;; (defun point-srvcall (msg) ;; deprecated
+;;   (let* ((x (send msg :point :x)) (y (send msg :point :y))
+;; 	 (req (instance jsk_pcl_ros::TransformScreenpointRequest :init
+;; 			:x x :y y)) res)
+;;     ;;(ros::wait-for-service *ray_srv* 1)
+;;     (setq res (ros::service-call *ray_srv* req))
+;;     (if (equal (send res :header :frame_id) "")
+;; 	(progn
+;; 	  (ros::ros-warn "detected service fail")
+;; 	  (return-from point-srvcall nil)))
+;;     (let* ((frame (send res :header :frame_id))
+;; 	   (header (instance std_msgs::header :init
+;; 			     :stamp (ros::time-now)
+;; 			     :frame_id frame))
+;; 	   (p1 (ros::tf-point->pos (send res :point)))
+;; 	   (av (ros::tf-translation->pos (send res :vector)))
+;; 	   ;; (xv #f(1 0 0)) (bv (v* av xv)) (cv (v* av bv))
+;; 	   ;; (dm (matrix (normalize-vector av)
+;; 	   ;; 	       (normalize-vector bv)
+;; 	   ;; 	       (normalize-vector cv)))
+;; 	   (cam-cds (send *tfl* :lookup-transform
+;; 			  "base_footprint" frame (ros::time 0)))
+;; 	   ;; (base-cds (send cam-cds :transform (make-coords :pos p1 :rot dm)))
+;; 	   (ros::ros-error "error:~A" cam-cds)
+;; 	   (if (null cam-cds)
+;; 	       (progn
+;; 		 (ros::ros-warn "detected service fail2")
+;; 		 (return-from point-srvcall nil)))
+;; 	   (base-cds (send cam-cds :transform
+;; 			   (set-z-coordinate-axis
+;; 			    (make-coords :pos p1) (scale 1.0 av) :x)))
+;; 	   (rmsg (instance geometry_msgs::PoseStamped :init)))
+;;       (ros::ros-warn "estimated cds is  ~A" base-cds)
+;;       (send rmsg :header header)
+;;       (send rmsg :pose (ros::coords->tf-pose base-cds))
+;;       (ros::publish "ray_coords" rmsg)
+;;       base-cds
+;;       )))
 
 (defun screenpoint-srvcall (x y)
   (let* ((req (instance jsk_pcl_ros::TransformScreenpointRequest :init
@@ -156,7 +156,7 @@
 			    (instance geometry_msgs::Point :init
 				      :x (elt p2 0) :y (elt p2 1))))
     (send mrk :outline_color (instance std_msgs::ColorRGBA :init :r 0.0 :g 1.0 :b 0.0 :a 1.0))
-    (ros::publish "image_marker" mrk)))
+    (ros::publish "image_marker" mrk))n)
 
 (defun stop-visualize-line ()
   (let ((mrk (instance image_view2::ImageMarker2 :init)))
@@ -178,14 +178,6 @@
     (send mrk :scale sca)
     (send mrk :lifetime (ros::Time lf))
     (ros::publish "image_marker" mrk)))
-
-;; (defun stop-visualize-point (&key (i 1))
-;;   (let ((mrk (instance image_view2::ImageMarker2 :init)))
-;;     (send mrk :header :stamp (ros::time-now))
-;;     (send mrk :id i)
-;;     (send mrk :type image_view2::ImageMarker2::*CIRCLE*)
-;;     (send mrk :action image_view2::ImageMarker2::*REMOVE*)
-;;     (ros::publish "image_marker" mrk)))
 
 (defun stop-visualize-point ()
   (let ((mrk (instance image_view2::ImageMarker2 :init)))
@@ -216,8 +208,7 @@
     ))
 
 ;;frame_id is based on "base_footprint"
-(defun show-marker
-  (p &key ((:lifetime lf) 60) (col #f(1 0 1)) (ns "3d_point"))
+(defun show-marker (p &key ((:lifetime lf) 60) (col #f(1 0 1)) (ns "3d_point"))
   (let* ((header (instance std_msgs::header :init
 			   :stamp (ros::time-now) :frame_id "base_footprint"))
 	 (msg (sphere->marker-msg (make-sphere 20 :pos p) header :color col :alpha 1.0)))
@@ -226,8 +217,7 @@
     (ros::publish "tablet_marker" msg)
     ))
 
-(defun show-markers 
-  (pl &key ((:lifetime lf) 60) (col #f(0 0 1)) (ns "3d_points"))
+(defun show-markers (pl &key ((:lifetime lf) 60) (col #f(0 0 1)) (ns "3d_points"))
   (unless (listp pl)
     (ros::ros-warn "show-markers wants a list of points")
     (return-from show-markers nil))
@@ -243,8 +233,8 @@
     (ros::publish "tablet_marker_array" msg)
     ))
 
-(defun grasp-gripper (arm);;:gain 0.01  
-  ;;  (send *ri* :move-gripper arm range :effort (* 2000 g) :wait t))
+(defun grasp-gripper (arm);;:gain 0.01
+  ;; (send *ri* :move-gripper arm range :effort (* 2000 g) :wait t))
   (send *ri* :start-grasp arm))
 (defun close-gripper (arm)
   (send *ri* :start-grasp arm))
@@ -255,6 +245,7 @@
   (setq *node-debug* nil *visualize* nil *chosen-ret* nil)
   (setq *line* (make-list 2) *door* (make-list 3) *drawer* (make-list 3))
   (setq *opendoor* nil *slidedoor* nil)
+  (setq *time-count* (ros::time-now))
   (stop-visualize-line)
   (stop-visualize-point)
   )
@@ -268,8 +259,6 @@
     (dump-loadable-structure (format nil "ik-fail-~d.l" (send (ros::time-now) :to-sec))
 			     *ik-fail-coords* *ik-fail-av*)
     (return-from move-arm nil))
-  ;; (if *node-debug*
-  ;;     (send *irtviewer* :draw-objects))
   (send *ri* :angle-vector (send *pr2* :angle-vector) sec)
   (send *ri* :wait-interpolation))
 
@@ -315,9 +304,7 @@
 	    tms (subseq tms (- (length avs) 2))
 	    av (send *ri* :state :potentio-vector))
       (setq tuckarm arm))
-    ;;
     (send *ri* :angle-vector-sequence avs tms)
     (send *ri* :wait-interpolation)
-    ;;
     ))
 

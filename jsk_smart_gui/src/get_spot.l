@@ -1,7 +1,9 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "jsk_smart_gui")
-;; Use this file for creating jsk_maps' spots
+;; Load this when creating jsk_maps' spots
 (ros::roseus "spot-creator")
+(load "package://euslib/irteus_proposals/string.l")
+
 #|
 rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
 |#
@@ -9,9 +11,10 @@ rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
 (defun spot-init-setting ()
   (ros::subscribe "/Tablet/GetSpot"
 		  std_msgs::Empty #'get-spot-cb)
-  (setq *tfl* (instance ros::transform-listener :init))
+  (defvar *tfl* (instance ros::transform-listener :init))
   (setq *time-count* (ros::time-now))
-  (make-spots-js (get-current-spot)))
+  ;;(make-spots-js (get-current-spot))
+  (make-spots-yaml (get-current-spot)))
 
 (defun spot-execute-main ()
   (ros::rate 10)
@@ -21,32 +24,30 @@ rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
     (ros::sleep)
     ))
 
-(warn "(execute-main)~%")
-
 (defun get-spot-cb (msg)
   (ros::ros-info "make-temp-spots-cb called")
   (make-temp-spots-cb))
 
-
+;; load eng*-scene.l , make *scene* and return spots
 (defun get-current-spot ()
-  (let ((place "/eng2") spots) ;;(place (ros::get-param "map_server/frame_id")
+  ;;(place (ros::get-param "map_server/frame_id")
+  (let ((place "/eng2") spots)
     (cond ((null place)
 	   (ros::ros-warn "get_spot:: Could not get current place")
 	   (setq spots (list "/unknown/unknown/unknown")))
 	  (t
 	   (ros::ros-info "get_spot:: the robot is in ~A now" place)
 	   (load (ros::resolve-ros-path (format nil "package://jsk_maps/src/~A-scene.l" place)))
-	   (setq *scene* (eval (read-from-string
-				(format nil "(make-~A-scene)" ;;remove "/"
-					(subseq (string-downcase place) 1)))))
+	   (setq *scene* (eval (read-from-string (format nil "(make-~A-scene)" (string-left-trim "/" place)))))
 	   (setq spots (mapcar #'(lambda(x) (send x :name)) (flatten (mapcar #'(lambda(x) (if (find-method x :spot) (send x :spots))) (send *scene* :objects)))))
 	   ))
     spots))
 
 ;; create spots.js in jsk_ipad_gui/jslib
 (defun make-spots-js (spots)
-  (let* ((js_dir (ros::resolve-ros-path (format nil "package://jsk_ipad_gui/src/jsk_ipad_gui/jslib"))) (js_file (format nil "~A/spots.js" js_dir)))
-    (ros::ros-info "get_spot:: creating spots for Tablet")
+  (let* ((js_dir (ros::resolve-ros-path (format nil "package://jsk_ipad_gui/src/jsk_ipad_gui/jslib")))
+	 (js_file (format nil "~A/spots.js" js_dir)))
+    (ros::ros-info "tablet_receiver:: creating spots.js for tablet")
     (with-open-file
      (f js_file :direction :output)
      (format f "current_spots = new Array(~%")
@@ -54,6 +55,46 @@ rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
      (dolist (spot (cdr spots))
        (format f ",\"~A\"~%" spot))
      (format f ")~%"))
+    ))
+
+;; create jsk_spots.yaml in jsk_android_gui
+(defun make-spots-yaml (spots &key (remove-panel t))
+  (let* ((yaml_dir (ros::resolve-ros-path (format nil "package://jsk_android_gui")))
+	 (yaml_file (format nil "~A/jsk_spots.yaml" yaml_dir))
+	 buildings floors)
+    (ros::ros-info "tablet_receiver:: creating jsk_spots.yaml for tablet")
+    (dolist (spot spots)
+      (let ((ss (split-string spot #\/))
+	    (building-exist-flag nil) (floor-exist-flag nil))
+	(when (eq (length ss) 4)
+	  (mapcar #'(lambda(x) (if (equal (elt ss 1) x) (setq building-exist-flag t))) buildings)
+	  (mapcar #'(lambda(x) (if (equal (elt ss 2) x) (setq floor-exist-flag t))) floors)
+	  (unless building-exist-flag (push (elt ss 1) buildings))
+	  (unless floor-exist-flag (push (elt ss 2) floors))
+	  )))
+    (print (list buildings floors))
+    (with-open-file
+     (f yaml_file :direction :output)
+     (dolist (building (reverse buildings))
+       (format f "~A:~%" building)
+       (dolist (floor (reverse floors))
+	 (let (existed-spot)
+	   (dolist (spot spots)
+	     (if (string-left= (format nil "/~A/~A/" building floor) spot)
+		 (if (and remove-panel
+			    (or (string-right= "call_panel" spot)
+				(string-right= "inside_panel" spot)
+				(string-right= "panel-front" spot)))
+		       (format nil "removing panel spots when makeing yaml")
+		     (push spot existed-spot))))
+	   (when existed-spot
+	     (format f "    ~A:~%" floor)
+	     (format f "      spots: [")
+	     (format f "~A" (car existed-spot))
+	     (dolist (spot (cdr existed-spot))
+	       (format f ", ~A" spot))
+	     (format f "]~%"))
+	   ))))
     ))
 
 (defun make-temp-spots-cb ()
@@ -69,7 +110,6 @@ rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
     (ros::ros-info "*temp-spots* : ~A" *temp-spots*)
     (push (list (send mappose :rot) (send mappose :pos)) *temp-spots*)
     ;; *temp-spots* : '('(rot pos) '(rot pos))
-
     (ros::ros-info "get_spot:: creating temp spots for Tablet")
     (with-open-file
      (f js_file :direction :output)
@@ -96,7 +136,7 @@ rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1
     (let* ((spots (mapcar #'(lambda(x) (send x :name)) (flatten (mapcar #'(lambda(x) (if (find-method x :spot) (send x :spots))) (send *scene* :objects)))))
 	   (temp-scene (make-temp-scene))
 	   (temp-spots (mapcar #'(lambda(x) (send x :name)) (flatten (mapcar #'(lambda(x) (if (find-method x :spot) (send x :spots))) (send temp-scene :objects))))))
-      ;; (make-spots-js (append spots temp-spots))
       (make-spots-js temp-spots)
-      ;; (speak-jp "とうろくしました")
+      (make-spots-yaml (append spots temp-spots))
+      (speak-jp "とうろくしました")
       )))
