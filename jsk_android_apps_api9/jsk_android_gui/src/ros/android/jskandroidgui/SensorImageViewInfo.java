@@ -321,7 +321,8 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
 		} else if (isPickOnce) {
 		    isPickOnce = false;
-		    SendCommandMsg("PickOnce", 0, "TOUCH", 0, null, 0,
+		    //SendCommandMsg("PickOnce", 0, "TOUCH", 0, null, 0,
+		    SendCommandMsg("PickObjectSelected", RobotArmId, "TOUCH", 0, null, 0,
 				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
 		} else if (isPlaceOnce) {
 		    isPlaceOnce = false;
