@@ -122,9 +122,9 @@
 	  (ros::ros-warn "detected service fail")
 	  (return-from screenpoint-srvcall nil)))
     (let* ((frame (send res :header :frame_id))
-	   (header (instance std_msgs::header :init
-			     :stamp (ros::time-now)
-			     :frame_id frame))
+	   ;;(header (instance std_msgs::header :init
+		;;	     :stamp (ros::time-now)
+		;;	     :frame_id frame))
 	   (p1 (ros::tf-point->pos (send res :point)))
 	   (av (ros::tf-translation->pos (send res :vector)))
 	   (cam-cds (send *tfl* :lookup-transform
@@ -137,11 +137,12 @@
 	   (base-cds (send cam-cds :transform
 			   (set-z-coordinate-axis
 			    (make-coords :pos p1) (scale 1.0 av) :x)))
-	   (rmsg (instance geometry_msgs::PoseStamped :init)))
+	   ;;(rmsg (instance geometry_msgs::PoseStamped :init))
+	   )
       (ros::ros-warn "estimated cds is  ~A" base-cds)
-      (send rmsg :header header)
-      (send rmsg :pose (ros::coords->tf-pose base-cds))
-      (ros::publish "ray_coords" rmsg)
+      ;;(send rmsg :header header)
+      ;;(send rmsg :pose (ros::coords->tf-pose base-cds))
+      ;;(ros::publish "ray_coords" rmsg)
       base-cds
       )))
 

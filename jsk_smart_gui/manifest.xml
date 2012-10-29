@@ -27,6 +27,7 @@
   <depend package="image_geometry"/>
 
   <depend package="dynamic_tf_publisher"/>
+  <depend package="object_snapshotter"/>
 </package>
 
 

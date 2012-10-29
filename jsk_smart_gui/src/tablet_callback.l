@@ -241,8 +241,10 @@
     (show-marker (send (send c :copy-worldcoords) :pos) :lifetime 10)
     ;; for old pr2.l
     ;;(if (eq cam-method-name :camera-rgb) (setq cam-method-name :openni-rgb))
-    (show-line (send (send c :copy-worldcoords) :pos)
-	       (send (funcall 'send *pr2* cam-method-name :copy-worldcoords) :pos) :lifetime 10)
+    (if (find-method *pr2* cam-method-name)
+	(show-line (send (send c :copy-worldcoords) :pos)
+		   (send (funcall 'send *pr2* cam-method-name :copy-worldcoords) :pos) :lifetime 10)
+      (ros::ros-warn "Assume that you are using external camera"))
     (ros::ros-info "Show3DScreenPointExecute: showing for 10 seconds")
     ))
 
