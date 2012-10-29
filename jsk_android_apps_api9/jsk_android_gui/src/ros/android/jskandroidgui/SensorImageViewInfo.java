@@ -330,7 +330,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
 		} else if (isPassToHumanOnce) {
 		    isPassToHumanOnce = false;
-		    SendCommandMsg("PassToHumanOnce", 0, "TOUCH", 0, null, 0,
+		    SendCommandMsg("PassToHumanOnce", RobotArmId, "TOUCH", 0, null, 0,
 				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
 		} else if (TouchMode == 0) {
 		    SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
