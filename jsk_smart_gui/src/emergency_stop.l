@@ -1,5 +1,6 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "jsk_smart_gui")
+(ros::load-ros-manifest "roseus")
 
 (load "package://pr2eus/pr2-interface.l")
 (load "package://jsk_smart_gui/src/utils.l")
@@ -23,8 +24,8 @@
 
 (defun emergency-command-cb (msg)
   (if (is-old-msg msg) (return-from emergency-command-cb nil))
-  ;;(ros::ros-info "emergency-command-cb called")
-  (let ((taskname (read-from-string (send msg :action :task_name))))
+  (ros::ros-info "emergency-command-cb called")
+  (let ((taskname (read-from-string (send msg :data))))
     (case taskname
       ('StopNavigation
        (ros::ros-info "StopNavigation called")
@@ -39,7 +40,7 @@
   (if (not (boundp '*ri*)) (setq *ri* (instance pr2-interface :init)))
 
   (ros::subscribe "/Tablet/EmergencyCommand"
-		  jsk_gui_msgs::Tablet #'emergency-command-cb)
+		  roseus::StringStamped #'emergency-command-cb)
 
   (setq *time-count* (ros::time-now))
   (ros::rate 10)
