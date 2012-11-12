@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	  package="ros.android.jskandroidgui" android:versionCode="8"
-	  android:versionName="3.5">
+	  package="ros.android.jskandroidgui" android:versionCode="9"
+	  android:versionName="3.6">
   <uses-sdk android:minSdkVersion="9" />
   <application android:icon="@drawable/jskandroidgui" android:label="@string/app_name">
     <activity android:name=".JskAndroidGui" android:label="@string/app_name"

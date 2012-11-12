@@ -200,7 +200,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     }
 
     public void SendTorsoDownMsg () {
-	SendCommandMsg("TorsoUp", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
+	SendCommandMsg("TorsoDown", RobotArmId, "SendMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);
     }
 
     public void SendOpenGripperMsg () {

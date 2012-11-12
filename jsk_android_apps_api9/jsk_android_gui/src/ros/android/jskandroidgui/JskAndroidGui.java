@@ -51,6 +51,7 @@ public class JskAndroidGui extends RosAppActivity {
     private Publisher<Empty> GetSpotPub;
     private Publisher<StringStamped> StartDemoPub;
     private Publisher<StringStamped> MoveToSpotPub;
+    private Publisher<StringStamped> EmergencyStopPub;
     private ParameterTree params;
 
     private Button demo_button;
@@ -146,6 +147,8 @@ public class JskAndroidGui extends RosAppActivity {
 	    node.newPublisher( "/Tablet/StartDemo" , "roseus/StringStamped" );
 	MoveToSpotPub =
 	    node.newPublisher( "/Tablet/MoveToSpot" , "roseus/StringStamped" );
+	EmergencyStopPub =
+	    node.newPublisher( "/Tablet/EmergencyCommand" , "roseus/StringStamped" );
 
 	// demo_button.setOnClickListener(new OnClickListener(){
 	// 	public void onClick(View viw) {
@@ -370,6 +373,22 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.SetResetAll();
 	    isDrawLine = false;
 	    Log.i("JskAndroidGui:ItemSeleted", "Set ResetAll");
+	    return true;
+	case R.id.stopjoint:
+	    StringStamped StrMsg_stopjoint = new StringStamped();
+	    StrMsg_stopjoint.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	    StrMsg_stopjoint.data = "StopJoint";
+	    EmergencyStopPub.publish( StrMsg_stopjoint );
+	    safeToastStatus("tasks: EmergencyStopJoint");
+	    Log.i("JskAndroidGui:ItemSeleted", "Sending EmergencyStopJoint");
+	    return true;
+	case R.id.stopnavigation:
+	    StringStamped StrMsg_stopnavigation = new StringStamped();
+	    StrMsg_stopnavigation.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	    StrMsg_stopnavigation.data = "StopNavigation";
+	    EmergencyStopPub.publish( StrMsg_stopnavigation );
+	    safeToastStatus("tasks: EmergencyStopNavigation");
+	    Log.i("JskAndroidGui:ItemSeleted", "Sending EmergencyStopNavigation");
 	    return true;
 	default:
 	    return super.onOptionsItemSelected(item);
