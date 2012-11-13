@@ -1,3 +1,6 @@
+package org.ros.android.android_voice_message;
+
+
 /*
  * Copyright (C) 2011 Google Inc.
  *
@@ -14,7 +17,6 @@
  * the License.
  */
 
-package org.ros.android.android_voice_message;
 
 import android.os.Bundle;
 import android.os.IBinder;
@@ -22,7 +24,6 @@ import android.os.IBinder;
 import org.ros.android.android_voice_message.*;
 import org.ros.android.MessageCallable;
 import org.ros.android.RosActivity;
-import org.ros.android.view.RosTextView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.rosjava_tutorial_pubsub.Talker;
@@ -46,6 +47,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.net.URI;
@@ -61,17 +63,17 @@ import jsk_gui_msgs.VoiceMessage;
  */
 public class MainActivity extends RosActivity {
 
-	  private URI masterUri;
-    private RosTextView<std_msgs.String> rosTextView;
+    private URI masterUri;
+    private TextView textView;
     private Talker talker;
-     private String package_name;
+    private String package_name;
 
     //add new member variables
     SpeechRecognizer sr;
     private SensorManager mSensorManager;
     private int startFlag = 0;
-	private Intent intent;  
-	private AndroidVoiceService myService;
+    private Intent intent;  
+    private AndroidVoiceService myService;
     
    ServiceConnection serviceConnection = new ServiceConnection(){
 
@@ -81,8 +83,7 @@ public class MainActivity extends RosActivity {
 	    public void onServiceConnected(ComponentName name, IBinder service) {
 	      myService = ((AndroidVoiceService.MyBinder)service).getService();
 	      startService(intent);
-	      myService.setNode(sr,package_name);
-
+	      myService.setNode(sr,textView,package_name);
 	    }
 
 	    @Override
@@ -105,14 +106,22 @@ public class MainActivity extends RosActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
+    textView = (TextView) findViewById(R.id.text);
+    ImageView imageView = (ImageView) findViewById(R.id.ImageView);
+    imageView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // ボタンがクリックされた時に呼び出されます
+            myService.setStart();
+        }
+    });
+
 
     //add
 	mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-	sr = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
-   package_name = getPackageName();
-   	
-
-
+	//	sr = SpeechRecognizer.createSpeechRecognizer(getApplicationContext());
+		sr = SpeechRecognizer.createSpeechRecognizer(this);
+	package_name = getPackageName();
   }
   
   @Override
@@ -120,11 +129,9 @@ public class MainActivity extends RosActivity {
 	super.onResume();
 	if (masterUri != null){
 		
-		intent = new Intent(getBaseContext(),AndroidVoiceService.class);
+	    intent = new Intent(getBaseContext(),AndroidVoiceService.class);
 	    intent.putExtra("masterUri", masterUri.toString());
 	    bindService(intent,serviceConnection,Context.BIND_AUTO_CREATE);
-	    
-
 	    
 	      /*intent = new Intent(this, AndroidSensorService.class);
 	      intent.putExtra("masterUri", masterUri.toString());

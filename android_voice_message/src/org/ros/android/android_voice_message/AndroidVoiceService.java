@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
+import android.widget.TextView;
+
 
 
 
@@ -27,11 +29,8 @@ public class AndroidVoiceService extends IntentService{
 	SensorManager mSensorManager;
 	List<Sensor> sensors;
 	AndroidVoiceMessageNode main_node;
-	NodeMain talker;
 	Intent mintent;
-	int[] usedFlag;
-	int[] usedFlag2;
-
+	NodeMainExecutor e;
     private String package_name;
    SpeechRecognizer sr;
    
@@ -59,7 +58,7 @@ public class AndroidVoiceService extends IntentService{
 	
 	
 	
-		public void setNode(SpeechRecognizer sr,String package_name){
+		public void setNode(SpeechRecognizer sr,TextView textView,String package_name){
 		  showNotification();
 		  this.sr = sr;
 		  this.package_name = package_name;
@@ -75,15 +74,15 @@ public class AndroidVoiceService extends IntentService{
 			  String hostLocal = InetAddressFactory.newNonLoopback().getHostAddress();
 		  // At this point, the user has already been prompted to either enter the URI
 		  // of a master to use or to start a master locally.
-		  NodeMainExecutor e = DefaultNodeMainExecutor.newDefault();
+		  e = DefaultNodeMainExecutor.newDefault();
 
 		  NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(hostLocal,masterUri);
 		  nodeConfiguration.setMasterUri(masterUri);
 		  nodeConfiguration.setNodeName("android_voice_message");
 
-		  talker = new AndroidVoiceMessageNode(mSensorManager,sr,package_name);
+		  main_node = new AndroidVoiceMessageNode(mSensorManager,sr,textView,package_name);
+		  e.execute(main_node, nodeConfiguration);	  
 
-		  e.execute(talker, nodeConfiguration);
 
 
 		    	}catch(URISyntaxException e){
@@ -92,7 +91,10 @@ public class AndroidVoiceService extends IntentService{
 		    }
 		}
 		    
-	
+		public void setStart(){
+			main_node.setFlag();
+		}
+		
 	@Override
 	  protected void onHandleIntent(Intent intent) {
 		try {
@@ -120,6 +122,6 @@ public class AndroidVoiceService extends IntentService{
   
   @Override
   public void onDestroy(){
-  	this.talker.onShutdown(null);
+	  e.shutdownNodeMain(main_node);
   }
 }
