@@ -47,6 +47,8 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	RobotArmId = Action.LARMID, TouchMode = 1;
     private float MaxHeight, MaxWidth;
     private ArrayList<Integer> startXList = new ArrayList(), startYList = new ArrayList(), curXList = new ArrayList(), curYList = new ArrayList(), fingerList = new ArrayList();
+    //  private ArrayList<Integer> last_startXList = new ArrayList(), last_startYList = new ArrayList(), last_curXList = new ArrayList(), last_curYList = new ArrayList(), last_fingerList = new ArrayList();
+    private Integer last_x = 0, last_y = 0;
 
     private Publisher<Tablet> TabletCommandPub;
     // we separate the publisher that uses jsk_pcl_ros
@@ -88,13 +90,15 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void SetSwipeDetected (int SwipeType) {SwipeDetectedType = SwipeType; SwipeCounter = 0;}
     public void unSetSwipeDetected () {SwipeDetectedType = SWIPE_NONE; SwipeCounter = 0;}
     public void SetRobotArm (int armid) {RobotArmId = armid;}
+    public void PublishPushOnce() {SendCommandMsg("PushOnce", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
+    public void PublishPickOnce() {SendCommandMsg("PickObjectSelected", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
     public void SetDrawLine () {isDrawLine = true;}
     public void unSetDrawLine () {isDrawLine = false;}
     public void SetMovingFingerInfo () {isMovingFingerInfo = true;}
     public void unSetMovingFingerInfo () {isMovingFingerInfo = false;}
     public void SetPushOnce () {isPushOnce = true;}
-    public void SetPlaceOnce () {isPlaceOnce = true;}
     public void SetPickOnce () {isPickOnce = true;}
+    public void SetPlaceOnce () {isPlaceOnce = true;}
     public void SetPassToHumanOnce () {isPassToHumanOnce = true;}
     public void ChangeTouchMode () {
 	if (TouchMode == 0) {TouchMode++;}
@@ -228,238 +232,241 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
 
     @Override
-	public boolean onTouchEvent(MotionEvent event) {
-	//this.invalidate();
+    	public boolean onTouchEvent(MotionEvent event) {
+    	//this.invalidate();
+    	final int action = event.getAction();
+    	final int fingerCount_temp = event.getPointerCount();
+    	Log.i("JskAndroidGui:TouchEvent","START, Action is = " + action);
+    	Log.i("JskAndroidGui:TouchEvent","current fingerCount = " + fingerCount + ", current fingerCount_temp = " + fingerCount_temp);
 
-	final int action = event.getAction();
-	final int fingerCount_temp = event.getPointerCount();
-	Log.i("JskAndroidGui:TouchEvent","START, Action is = " + action);
-	Log.i("JskAndroidGui:TouchEvent","current fingerCount = " + fingerCount + ", current fingerCount_temp = " + fingerCount_temp);
+    	switch ( action & MotionEvent.ACTION_MASK) {
+    	    /* ACTION_DOWN */
+    	case MotionEvent.ACTION_DOWN:{
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_DOWN] START");
+    	    fingerCount = event.getPointerCount();
+    	    if (fingerCount > 0) { //fingerCount is always 1 in this case
+    		startXList.clear(); startYList.clear();
+    		startXList.ensureCapacity(fingerCount);
+    		startYList.ensureCapacity(fingerCount);
 
-	switch ( action & MotionEvent.ACTION_MASK) {
-	    /* ACTION_DOWN */
-	case MotionEvent.ACTION_DOWN:{
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_DOWN] START");
-	    fingerCount = event.getPointerCount();
-	    if (fingerCount > 0) { //fingerCount is always 1 in this case
-		startXList.clear(); startYList.clear();
-		startXList.ensureCapacity(fingerCount);
-		startYList.ensureCapacity(fingerCount);
+    		startXList.add((int)(event.getX() * DefaultWidth / MaxWidth));
+    		startYList.add((int)(event.getY() * DefaultWidth / MaxWidth));
+    		Log.i("JskAndroidGui:TouchEvent","[ACTION_DOWN] startXList = " + startXList + ", startYList = " + startYList);
+    		SendDebugMsg("ActionDown", fingerCount, startXList.get(0), startYList.get(0));
 
-		startXList.add((int)(event.getX() * DefaultWidth / MaxWidth));
-		startYList.add((int)(event.getY() * DefaultWidth / MaxWidth));
-		Log.i("JskAndroidGui:TouchEvent","[ACTION_DOWN] startXList = " + startXList + ", startYList = " + startYList);
-		SendDebugMsg("ActionDown", fingerCount, startXList.get(0), startYList.get(0));
+    		Log.i("JskAndroidGui:TouchEvent","[ACTION_DOWN] END");
+    	    break;
+    	    }
+    	}
+    	    /* ACTION_DOWN more than two fingers */
+    	case MotionEvent.ACTION_POINTER_DOWN:{
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] START");
+    	    fingerCount = event.getPointerCount();
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] current fingerCount = " + fingerCount);
 
-		Log.i("JskAndroidGui:TouchEvent","[ACTION_DOWN] END");
-	    break;
-	    }
-	}
-	    /* ACTION_DOWN more than two fingers */
-	case MotionEvent.ACTION_POINTER_DOWN:{
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] START");
-	    fingerCount = event.getPointerCount();
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] current fingerCount = " + fingerCount);
+    	    startXList.add((int)(event.getX(fingerCount - 1) * DefaultWidth / MaxWidth));
+    	    startYList.add((int)(event.getY(fingerCount - 1) * DefaultWidth / MaxWidth));
 
-	    startXList.add((int)(event.getX(fingerCount - 1) * DefaultWidth / MaxWidth));
-	    startYList.add((int)(event.getY(fingerCount - 1) * DefaultWidth / MaxWidth));
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] startXList = " + startXList + ", startYList = " + startYList);
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] END");
+    	}
+    	    /* ACTION_MOVE */
+    	case MotionEvent.ACTION_MOVE:{
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_MOVE] START");
+    	    if ( fingerCount > 0 ) {
+    		curXList.clear(); curYList.clear();
+    		fingerList.ensureCapacity(100);
+    		curXList.ensureCapacity(100);
+    		curYList.ensureCapacity(100);
 
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] startXList = " + startXList + ", startYList = " + startYList);
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_DOWN] END");
-	}
-	    /* ACTION_MOVE */
-	case MotionEvent.ACTION_MOVE:{
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_MOVE] START");
-	    if ( fingerCount > 0 ) {
-		curXList.clear(); curYList.clear();
-		fingerList.ensureCapacity(100);
-		curXList.ensureCapacity(100);
-		curYList.ensureCapacity(100);
+    		if( fingerCount == 1 ) {
+    		    fingerList.add(0);
+    		    curXList.add((int)(event.getX() * DefaultWidth / MaxWidth));
+    		    curYList.add((int)(event.getY() * DefaultWidth / MaxWidth));
+    		} else {
+    		    for (int i = 0; i <= fingerCount_temp - 1; i++) {
+    			fingerList.add(i);
+    			curXList.add((int)(event.getX(i) * DefaultWidth / MaxWidth));
+    			curYList.add((int)(event.getY(i) * DefaultWidth / MaxWidth));
+    		    }
+    		}
+    	    }
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_MOVE] curXList = " + curXList + ", curYList = " + curYList);
+    	    SendDebugMsg("ActionMove", fingerCount, curXList.get(0), curYList.get(0));
+    	    if ( isDrawLine && fingerCount == 2 && fingerCount_temp == 2) {
+    		SendTaskMsg("DrawLine", 0, "TOUCHMOVE", 0, null, 0,
+    			fingerList, curXList, curYList, 0, 0);
+    	    } else if (isMovingFingerInfo) {
+    	    	SendTaskMsg("MovingPointInfo", 0, "TOUCHMOVE", 0, null, 0,
+    			    fingerList, curXList, curYList, 0, 0);
+    	    }
 
-		if( fingerCount == 1 ) {
-		    fingerList.add(0);
-		    curXList.add((int)(event.getX() * DefaultWidth / MaxWidth));
-		    curYList.add((int)(event.getY() * DefaultWidth / MaxWidth));
-		} else {
-		    for (int i = 0; i <= fingerCount_temp - 1; i++) {
-			fingerList.add(i);
-			curXList.add((int)(event.getX(i) * DefaultWidth / MaxWidth));
-			curYList.add((int)(event.getY(i) * DefaultWidth / MaxWidth));
-		    }
-		}
-	    }
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_MOVE] curXList = " + curXList + ", curYList = " + curYList);
-	    SendDebugMsg("ActionMove", fingerCount, curXList.get(0), curYList.get(0));
-	    if ( isDrawLine && fingerCount == 2 && fingerCount_temp == 2) {
-		SendTaskMsg("DrawLine", 0, "TOUCHMOVE", 0, null, 0,
-			fingerList, curXList, curYList, 0, 0);
-	    } else if (isMovingFingerInfo) {
-	    	SendTaskMsg("MovingPointInfo", 0, "TOUCHMOVE", 0, null, 0,
-			    fingerList, curXList, curYList, 0, 0);
-	    }
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_MOVE] END");
+    	    break;
+    	}
+    	    /* ACTION_UP */
+    	case MotionEvent.ACTION_UP:{
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_UP] START");
+    	    // if ( fingerCount == 1 && isMovingFingerInfo) {
+    	    // 	SendTaskMsg("OpenDoor", RobotArmID, "TOUCH", 0, null, 0,
+    	    // 		    fingerList, startXList, startYList, 0, 0);
+    	    // 	unSetMovingFingerInfo();
+    	    // } else
+    	    if ( isMovingFingerInfo ) {
+    		return true;
+    	    }
 
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_MOVE] END");
-	    break;
-	}
-	    /* ACTION_UP */
-	case MotionEvent.ACTION_UP:{
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_UP] START");
-	    // if ( fingerCount == 1 && isMovingFingerInfo) {
-	    // 	SendTaskMsg("OpenDoor", RobotArmID, "TOUCH", 0, null, 0,
-	    // 		    fingerList, startXList, startYList, 0, 0);
-	    // 	unSetMovingFingerInfo();
-	    // } else
-	    if ( isMovingFingerInfo ) {
-		return true;
-	    }
+    	    if ( fingerCount == 1 && curXList.size() == 0 ) {
+		last_x = startXList.get(0);
+		last_y = startYList.get(0);
+    		fingerList.add(0);
+    		if (isPushOnce) {
+    		    isPushOnce = false;
+    		    SendCommandMsg("PushOnce", 0, "TOUCH", 0, null, 0,
+    				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+    		} else if (isPickOnce) {
+    		    isPickOnce = false;
+    		    //SendCommandMsg("PickOnce", 0, "TOUCH", 0, null, 0,
+    		    SendCommandMsg("PickObjectSelected", RobotArmId, "TOUCH", 0, null, 0,
+    				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+    		} else if (isPlaceOnce) {
+    		    isPlaceOnce = false;
+    		    SendCommandMsg("PlaceOnce", 0, "TOUCH", 0, null, 0,
+    				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+    		} else if (isPassToHumanOnce) {
+    		    isPassToHumanOnce = false;
+    		    SendCommandMsg("PassToHumanOnce", RobotArmId, "TOUCH", 0, null, 0,
+    				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+    		} else if (TouchMode == 0) {
+    		    SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
+    				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+    		} else if (TouchMode == 1) {
+    		    SendCommandMsg("Show3DScreenPoint", 0, "TOUCH", 0, null, 0,
+    				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
+    		}
+    		SendDebugMsg("TOUCH", 0, startXList.get(0), startYList.get(0));
+    	    } else if ( fingerCount == 1 && curXList.size() > 0 ) {
+		last_x = startXList.get(0);
+		last_y = startYList.get(0);
+    		final float swipeLength =
+    		    Math.round(Math.sqrt(Math.pow(curXList.get(curXList.size() - 1) - startXList.get(0) , 2)
+    					 + Math.pow(curYList.get(curYList.size() - 1) - startYList.get(0) , 2)));//
 
-	    if ( fingerCount == 1 && curXList.size() == 0 ) {
-		fingerList.add(0);
-		if (isPushOnce) {
-		    isPushOnce = false;
-		    SendCommandMsg("PushOnce", 0, "TOUCH", 0, null, 0,
-				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
-		} else if (isPickOnce) {
-		    isPickOnce = false;
-		    //SendCommandMsg("PickOnce", 0, "TOUCH", 0, null, 0,
-		    SendCommandMsg("PickObjectSelected", RobotArmId, "TOUCH", 0, null, 0,
-				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
-		} else if (isPlaceOnce) {
-		    isPlaceOnce = false;
-		    SendCommandMsg("PlaceOnce", 0, "TOUCH", 0, null, 0,
-				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
-		} else if (isPassToHumanOnce) {
-		    isPassToHumanOnce = false;
-		    SendCommandMsg("PassToHumanOnce", RobotArmId, "TOUCH", 0, null, 0,
-				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
-		} else if (TouchMode == 0) {
-		    SendCommandMsg("MoveCameraCenter", 0, "TOUCH", 0, null, 0,
-				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
-		} else if (TouchMode == 1) {
-		    SendCommandMsg("Show3DScreenPoint", 0, "TOUCH", 0, null, 0,
-				   fingerList, startXList, startYList, startXList.get(0), startYList.get(0));
-		}
-		SendDebugMsg("TOUCH", 0, startXList.get(0), startYList.get(0));
-	    } else if ( fingerCount == 1 && curXList.size() > 0 ) {
-		final float swipeLength =
-		    Math.round(Math.sqrt(Math.pow(curXList.get(curXList.size() - 1) - startXList.get(0) , 2)
-					 + Math.pow(curYList.get(curYList.size() - 1) - startYList.get(0) , 2)));//
+    		if ( swipeLength >= minLength ) {
+    		    SendDebugMsg("SWIPE", swipeLength, curXList.get(0), curYList.get(0));
+    		    final int X = startXList.get(0) - curXList.get(curXList.size() - 1);
+    		    final int Y = curYList.get(curYList.size() - 1) - startYList.get(0);
+    		    final double r = Math.atan2(Y, X);
+    		    float swipeAngle = Math.round( r * 180 / Math.PI);
+    		    if ( swipeAngle < 0 ) swipeAngle =  360 - Math.abs(swipeAngle);
+    		    if ( (swipeAngle <= 45) && (swipeAngle >= 0) ) {
+    			MoveNeck("left", swipeLength);
+    			SetSwipeDetected(SWIPE_LEFT);
+    		    } else if ( (swipeAngle <= 360) && (swipeAngle >= 315) ) {
+    			MoveNeck("left", swipeLength);
+    			SetSwipeDetected(SWIPE_LEFT);
+    		    } else if ( (swipeAngle >= 135) && (swipeAngle <= 225) ) {
+    			MoveNeck("right", swipeLength);
+    			SetSwipeDetected(SWIPE_RIGHT);
+    		    } else if ( (swipeAngle > 45) && (swipeAngle < 135) ) {
+    			MoveNeck("down", swipeLength);
+    			SetSwipeDetected(SWIPE_DOWN);
+    		    } else {
+    			MoveNeck("up", swipeLength);
+    			SetSwipeDetected(SWIPE_UP);
+    		    }
+    		}
+    	    } else if ( fingerCount == 2 && curXList.size() > 0 && fingerCountOver == 0 ) {
+    		/* if fingercount == 2, startlist.size() = 2, curlist.size  = 1or2 */
+    	    	final float startDistance =
+    		    Math.round(Math.sqrt(Math.pow(startXList.get(1) - startXList.get(0),2)
+    					 + Math.pow(startYList.get(1) - startYList.get(0),2)));
+    		final float endDistance =
+    		    Math.round(Math.sqrt(Math.pow(curXList.get(curXList.size() - 1) - curXList.get(0),2)
+    					 + Math.pow(curYList.get(curYList.size() -1 ) - curYList.get(0),2)));
+    	    	final float pinchLength = startDistance - endDistance;
 
-		if ( swipeLength >= minLength ) {
-		    SendDebugMsg("SWIPE", swipeLength, curXList.get(0), curYList.get(0));
-		    final int X = startXList.get(0) - curXList.get(curXList.size() - 1);
-		    final int Y = curYList.get(curYList.size() - 1) - startYList.get(0);
-		    final double r = Math.atan2(Y, X);
-		    float swipeAngle = Math.round( r * 180 / Math.PI);
-		    if ( swipeAngle < 0 ) swipeAngle =  360 - Math.abs(swipeAngle);
-		    if ( (swipeAngle <= 45) && (swipeAngle >= 0) ) {
-			MoveNeck("left", swipeLength);
-			SetSwipeDetected(SWIPE_LEFT);
-		    } else if ( (swipeAngle <= 360) && (swipeAngle >= 315) ) {
-			MoveNeck("left", swipeLength);
-			SetSwipeDetected(SWIPE_LEFT);
-		    } else if ( (swipeAngle >= 135) && (swipeAngle <= 225) ) {
-			MoveNeck("right", swipeLength);
-			SetSwipeDetected(SWIPE_RIGHT);
-		    } else if ( (swipeAngle > 45) && (swipeAngle < 135) ) {
-			MoveNeck("down", swipeLength);
-			SetSwipeDetected(SWIPE_DOWN);
-		    } else {
-			MoveNeck("up", swipeLength);
-			SetSwipeDetected(SWIPE_UP);
-		    }
-		}
-	    } else if ( fingerCount == 2 && curXList.size() > 0 && fingerCountOver == 0 ) {
-		/* if fingercount == 2, startlist.size() = 2, curlist.size  = 1or2 */
-	    	final float startDistance =
-		    Math.round(Math.sqrt(Math.pow(startXList.get(1) - startXList.get(0),2)
-					 + Math.pow(startYList.get(1) - startYList.get(0),2)));
-		final float endDistance =
-		    Math.round(Math.sqrt(Math.pow(curXList.get(curXList.size() - 1) - curXList.get(0),2)
-					 + Math.pow(curYList.get(curYList.size() -1 ) - curYList.get(0),2)));
-	    	final float pinchLength = startDistance - endDistance;
+    		final int touch_x = (curXList.get(0) + curXList.get(curXList.size() - 1))/2;
+    		final int touch_y = (curYList.get(0) + curYList.get(curYList.size() - 1))/2;
+    		SendDebugMsg("PINCH", pinchLength, touch_x, touch_y);
+    	    	if ( false ) {// get camera id?
+    	    	    ZoomCamera((startXList.get(0) + startXList.get(1))/2,
+    			       (startYList.get(0) + startYList.get(1))/2, pinchLength);
+    	    	} else {
+    		    SendCommandMsg("pick", RobotArmId, "PINCH", 0, null, 0,
+    			    fingerList, curXList, curYList, touch_x, touch_y);
+    		}
+    	    } else if ( fingerCount == 4 ) {
+    		if (startYList.get(0) >= DefaultHeight / 2 &&
+    		    DefaultHeight / 2 >= curYList.get(0)) {
+    		    SendCommandMsg("TorsoUp", 0, "TOUCH", 0, null, 0,
+    			    fingerList, startXList, startYList, 0, 0);
+    		} else if (startYList.get(0) <= DefaultHeight / 2 &&
+    			   DefaultHeight / 2 <= curYList.get(0)) {
+    		    SendCommandMsg("TorsoDown", 0, "TOUCH", 0, null, 0,
+    			    fingerList, startXList, startYList, 0, 0);
+    		} else {
+    		    SendCommandMsg("StopMotion", 0, "TOUCH", 0, null, 0,
+    			    fingerList, startXList, startYList, 0, 0);
+    		}
+    	    } else if ( fingerCount == 5 && (Math.abs(startXList.get(0) - curXList.get(0)) > minLength) ) {
+    		SendCommandMsg("TuckArmPose", RobotArmId, "TOUCH", 0, null, 0,
+    			fingerList, startXList, startYList, 0, 0);
+    	    }
+    	    ResetValue();
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_UP] END, ResetValue();");
+    	    break;
+    	}
+    	    /* ACTION_UP more than two fingers */
+    	case MotionEvent.ACTION_POINTER_UP:{
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] START");
+    	    Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] fingerCount = " + fingerCount + ", fingerCount_temp = " + fingerCount_temp);
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] isMovingFingerInfo = " + isMovingFingerInfo);
+    	    if ( fingerCount_temp == 2 && fingerCount == 2 && isMovingFingerInfo) {
+    		int p1x,p1y,p2x,p2y,p3x,p3y;
+    		if ( Math.abs(startXList.get(0) - curXList.get(0)) < minLength ){
+    		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] true");
+    		    p1x = startXList.get(0); p1y = startYList.get(0);
+    		    p2x = startXList.get(1); p2y = startYList.get(1);
+    		    p3x = curXList.get(1); p3y = startYList.get(1);
+    		} else {
+    		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] false");
+    		    p1x = startXList.get(1); p1y = startYList.get(1);
+    		    p2x = startXList.get(0); p2y = startYList.get(0);
+    		    p3x = curXList.get(0); p3y = startYList.get(0);
+    		}
+    		if ( isClockWise(p1x, p1y, p2x, p2y, p3x, p3y) ) {
+    		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] 45");
+    		    SendCommandMsg("RotateGripper", RobotArmId, "PINCH", 45, null, 0,
+    				   fingerList, startXList, startYList, 0, 0);
+    		} else {
+    		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] -45");
+    		    SendCommandMsg("RotateGripper", RobotArmId, "PINCH", -45, null, 0,
+    				   fingerList, startXList, startYList, 0, 0);
+    		}
+    	    } else if ( fingerCount_temp == 3 && fingerCount == 3 ) {
+    		Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] startXList = " + startXList + ", startYList = " + startYList);
+    		Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] curXList = " + curXList + ", curYList = " + curYList);
 
-		final int touch_x = (curXList.get(0) + curXList.get(curXList.size() - 1))/2;
-		final int touch_y = (curYList.get(0) + curYList.get(curYList.size() - 1))/2;
-		SendDebugMsg("PINCH", pinchLength, touch_x, touch_y);
-	    	if ( false ) {// get camera id?
-	    	    ZoomCamera((startXList.get(0) + startXList.get(1))/2,
-			       (startYList.get(0) + startYList.get(1))/2, pinchLength);
-	    	} else {
-		    SendCommandMsg("pick", RobotArmId, "PINCH", 0, null, 0,
-			    fingerList, curXList, curYList, touch_x, touch_y);
-		}
-	    } else if ( fingerCount == 4 ) {
-		if (startYList.get(0) >= DefaultHeight / 2 &&
-		    DefaultHeight / 2 >= curYList.get(0)) {
-		    SendCommandMsg("TorsoUp", 0, "TOUCH", 0, null, 0,
-			    fingerList, startXList, startYList, 0, 0);
-		} else if (startYList.get(0) <= DefaultHeight / 2 &&
-			   DefaultHeight / 2 <= curYList.get(0)) {
-		    SendCommandMsg("TorsoDown", 0, "TOUCH", 0, null, 0,
-			    fingerList, startXList, startYList, 0, 0);
-		} else {
-		    SendCommandMsg("StopMotion", 0, "TOUCH", 0, null, 0,
-			    fingerList, startXList, startYList, 0, 0);
-		}
-	    } else if ( fingerCount == 5 && (Math.abs(startXList.get(0) - curXList.get(0)) > minLength) ) {
-		SendCommandMsg("TuckArmPose", RobotArmId, "TOUCH", 0, null, 0,
-			fingerList, startXList, startYList, 0, 0);
-	    }
+    		//TODO: estimate open or slide ?
+    		SendTaskMsg("OpenDoorInput", RobotArmId, "TOUCH", 0, null, 0,
+    			    fingerList, startXList, startYList, 0, 0);
+    		unSetDrawLine();
+    		SetMovingFingerInfo();
+    	    }
 
-	    ResetValue();
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_UP] END, ResetValue();");
-	    break;
-	}
-	    /* ACTION_UP more than two fingers */
-	case MotionEvent.ACTION_POINTER_UP:{
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] START");
-	    Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] fingerCount = " + fingerCount + ", fingerCount_temp = " + fingerCount_temp);
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] isMovingFingerInfo = " + isMovingFingerInfo);
-	    if ( fingerCount_temp == 2 && fingerCount == 2 && isMovingFingerInfo) {
-		int p1x,p1y,p2x,p2y,p3x,p3y;
-		if ( Math.abs(startXList.get(0) - curXList.get(0)) < minLength ){
-		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] true");
-		    p1x = startXList.get(0); p1y = startYList.get(0);
-		    p2x = startXList.get(1); p2y = startYList.get(1);
-		    p3x = curXList.get(1); p3y = startYList.get(1);
-		} else {
-		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] false");
-		    p1x = startXList.get(1); p1y = startYList.get(1);
-		    p2x = startXList.get(0); p2y = startYList.get(0);
-		    p3x = curXList.get(0); p3y = startYList.get(0);
-		}
-		if ( isClockWise(p1x, p1y, p2x, p2y, p3x, p3y) ) {
-		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] 45");
-		    SendCommandMsg("RotateGripper", RobotArmId, "PINCH", 45, null, 0,
-				   fingerList, startXList, startYList, 0, 0);
-		} else {
-		    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] -45");
-		    SendCommandMsg("RotateGripper", RobotArmId, "PINCH", -45, null, 0,
-				   fingerList, startXList, startYList, 0, 0);
-		}
-	    } else if ( fingerCount_temp == 3 && fingerCount == 3 ) {
-		Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] startXList = " + startXList + ", startYList = " + startYList);
-		Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] curXList = " + curXList + ", curYList = " + curYList);
-
-		//TODO: estimate open or slide ?
-		SendTaskMsg("OpenDoorInput", RobotArmId, "TOUCH", 0, null, 0,
-			    fingerList, startXList, startYList, 0, 0);
-		unSetDrawLine();
-		SetMovingFingerInfo();
-	    }
-
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] END");
-	}
-	    /* ACTION_CANCEL , called with ACTION_POINTER_UP */
-	case MotionEvent.ACTION_CANCEL:{
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_CANCEL] START");
-	    Log.i("JskAndroidGui:TouchEvent","[ACTION_CANCEL] END");
-	    break;
-	}
-	}
-	Log.i("JskAndroidGui:TouchEvent","END");
-	return true;
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] END");
+    	}
+    	    /* ACTION_CANCEL , called with ACTION_POINTER_UP */
+    	case MotionEvent.ACTION_CANCEL:{
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_CANCEL] START");
+    	    Log.i("JskAndroidGui:TouchEvent","[ACTION_CANCEL] END");
+    	    break;
+    	}
+    	}
+    	Log.i("JskAndroidGui:TouchEvent","END");
+	//return true;
+	return super.onTouchEvent(event);
     }
 
     @Override

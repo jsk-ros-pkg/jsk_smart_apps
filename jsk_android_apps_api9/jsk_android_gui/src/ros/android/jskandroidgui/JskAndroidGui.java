@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 import android.view.MotionEvent;
 import android.view.View.OnClickListener;
@@ -14,8 +16,10 @@ import android.widget.Toast;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ImageView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.hardware.SensorManager;
@@ -54,15 +58,16 @@ public class JskAndroidGui extends RosAppActivity {
     private Publisher<StringStamped> EmergencyStopPub;
     private ParameterTree params;
 
-    private Button demo_button;
+    //private Button demo_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
     private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList();
     private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points";
     private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true;
 
-    //private Timer   mTimer;
     private Handler mHandler;
+    static final int CONTEXT_MENU1_ID = 0;
+    static final int CONTEXT_MENU2_ID = 1;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,22 +97,24 @@ public class JskAndroidGui extends RosAppActivity {
 	spots_spinner = (Spinner)findViewById(R.id.spinner_spots);
 	ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this, R.layout.list);
 	spots_spinner.setAdapter(adapter_spots);
+	adapter_spots.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	spots_spinner.setPromptId(R.string.SpinnerPrompt_spots);
 
 	tasks_spinner = (Spinner)findViewById(R.id.spinner_tasks);
 	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list);
 	tasks_spinner.setAdapter(adapter_tasks);
+	adapter_tasks.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
-
 	image_spinner = (Spinner)findViewById(R.id.spinner_image);
 	String[] image_list = {"cameras", "/openni/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"}; //Todo, get active camera list
 	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list, image_list);
 	image_spinner.setAdapter(adapter_image);
-
+	adapter_image.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	points_spinner = (Spinner)findViewById(R.id.spinner_points);
 	String[] points_list = {"points", "/openni/depth_registered/points", "/tilt_laser_cloud2"};
 	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
 	points_spinner.setAdapter(adapter_points);
+	adapter_points.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 	if (getIntent().hasExtra("camera_topic")) {
 	    cameraTopic = getIntent().getStringExtra("camera_topic");
@@ -118,8 +125,17 @@ public class JskAndroidGui extends RosAppActivity {
 	joystickView.setBaseControlTopic("android/cmd_vel");
 	cameraView = (SensorImageViewInfo) findViewById(R.id.image);
 	cameraView.setClickable(true);
-	//mTimer = null;
+	cameraView.SetRobotArm(Action.LARMID);
 	mHandler = new Handler();
+
+	ImageView ivInContext = (ImageView) findViewById(R.id.image);
+	//ImageView jsInContext = (ImageView) findViewById(R.id.joystick);
+	ivInContext.setFocusable(true);
+	ivInContext.setClickable(true);
+	//jsInContext.setFocusable(true);
+	//jsInContext.setClickable(true);
+	registerForContextMenu(ivInContext);
+	//registerForContextMenu(jsInContext);
     }
 
     @Override
@@ -289,12 +305,40 @@ public class JskAndroidGui extends RosAppActivity {
     }
 
     @Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+					ContextMenuInfo menuInfo) {
+	super.onCreateContextMenu(menu, v, menuInfo);
+	Log.i("JskAndroidGui:debug", "onCreateContextMenu");
+	menu.setHeaderTitle("Long touch detected");
+	//Menu.add(int groupId, int itemId, int order, CharSequence title)
+	menu.add(0, CONTEXT_MENU1_ID, 0, "PUSHONCE");
+	menu.add(0, CONTEXT_MENU2_ID, 0, "PICKONCE");
+    }
+
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+	Log.i("JskAndroidGui:debug", "onCreateOptionsMenu");
 	MenuInflater inflater = getMenuInflater();
 	inflater.inflate(R.menu.jsk_android_gui, menu);
 	isAdapterSet_spots = false; isAdapterSet_tasks = false;
 	GetParamAndSetSpinner();
 	return true;
+    }
+
+    @Override
+	public boolean onContextItemSelected(MenuItem item) {
+	switch (item.getItemId()) {
+	case CONTEXT_MENU1_ID:
+	    Log.i("JskAndroidGui:ItemSeleted", "Publish PushOnce");
+	    cameraView.PublishPushOnce();
+	    return true;
+	case CONTEXT_MENU2_ID:
+	    Log.i("JskAndroidGui:ItemSeleted", "Publish PickOnce");
+	    cameraView.PublishPickOnce();
+	    return true;
+	default:
+	    return super.onContextItemSelected(item);
+	}
     }
 
     @Override
@@ -398,11 +442,13 @@ public class JskAndroidGui extends RosAppActivity {
     protected void GetParamAndSetSpinner() {
 	//tasks_list.clear(); spots_list.clear();
 	ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this, R.layout.list);
+	adapter_spots.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	for (int i = 0; i <= spots_list.size() - 1; i++) {
 	    adapter_spots.add(spots_list.get(i));
 	}
 	spots_spinner.setAdapter(adapter_spots);
 	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list);
+	adapter_tasks.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	for (int i = 0; i <= tasks_list.size() - 1; i++) {
 	    adapter_tasks.add(tasks_list.get(i));
 	}
