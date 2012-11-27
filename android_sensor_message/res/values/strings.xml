@@ -6,5 +6,8 @@
 	<string name="str_exit">Exit</string>
 	<string name="app_about_message">This App uses Rosjava to publish your Android\'s sensors as ROS\'s sensor_msgs topics.</string>
 	<string name="str_ok">OK</string>
+	<string name="menu_btn">Menu</string>
+	<string name="set_btn">ON</string>
+	
 	
 </resources>

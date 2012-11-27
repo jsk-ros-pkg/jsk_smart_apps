@@ -1,141 +1,107 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:stretchColumns="1"
-    android:shrinkColumns="1"
-   >
-    <TableRow>
-    <TextView
-    	android:id="@+id/text_0"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"
-    	android:text="加速度"
-    	/>
-    	<CheckBox android:id="@+id/checkbox0"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/LinearLayout01"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-       /> 
-     </TableRow>
-     <TableRow>
-    <TextView
-    	android:id="@+id/text_1"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"
-    	android:text="温度"
-    	/>
-    	<CheckBox android:id="@+id/checkbox1"
-        android:layout_width="fill_parent"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <SurfaceView
+            android:id="@+id/SV"
+            android:layout_width="fill_parent"
+            android:layout_height="300dip" >
+        </SurfaceView>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout02"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/menuButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/menu_btn" />
+            <Button
+                android:id="@+id/setButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/set_btn" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/sensorName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="MagneticValue"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sensorX"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="x:"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sensorY"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="y:"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sensorZ"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="z:"
+            android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/LinearLayout02"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-     /> 
-    	</TableRow>
-    	<TableRow>
-    <TextView
-    	android:id="@+id/text_2"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"    	
-    	android:text="磁界"
-    	/>
-    	<CheckBox android:id="@+id/checkbox2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-       /> 
-    	</TableRow>
-    	<TableRow>
-    <TextView
-    	android:id="@+id/text_3"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"  
-    	android:text="光"
-    	/>
-    	<CheckBox android:id="@+id/checkbox3"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
- /> 
-    	</TableRow>
-    	<TableRow>
-    <TextView
-    	android:id="@+id/text_4"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-     	android:textSize="25sp"  
-    	android:text="近接"
-    	/>
-    	<CheckBox android:id="@+id/checkbox4"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-    /> 
-    	</TableRow>
-    	<TableRow>
-    <TextView
-    	android:id="@+id/text_5"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-     	android:textSize="25sp"  
-    	android:text="ジャイロ"
-    	/>
-    	 
-    	<CheckBox android:id="@+id/checkbox5"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-    /> 
-    	</TableRow>
-    	<TableRow>
-    <TextView
-    	android:id="@+id/text_6"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-     	android:textSize="25sp"  
-    	android:text="圧力"
-    	/>
-    	<CheckBox android:id="@+id/checkbox6"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        /> 
-    	</TableRow>
-    <TableRow>
-    <TextView
-    	android:id="@+id/text_7"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"
-    	android:text="重力"
-    	/>
-    	<CheckBox android:id="@+id/checkbox7"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-     /> 
-     </TableRow>
-    <TableRow>
-    <TextView
-    	android:id="@+id/text_8"
-    	android:layout_width="160dip"
-    	android:layout_height="wrap_content"
-    	android:textSize="25sp"  
-    	android:text="回転ベクトル"
-    	/>
-    	<CheckBox android:id="@+id/checkbox8"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-   /> 
-    </TableRow>
-     <TableRow>
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal" >
         <Button
-        android:id="@+id/btn"
-        android:layout_width="100dip"
-        android:layout_height="wrap_content"
-        android:text="Start"
-        />
-     </TableRow>
-    <org.ros.android.view.RosTextView
-        android:id="@+id/text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="30dip" />
+            android:id="@+id/viewBaseButton"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="BaseLine" >
+        </Button>
+
+        <Button
+            android:id="@+id/viewXButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="X" >
+        </Button>
+
+        <Button
+            android:id="@+id/viewYButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="Y" >
+        </Button>
+
+        <Button
+            android:id="@+id/viewZButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="Z" >
+        </Button>
+    </LinearLayout>
 
 
-</TableLayout>
+    </LinearLayout>
+    <com.darvds.ribbonmenu.RibbonMenuView
+        android:id="@+id/ribbonMenuView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>
