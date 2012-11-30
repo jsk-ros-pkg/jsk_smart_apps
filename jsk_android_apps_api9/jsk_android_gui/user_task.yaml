@@ -1,4 +1,5 @@
 UserList: [chen , other]
 User:
+    chen: [FridgeDemo, GoToElevator, GoToProfInabaRoom, OpenRefridge,  PickCan, PassToHuman, BackToHome, Greeting1, Greeting2, Greeting3, Greeting4, Greeting5, HandOver]
     chen: [FridgeDemo, Greeting, GoToElevator, GoToProfInabaRoom, OpenFridge, PickCan, SetCurrentHome, BackToHome]
     other: [MainDemo, HandInObject, Greeting]
