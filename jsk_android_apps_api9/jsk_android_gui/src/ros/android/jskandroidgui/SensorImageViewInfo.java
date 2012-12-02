@@ -108,6 +108,8 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
     public void SetResetAll () {ResetValue(); isDrawLine = false; isMovingFingerInfo = false; SendCommandMsg("ResetAll", 0, "SengMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);}
 
+    public void SetResetCollider () {SendCommandMsg("ResetCollider", 0, "SengMsg", 0, null, 0, fingerList, startXList, startYList, 0, 0);}
+
     public void SendCommandMsg(String task_name, int arm_id, String state, float state_value, String direction, float direction_value, ArrayList<Integer> fingerList, ArrayList<Integer> xList, ArrayList<Integer> yList, int touch_x, int touch_y) {
 	Log.v("JskAndroidGui:SendCommandMsg","START");
 	Tablet TabletMsg = new Tablet();

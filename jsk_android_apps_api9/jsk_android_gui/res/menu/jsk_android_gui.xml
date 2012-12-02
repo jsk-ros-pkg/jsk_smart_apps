@@ -17,6 +17,7 @@
     <menu>
       <item android:title="StopJoint" android:id="@+id/stopjoint"></item>
       <item android:title="StopNav" android:id="@+id/stopnavigation"></item>
+      <item android:title="ResetCollider" android:id="@+id/resetcollider"></item>
       <item android:title="ResetAll" android:id="@+id/resetall"></item>
       <item android:title="GetSpot" android:id="@+id/getspot"></item>
       <item android:title="PassToHuman" android:id="@+id/passtohumanonce"></item>

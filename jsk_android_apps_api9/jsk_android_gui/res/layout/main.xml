@@ -63,11 +63,27 @@
 	         android:layout_height="wrap_content"
 	         android:text="@string/button_label_demo"/> -->
 
-      <ros.android.views.JoystickView android:layout_width="fill_parent"
+      <!-- <ros.android.views.JoystickView android:layout_width="fill_parent"
 				      android:layout_height="wrap_content"
 				      android:adjustViewBounds="true"
 				      android:src="@drawable/joystick_white"
-				      android:id="@+id/joystick"/>
+				      android:id="@+id/joystick"/> -->
+
+      <LinearLayout android:orientation="horizontal"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent">
+	<Button android:id="@+id/resultyes"
+		android:layout_weight="1"
+		android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:text="Yes"/>
+	<Button android:id="@+id/resultno"
+		android:layout_weight="1"
+		android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:text="No"/>
+      </LinearLayout>
+
       <!-- <TextView -->
       <!-- 	 android:layout_width="fill_parent" -->
       <!-- 	 android:layout_height="wrap_content" -->

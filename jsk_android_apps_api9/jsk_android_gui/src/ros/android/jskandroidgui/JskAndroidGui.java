@@ -55,15 +55,17 @@ public class JskAndroidGui extends RosAppActivity {
     private Publisher<Empty> GetSpotPub;
     private Publisher<StringStamped> StartDemoPub;
     private Publisher<StringStamped> MoveToSpotPub;
+    private Publisher<StringStamped> SelectPub;
     private Publisher<StringStamped> EmergencyStopPub;
     private ParameterTree params;
 
     //private Button demo_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
-    private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList();
+    private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(),
+	camera_list = new ArrayList(), points_list = new ArrayList();
     private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points";
-    private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true;
+    private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true,isAdapterSet_camera = false, isAdapterSet_points = false;
 
     private Handler mHandler;
     static final int CONTEXT_MENU1_ID = 0;
@@ -105,37 +107,37 @@ public class JskAndroidGui extends RosAppActivity {
 	tasks_spinner.setAdapter(adapter_tasks);
 	adapter_tasks.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
+
 	image_spinner = (Spinner)findViewById(R.id.spinner_image);
-	String[] image_list = {"cameras", "/openni/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"}; //Todo, get active camera list
-	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list, image_list);
+	// String[] image_list = {"cameras", "/openni/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"};
+	//ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list, image_list);
+	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list);
 	image_spinner.setAdapter(adapter_image);
 	adapter_image.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
 	points_spinner = (Spinner)findViewById(R.id.spinner_points);
-	String[] points_list = {"points", "/openni/depth_registered/points", "/tilt_laser_cloud2"};
-	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
+	// String[] points_list = {"points", "/openni/depth_registered/points", "/tilt_laser_cloud2"};
+	//ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
+	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list);
 	points_spinner.setAdapter(adapter_points);
 	adapter_points.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 	if (getIntent().hasExtra("camera_topic")) {
 	    cameraTopic = getIntent().getStringExtra("camera_topic");
 	} else {
-	    cameraTopic = "/openni/marked/image_rect_color/compressed_throttle";
+	    cameraTopic = "/tablet/marked/image_rect_color/compressed_throttle";
 	}
-	joystickView = (JoystickView) findViewById(R.id.joystick);
-	joystickView.setBaseControlTopic("android/cmd_vel");
+	//joystickView = (JoystickView) findViewById(R.id.joystick);
+	//joystickView.setBaseControlTopic("android/cmd_vel");
 	cameraView = (SensorImageViewInfo) findViewById(R.id.image);
 	cameraView.setClickable(true);
 	cameraView.SetRobotArm(Action.LARMID);
 	mHandler = new Handler();
 
 	ImageView ivInContext = (ImageView) findViewById(R.id.image);
-	//ImageView jsInContext = (ImageView) findViewById(R.id.joystick);
 	ivInContext.setFocusable(true);
 	ivInContext.setClickable(true);
-	//jsInContext.setFocusable(true);
-	//jsInContext.setClickable(true);
 	registerForContextMenu(ivInContext);
-	//registerForContextMenu(jsInContext);
     }
 
     @Override
@@ -151,7 +153,7 @@ public class JskAndroidGui extends RosAppActivity {
 			cameraView.setSelected(true);
 		    }
 		});
-	    joystickView.start(node);
+	    //joystickView.start(node);
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Init error: " + ex.toString());
 	    safeToastStatus("Failed: " + ex.getMessage());
@@ -165,6 +167,8 @@ public class JskAndroidGui extends RosAppActivity {
 	    node.newPublisher( "/Tablet/MoveToSpot" , "roseus/StringStamped" );
 	EmergencyStopPub =
 	    node.newPublisher( "/Tablet/EmergencyCommand" , "roseus/StringStamped" );
+	SelectPub =
+	    node.newPublisher( "/Tablet/Select" , "roseus/StringStamped" );
 
 	// demo_button.setOnClickListener(new OnClickListener(){
 	// 	public void onClick(View viw) {
@@ -194,7 +198,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("Failed: " + ex.getMessage());
+	    safeToastStatus("No Param Found: " + ex.getMessage());
 	}
 	spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
@@ -236,7 +240,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("Failed: " + ex.getMessage());
+	    safeToastStatus("No Param Found: " + ex.getMessage());
 	}
 
 	tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -261,34 +265,107 @@ public class JskAndroidGui extends RosAppActivity {
 		}});
 
 	/* for camera */
+	try{
+	    String defaultCamera_ns = "/jsk_ns";
+	    GraphName param_ns = new GraphName(defaultCamera_ns);
+	    NameResolver resolver1 = node.getResolver().createResolver(param_ns);
+	    Object[] camera_param_list = params.getList(resolver1.resolve("camera")).toArray();
+	    Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_param_list.length);
+	    camera_list.clear();camera_list.add("cameras");
+	    for (int i = 0; i < camera_param_list.length; i++) {
+		camera_list.add((String)camera_param_list[i]);
+		Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[i]);
+	    }
+	} catch (Exception ex) {
+	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+	    safeToastStatus("No Param Found: " + ex.getMessage());
+	}
 	image_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
-		    Spinner spinner = (Spinner)parent;
-		    defaultCamera = (String)spinner.getSelectedItem();
-		    String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
-		    cameraView.PubSwitchSensor(str);
-		    safeToastStatus("SwitchSensor: " + str);
-		    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+		    if(isAdapterSet_camera){
+			Spinner spinner = (Spinner)parent;
+			//String item = (String)spinner.getSelectedItem();
+			defaultCamera = (String)spinner.getSelectedItem();
+			String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
+			cameraView.PubSwitchSensor(str);
+			safeToastStatus("SwitchSensor: " + str);
+			Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+
+		    } else {
+			isAdapterSet_camera = true;
+			Log.i("JskAndroidGui:", "camera adapter not set");
+		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
 		    safeToastStatus("Updating Param");
 		    GetParamAndSetSpinner();
 		}});
 
+	// image_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+	// 	public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
+	// 	    Spinner spinner = (Spinner)parent;
+	// 	    defaultCamera = (String)spinner.getSelectedItem();
+	// 	    String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
+	// 	    cameraView.PubSwitchSensor(str);
+	// 	    safeToastStatus("SwitchSensor: " + str);
+	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+	// 	}
+	// 	public void onNothingSelected(AdapterView parent) {
+	// 	    safeToastStatus("Updating Param");
+	// 	    GetParamAndSetSpinner();
+	// 	}});
+
 	/* for points */
+	try{
+	    String defaultCamera_ns = "/jsk_ns";
+	    GraphName param_ns = new GraphName(defaultCamera_ns);
+	    NameResolver resolver2 = node.getResolver().createResolver(param_ns);
+	    Object[] points_param_list = params.getList(resolver2.resolve("points")).toArray();
+	    Log.i("JskAndroidGui:GetPointsParam", "point length = " + points_param_list.length);
+	    points_list.clear();points_list.add("points");
+	    for (int i = 0; i < points_param_list.length; i++) {
+		points_list.add((String)points_param_list[i]);
+		Log.w("JskAndroidGui:GetPointsParam", "lists:" + i + " " + points_param_list[i]);
+	    }
+	} catch (Exception ex) {
+	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+	    safeToastStatus("No Param Found: " + ex.getMessage());
+	}
 	points_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
-		    Spinner spinner = (Spinner)parent;
-		    defaultPoints = (String)spinner.getSelectedItem();
-		    String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
-		    cameraView.PubSwitchSensor(str);
-		    safeToastStatus("SwitchSensor: " + str);
-		    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+		    if(isAdapterSet_points){
+			Spinner spinner = (Spinner)parent;
+			//String item = (String)spinner.getSelectedItem();
+			defaultPoints = (String)spinner.getSelectedItem();
+			String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
+			cameraView.PubSwitchSensor(str);
+			safeToastStatus("SwitchSensor: " + str);
+			Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+
+		    } else {
+			isAdapterSet_points = true;
+			Log.i("JskAndroidGui:", "camera adapter not set");
+		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
 		    safeToastStatus("Updating Param");
 		    GetParamAndSetSpinner();
 		}});
+
+	// points_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+	// 	public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
+	// 	    Spinner spinner = (Spinner)parent;
+	// 	    defaultPoints = (String)spinner.getSelectedItem();
+	// 	    String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
+	// 	    cameraView.PubSwitchSensor(str);
+	// 	    safeToastStatus("SwitchSensor: " + str);
+	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+	// 	}
+	// 	public void onNothingSelected(AdapterView parent) {
+	// 	    safeToastStatus("Updating Param");
+	// 	    GetParamAndSetSpinner();
+	// 	}});
+
 	Log.i("JskAndroidGui:debug", "before first spinner update");
 	mHandler.post(new Runnable() {
 		public void run() {
@@ -296,7 +373,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    GetParamAndSetSpinner();
 		}
 	    });
-	Log.i("JskAndroidGui:debug", "before after spinner update");
+
     }
 
     @Override
@@ -321,6 +398,7 @@ public class JskAndroidGui extends RosAppActivity {
 	MenuInflater inflater = getMenuInflater();
 	inflater.inflate(R.menu.jsk_android_gui, menu);
 	isAdapterSet_spots = false; isAdapterSet_tasks = false;
+	isAdapterSet_camera = false; isAdapterSet_points = false;
 	GetParamAndSetSpinner();
 	return true;
     }
@@ -434,24 +512,60 @@ public class JskAndroidGui extends RosAppActivity {
 	    safeToastStatus("tasks: EmergencyStopNavigation");
 	    Log.i("JskAndroidGui:ItemSeleted", "Sending EmergencyStopNavigation");
 	    return true;
+	case R.id.resultyes:
+	    StringStamped StrMsg_resultyes = new StringStamped();
+	    StrMsg_resultyes.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	    StrMsg_resultyes.data = "ResultYes";
+	    SelectPub.publish( StrMsg_resultyes );
+	    safeToastStatus("tasks: ResultYes");
+	    Log.i("JskAndroidGui:ItemSeleted", "Sending Resultyes");
+	    return true;
+	case R.id.resultno:
+	    StringStamped StrMsg_resultno = new StringStamped();
+	    StrMsg_resultno.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	    StrMsg_resultno.data = "ResultNo";
+	    SelectPub.publish( StrMsg_resultno );
+	    safeToastStatus("tasks: ResultNo");
+	    Log.i("JskAndroidGui:ItemSeleted", "Sending Resultno");
+	    return true;
+	case R.id.resetcollider:
+	    cameraView.SetResetCollider();
+	    return true;
 	default:
 	    return super.onOptionsItemSelected(item);
 	}
     }
 
     protected void GetParamAndSetSpinner() {
-	//tasks_list.clear(); spots_list.clear();
+	// tasks_list.clear(); spots_list.clear();
+	// camera_list.clear(); points_list.clear();
+
 	ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this, R.layout.list);
 	adapter_spots.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	for (int i = 0; i <= spots_list.size() - 1; i++) {
 	    adapter_spots.add(spots_list.get(i));
 	}
 	spots_spinner.setAdapter(adapter_spots);
+
 	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list);
 	adapter_tasks.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	for (int i = 0; i <= tasks_list.size() - 1; i++) {
 	    adapter_tasks.add(tasks_list.get(i));
 	}
 	tasks_spinner.setAdapter(adapter_tasks);
+
+	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list);
+	adapter_image.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	for (int i = 0; i <= camera_list.size() - 1; i++) {
+	    adapter_image.add(camera_list.get(i));
+	}
+	image_spinner.setAdapter(adapter_image);
+
+	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list);
+	adapter_points.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	for (int i = 0; i <= points_list.size() - 1; i++) {
+	    adapter_points.add(points_list.get(i));
+	}
+	points_spinner.setAdapter(adapter_points);
     }
 }
