@@ -60,6 +60,8 @@ public class JskAndroidGui extends RosAppActivity {
     private ParameterTree params;
 
     //private Button demo_button;
+    private Button yes_button;
+    private Button no_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
     private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(),
@@ -70,6 +72,7 @@ public class JskAndroidGui extends RosAppActivity {
     private Handler mHandler;
     static final int CONTEXT_MENU1_ID = 0;
     static final int CONTEXT_MENU2_ID = 1;
+    static final int CONTEXT_MENU3_ID = 2;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +81,9 @@ public class JskAndroidGui extends RosAppActivity {
 	setMainWindowResource(R.layout.main);
 	super.onCreate(savedInstanceState);
 
-	//demo_button = (Button)findViewById(R.id.button_demo);
+	yes_button = (Button)findViewById(R.id.resultyes);
+	no_button = (Button)findViewById(R.id.resultno);
+
 	radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
 	radioGroup.check(R.id.radiobutton_L);
 	radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -181,6 +186,30 @@ public class JskAndroidGui extends RosAppActivity {
 	// 	    safeToastStatus("demo: " + "StartMainDemo");
 	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo main messgae");
 	// 	}});
+
+	yes_button.setOnClickListener(new OnClickListener(){
+		public void onClick(View viw) {
+		    Button button = (Button)viw;
+		    // button.setText("starting");
+		    StringStamped StrMsg_resultyes = new StringStamped();
+		    StrMsg_resultyes.header.stamp = Time.fromMillis(System.currentTimeMillis());
+		    StrMsg_resultyes.data = "ResultYes";
+		    SelectPub.publish( StrMsg_resultyes );
+		    safeToastStatus("tasks: ResultYes");
+		    Log.i("JskAndroidGui:ButtonClicked", "Sending ResultYes");
+		}});
+
+	no_button.setOnClickListener(new OnClickListener(){
+		public void onClick(View viw) {
+		    Button button = (Button)viw;
+		    // button.setText("starting");
+		    StringStamped StrMsg_resultno = new StringStamped();
+		    StrMsg_resultno.header.stamp = Time.fromMillis(System.currentTimeMillis());
+		    StrMsg_resultno.data = "ResultNo";
+		    SelectPub.publish( StrMsg_resultno );
+		    safeToastStatus("tasks: ResultNo");
+		    Log.i("JskAndroidGui:ButtonClicked", "Sending ResultNo");
+		}});
 
 	params = node.newParameterTree();
 	/* for spots */
@@ -390,6 +419,7 @@ public class JskAndroidGui extends RosAppActivity {
 	//Menu.add(int groupId, int itemId, int order, CharSequence title)
 	menu.add(0, CONTEXT_MENU1_ID, 0, "PUSHONCE");
 	menu.add(0, CONTEXT_MENU2_ID, 0, "PICKONCE");
+	menu.add(0, CONTEXT_MENU3_ID, 0, "PLACEONCE");
     }
 
     @Override
@@ -413,6 +443,10 @@ public class JskAndroidGui extends RosAppActivity {
 	case CONTEXT_MENU2_ID:
 	    Log.i("JskAndroidGui:ItemSeleted", "Publish PickOnce");
 	    cameraView.PublishPickOnce();
+	    return true;
+	case CONTEXT_MENU3_ID:
+	    Log.i("JskAndroidGui:ItemSeleted", "Publish PlaceOnce");
+	    cameraView.PublishPlaceOnce();
 	    return true;
 	default:
 	    return super.onContextItemSelected(item);
@@ -511,22 +545,6 @@ public class JskAndroidGui extends RosAppActivity {
 	    EmergencyStopPub.publish( StrMsg_stopnavigation );
 	    safeToastStatus("tasks: EmergencyStopNavigation");
 	    Log.i("JskAndroidGui:ItemSeleted", "Sending EmergencyStopNavigation");
-	    return true;
-	case R.id.resultyes:
-	    StringStamped StrMsg_resultyes = new StringStamped();
-	    StrMsg_resultyes.header.stamp = Time.fromMillis(System.currentTimeMillis());
-	    StrMsg_resultyes.data = "ResultYes";
-	    SelectPub.publish( StrMsg_resultyes );
-	    safeToastStatus("tasks: ResultYes");
-	    Log.i("JskAndroidGui:ItemSeleted", "Sending Resultyes");
-	    return true;
-	case R.id.resultno:
-	    StringStamped StrMsg_resultno = new StringStamped();
-	    StrMsg_resultno.header.stamp = Time.fromMillis(System.currentTimeMillis());
-	    StrMsg_resultno.data = "ResultNo";
-	    SelectPub.publish( StrMsg_resultno );
-	    safeToastStatus("tasks: ResultNo");
-	    Log.i("JskAndroidGui:ItemSeleted", "Sending Resultno");
 	    return true;
 	case R.id.resetcollider:
 	    cameraView.SetResetCollider();

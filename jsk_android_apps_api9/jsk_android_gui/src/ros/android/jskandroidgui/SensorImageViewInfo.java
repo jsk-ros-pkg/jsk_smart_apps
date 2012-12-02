@@ -92,6 +92,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void SetRobotArm (int armid) {RobotArmId = armid;}
     public void PublishPushOnce() {SendCommandMsg("PushOnce", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
     public void PublishPickOnce() {SendCommandMsg("PickObjectSelected", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
+    public void PublishPlaceOnce() {SendCommandMsg("PlaceObjectSelected", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
     public void SetDrawLine () {isDrawLine = true;}
     public void unSetDrawLine () {isDrawLine = false;}
     public void SetMovingFingerInfo () {isMovingFingerInfo = true;}
@@ -180,7 +181,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
     public void MoveNeck(String direction, float direction_value) {
 	//safeToastStatus("neck moving: " + direction + " ");
-	SendCommandMsg("MoveNeck", 0, "SWIPE", 0, direction, direction_value, fingerList, startXList, startYList, 0, 0);
+	SendCommandMsg("MoveNeck", RobotArmId, "SWIPE", 0, direction, direction_value, fingerList, startXList, startYList, 0, 0);
     }
 
     public void ZoomCamera(int touch_x, int touch_y, float movement) {
