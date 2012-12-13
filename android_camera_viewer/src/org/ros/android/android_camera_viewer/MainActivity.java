@@ -60,7 +60,7 @@ public class MainActivity extends RosActivity {
 
 
     //add
-    ServiceConnection serviceConnection = new ServiceConnection(){
+        ServiceConnection serviceConnection = new ServiceConnection(){
 
 	    @Override
 		public void onServiceConnected(ComponentName name,IBinder service){
@@ -74,7 +74,6 @@ public class MainActivity extends RosActivity {
 		myService = null;
 	    }
 	};
-    
 
 
 
@@ -95,17 +94,19 @@ public class MainActivity extends RosActivity {
     image.setTopicName("/usb_cam/image_raw/compressed");
     image.setMessageType(sensor_msgs.CompressedImage._TYPE);
     image.setMessageToBitmapCallable(new BitmapFromCompressedImage());
-	Log.v("test","test");
+    //	Log.v("test","test");
 
     //add
-	package_name = getPackageName();
+    	package_name = getPackageName();
   }
+
+
     //add
-        @Override
+     @Override
 	public void onResume(){
 	super.onResume();
 
-			if(masterUri != null){
+				if(masterUri != null){
 	    intent = new Intent(getBaseContext(),AndroidAudioRecordService.class);
 
 
@@ -113,9 +114,8 @@ public class MainActivity extends RosActivity {
 	    bindService(intent,serviceConnection,Context.BIND_AUTO_CREATE);
 	    }
 	    }
-
     //add
-  /*          protected void onActivityResult(int requestCode,int resultCode,Intent data){
+    /*            protected void onActivityResult(int requestCode,int resultCode,Intent data){
 	if(requestCode == 0 && resultCode == RESULT_OK){
 	    try{
 		masterUri = new URI(data.getStringExtra("ROS_MASTER_URI"));
@@ -123,10 +123,10 @@ public class MainActivity extends RosActivity {
 		throw new RuntimeException(e);
 	    }
 	}
-	}*/
+	}
+    */
     
-
-  @Override
+    @Override
   public boolean onTouchEvent(MotionEvent event) {
     if (event.getAction() == MotionEvent.ACTION_UP) {
       int numberOfCameras = Camera.getNumberOfCameras();
@@ -152,12 +152,12 @@ public class MainActivity extends RosActivity {
 
   @Override
   protected void init(NodeMainExecutor nodeMainExecutor) {
-    cameraId = 0;
-    rosCameraPreviewView.setCamera(Camera.open(cameraId));
+      cameraId = 0;
+      rosCameraPreviewView.setCamera(Camera.open(cameraId));
     NodeConfiguration nodeConfiguration =
         NodeConfiguration.newPublic(InetAddressFactory.newNonLoopback().getHostAddress());
-    nodeConfiguration.setMasterUri(getMasterUri());
-    masterUri = getMasterUri(); //add
+        nodeConfiguration.setMasterUri(getMasterUri());
+        masterUri = getMasterUri(); //add
 		if(masterUri != null){
 	    intent = new Intent(getBaseContext(),AndroidAudioRecordService.class);
 
@@ -165,8 +165,8 @@ public class MainActivity extends RosActivity {
 	    intent.putExtra("masterUri",masterUri.toString());
 	    bindService(intent,serviceConnection,Context.BIND_AUTO_CREATE);
 		} //add
+		nodeMainExecutor.execute(image, nodeConfiguration.setNodeName("/android/image_view"));
+		nodeMainExecutor.execute(rosCameraPreviewView, nodeConfiguration.setNodeName("/android/preview_view")); 
 
-    nodeMainExecutor.execute(rosCameraPreviewView, nodeConfiguration.setNodeName("/android/preview_view"));
-    nodeMainExecutor.execute(image, nodeConfiguration.setNodeName("/android/image_view"));
   }
 }
