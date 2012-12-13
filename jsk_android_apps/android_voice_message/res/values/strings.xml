@@ -3,7 +3,11 @@
 
     <string name="app_name">AndroidVoiceMessage</string>
     <string name="app_about">About Android Voice Message</string>
-	<string name="str_exit">Exit</string>
-	<string name="app_about_message">This App uses Rosjava to publish your Android\'s sensors as ROS\'s sensor_msgs topics.</string>
-	<string name="str_ok">OK</string>
+    <string name="str_exit">Exit</string>
+    <string name="app_about_message">This App uses Rosjava to publish your Android\'s sensors as ROS\'s sensor_msgs topics.</string>
+    <string name="str_ok">OK</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+
 </resources>
