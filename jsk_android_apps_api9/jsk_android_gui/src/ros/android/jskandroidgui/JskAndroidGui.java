@@ -66,7 +66,7 @@ public class JskAndroidGui extends RosAppActivity {
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
     private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(),
 	camera_list = new ArrayList(), points_list = new ArrayList();
-    private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points";
+    private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points_throttle"; // will be renamed when parameter comes
     private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true,isAdapterSet_camera = false, isAdapterSet_points = false;
 
     private Handler mHandler;
@@ -302,6 +302,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_param_list.length);
 	    camera_list.clear();camera_list.add("cameras");
 	    for (int i = 0; i < camera_param_list.length; i++) {
+		if (i == 0) {defaultCamera = (String)camera_param_list[i];}
 		camera_list.add((String)camera_param_list[i]);
 		Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[i]);
 	    }
@@ -353,6 +354,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    Log.i("JskAndroidGui:GetPointsParam", "point length = " + points_param_list.length);
 	    points_list.clear();points_list.add("points");
 	    for (int i = 0; i < points_param_list.length; i++) {
+		if (i == 0) {defaultPoints = (String)points_param_list[i];}
 		points_list.add((String)points_param_list[i]);
 		Log.w("JskAndroidGui:GetPointsParam", "lists:" + i + " " + points_param_list[i]);
 	    }
