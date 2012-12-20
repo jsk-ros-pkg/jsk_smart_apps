@@ -251,30 +251,42 @@
 ;; moved to get_template.l
 ;; (defun GetTemplateExecute (x y)
 ;;   (let* ((c (screenpoint-srvcall x y))
-;; 	 )
+;;          )
 ;;     ))
 
 ;; Example: (setq str "((:image /r_forearm_cam) (:points /camera/rgb/points))")
 (defun SwitchSensorExecute (switch-str)
   (let* ((switch-lst (read-from-string switch-str))
-	 (image (assoc :image switch-lst))(points (assoc :points switch-lst)))
+         (image (assoc :image switch-lst))(points (assoc :points switch-lst)))
     (if (or (null image) (null points))
-	(progn (ros::ros-warn "SwitchSensorExecute: nor image or points")
-	       (return-from SwitchSensorExecute nil)))
-    (setq *current-camera* (elt image 1))
+        (progn (ros::ros-warn "SwitchSensorExecute: nor image or points")
+               (return-from SwitchSensorExecute nil)))
+    (print image) (print points)
+    (if (eq (elt image 1) 'cameras) (setq image nil))
+    (if (eq (elt points 1) 'points) (setq points nil))
     (let ((mux-req1 (instance topic_tools::MuxSelectRequest :init))
-	  (mux-req2 (instance topic_tools::MuxSelectRequest :init))
-	  (mux-req3 (instance topic_tools::MuxSelectRequest :init)))
-      (when (ros::service-exists "camera_info_mux/select")
-	;;for image_view2 and depth_image_creator
-	(send mux-req1 :topic (format nil "~A/camera_info" (elt image 1)))
-	(ros::service-call "camera_info_mux/select" mux-req1))
-      (when (ros::service-exists "image_mux/select");;for image_view2
-	(send mux-req2 :topic (format nil "~A/image_rect_color" (elt image 1)))
-	(ros::service-call "image_mux/select" mux-req2))
-      (when (ros::service-exists "points_mux/select");;for depth_image_creator
-	(send mux-req3 :topic (format nil "~A" (elt points 1)))
-	(ros::service-call "points_mux/select" mux-req3))
+          (mux-req2 (instance topic_tools::MuxSelectRequest :init))
+          (mux-req3 (instance topic_tools::MuxSelectRequest :init)))
+      (when (and image (ros::service-exists "/camera_info_mux/select"))
+        (setq *current-camera* (elt image 1))
+        ;;for image_view2 and depth_image_creator
+        (send mux-req1 :topic (format nil "~A/camera_info" (elt image 1)))
+        (ros::service-call "/camera_info_mux/select" mux-req1))
+      (when (and image (ros::service-exists "/image_mux/select"))
+        ;;for image_view2 , set mono image to ~image_raw, color image to
+        ;; ~image_color and PR2 has 4 mono camera: narrow_stereo/{right,left}
+        ;; and {r/l}_forearm_cam
+        (send mux-req2 :topic
+              (if (or (string-left= "/r_forearm_cam" (string-downcase (elt image 1)))
+                      (string-left= "/l_forearm_cam" (string-downcase (elt image 1)))
+                      (string-left= "/narrow_stereo" (string-downcase (elt image 1))))
+                  (format nil "~A/image_mono" (elt image 1))
+                (format nil "~A/image_color" (elt image 1))))
+        (ros::service-call "/image_mux/select" mux-req2))
+      (when (and points (ros::service-exists "/points_mux/select"))
+        ;;for depth_image_creator
+        (send mux-req3 :topic (format nil "~A" (elt points 1)))
+        (ros::service-call "/points_mux/select" mux-req3))
       )))
 
 (defun MoveNeckExecute (direction value)
