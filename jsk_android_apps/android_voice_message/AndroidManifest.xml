@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.ros.android.android_voice_message"
+    package="org.ros.android.androidVoiceMessage"
     android:versionCode="2"
     android:versionName="2" >
 
@@ -11,16 +11,12 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-     <uses-permission android:name="android.permission.CAMERA" />
-
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:icon="@drawable/android"
         android:label="@string/app_name" >
         <activity
-            android:name="org.ros.android.android_voice_message.MainActivity"
+            android:name="org.ros.android.androidVoiceMessage.AndroidVoiceMessage"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,15 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name="org.ros.android.MasterChooser" />
-         <activity
-            android:name="org.ros.android.CameraQrCodeReader"
-            android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:launchMode="standard">
-        </activity>
-
         <service android:name="org.ros.android.NodeMainExecutorService" />
-        <service android:name="AndroidVoiceService" />
+        <service android:name="AndroidVoiceMessageService" />
 
         
     </application>
