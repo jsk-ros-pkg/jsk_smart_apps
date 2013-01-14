@@ -20,6 +20,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
+//add
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 
 import org.ros.android.MasterChooser;
 import org.ros.android.RosActivity;
@@ -27,7 +31,6 @@ import org.ros.android.view.RosTextView;
 import org.ros.node.NodeMainExecutor;
 import android.content.ServiceConnection;
 
-//add libraries
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -47,174 +50,174 @@ import android.widget.TextView;
 import android.widget.CheckBox;
 
 //add ribbon_menu
-//import com.darvds.ribbonmenu.R;
 import com.darvds.ribbonmenu.RibbonMenuView;
 import com.darvds.ribbonmenu.iRibbonMenuCallback;
 
 public class AndroidSensorMessage extends RosActivity implements
-		iRibbonMenuCallback {
+		iRibbonMenuCallback, OnTouchListener {
 
 	private URI masterUri;
 	private Intent intent;
-	private AndroidSensorService myService;
-	private int[] useFlag;
-	private int[] useFlag2;
-	private Button menuBtn;
-	private Button setBtn;
+	private AndroidSensorMessageService androidSensorMessageService;
+	private int currentSensor = 0;
+	private int multiTouchAction = 0;
+	private float previousY;
+	private float previousDistanceY;
+	private int[] availableSensor;
+	private int[] publishedSensor;
+	private int[] selectedSensor;
 
-	private RibbonMenuView rbmView;
-	private AndroidSensorMessageView view;
-	private SurfaceView sv;
+	private Button menuButton;
+	private Button setButton;
+
+	private RibbonMenuView ribbonMenuView;
+	private AndroidSensorMessageView androidSensorMessageView;
+	private SurfaceView surfaceView;
 
 	private LinearLayout linearLayout;
 
-	private int currentSensor = 0;
-	private int[] currentSensorNum;
+	// Button
+	Button baseButton;
+	Button xButton;
+	Button yButton;
+	Button zButton;
 
-	final private static String[] sensor_name = { "加速度", "温度", "磁界", "光", "近接",
-			"ジャイロ", "圧力", "重力", "回転ベクトル" };
-
-	// ボタン
-	Button baseBtn;
-	Button xBtn;
-	Button yBtn;
-	Button zBtn;
-
-	// ラベル
+	// Label
 	TextView textViewX;
 	TextView textViewY;
 	TextView textViewZ;
-	TextView textViewName;
+	TextView textViewSensorName;
 
 	ServiceConnection serviceConnection = new ServiceConnection() {
 
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			myService = ((AndroidSensorService.MyBinder) service).getService();
+			androidSensorMessageService = ((AndroidSensorMessageService.MyBinder) service)
+					.getService();
 			startService(intent);
-			useFlag = new int[9];
-			useFlag2 = new int[9];
-			currentSensorNum = new int[9];
+			availableSensor = new int[13];
+			publishedSensor = new int[13];
+			selectedSensor = new int[13];
 
-			menuBtn = (Button) findViewById(R.id.menuButton);
-			setBtn = (Button) findViewById(R.id.setButton);
-			xBtn = (Button) findViewById(R.id.viewXButton);
-			yBtn = (Button) findViewById(R.id.viewYButton);
-			zBtn = (Button) findViewById(R.id.viewZButton);
-			baseBtn = (Button) findViewById(R.id.viewBaseButton);
+			menuButton = (Button) findViewById(R.id.menuButton);
+			setButton = (Button) findViewById(R.id.setButton);
+			xButton = (Button) findViewById(R.id.viewXButton);
+			yButton = (Button) findViewById(R.id.viewYButton);
+			zButton = (Button) findViewById(R.id.viewZButton);
+			baseButton = (Button) findViewById(R.id.viewBaseButton);
 
 			textViewX = (TextView) findViewById(R.id.sensorX);
 			textViewY = (TextView) findViewById(R.id.sensorY);
 			textViewZ = (TextView) findViewById(R.id.sensorZ);
-			textViewName = (TextView) findViewById(R.id.sensorName);
+			textViewSensorName = (TextView) findViewById(R.id.sensorName);
 
-			for (int i = 0; i < 9; i++) {
-				useFlag[i] = myService.getSensor(i);
-				useFlag2[i] = -1;
-				currentSensorNum[i] = -1;
+			for (int i = 0; i < 13; i++) {
+				availableSensor[i] = androidSensorMessageService.getSensor(i);
+				publishedSensor[i] = -1;
+				selectedSensor[i] = -1;
 			}
 
-			myService.setNode(useFlag2, view, textViewX, textViewY, textViewZ);
-			rbmView.setItemIcon(R.drawable.noncheck, R.drawable.check);
-			for (int i = 0; i < 8; i++) {
-				if (useFlag[i] != 0) {
-					currentSensorNum[i] = rbmView.addItem(sensor_name[i], useFlag2[i]);
+			androidSensorMessageService.setNode(publishedSensor,
+					androidSensorMessageView, textViewX, textViewY, textViewZ);
+			ribbonMenuView.setItemIcon(R.drawable.noncheck, R.drawable.check);
+			for (int i = 0; i < 13; i++) {
+				if (availableSensor[i] != -1) {
+					selectedSensor[i] = ribbonMenuView.addItem(
+							androidSensorMessageService.getSensorName(i),
+							publishedSensor[i]);
 				}
 			}
 
-			menuBtn.setOnClickListener(new View.OnClickListener() {
+			menuButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					rbmView.toggleMenu();
+					ribbonMenuView.toggleMenu();
 				}
 			});
 
-			setBtn.setOnClickListener(new View.OnClickListener() {
+			setButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					myService.changeSensor(currentSensor);
-					rbmView.setMenuItems(R.menu.ribbon_menu);
-					rbmView.clearButtonId();
-					useFlag2[currentSensor] *= -1;
-					if(useFlag2[currentSensor]==-1){
-						setBtn.setText("ON");
+					androidSensorMessageService.changeSensor(currentSensor);
+					ribbonMenuView.setMenuItems(R.menu.ribbon_menu);
+					ribbonMenuView.clearButtonId();
+					publishedSensor[currentSensor] *= -1;
+					if (publishedSensor[currentSensor] == -1) {
+						setButton.setText("ON");
+					} else {
+						setButton.setText("OFF");
 					}
-					else{
-						setBtn.setText("OFF");
-					}
-					for (int i = 0; i < 8; i++) {
-						if (useFlag[i] != 0) {
-							rbmView.addItem(sensor_name[i], useFlag2[i]);
+					for (int i = 0; i < 13; i++) {
+						if (availableSensor[i] != -1) {
+							ribbonMenuView.addItem(androidSensorMessageService
+									.getSensorName(i), publishedSensor[i]);
 						}
 					}
 				}
 			});
 
-			xBtn.setOnClickListener(new View.OnClickListener() {
+			xButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					view.viewChange(1);
+					androidSensorMessageView.viewChange(1);
 				}
 			});
 
-			yBtn.setOnClickListener(new View.OnClickListener() {
+			yButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					view.viewChange(2);
+					androidSensorMessageView.viewChange(2);
 				}
 			});
 
-			zBtn.setOnClickListener(new View.OnClickListener() {
+			zButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					view.viewChange(3);
+					androidSensorMessageView.viewChange(3);
 				}
 			});
 
-			baseBtn.setOnClickListener(new View.OnClickListener() {
+			baseButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					view.viewChange(0);
+					androidSensorMessageView.viewChange(0);
 				}
 			});
 
-			textViewName.setText(sensor_name[0]);
+			textViewSensorName.setText(androidSensorMessageService
+					.getSensorName(0));
 
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			myService = null;
+			androidSensorMessageService = null;
 		}
 
 	};
 
 	public AndroidSensorMessage() {
-		// The RosActivity constructor configures the notification title and
-		// ticker
-		// messages.
 		super("AndroidSensorMessage", "AndroidSensorMessage");
 
 	}
 
-	// @SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		linearLayout = new LinearLayout(this);
 		setContentView(R.layout.main);
 
-		// rbmMenu.findItem(0).setVisible(false);
-		rbmView = (RibbonMenuView) findViewById(R.id.ribbonMenuView1);
-		rbmView.setMenuClickCallback(this);
-		rbmView.setMenuItems(R.menu.ribbon_menu);
+		ribbonMenuView = (RibbonMenuView) findViewById(R.id.ribbonMenuView1);
+		ribbonMenuView.setMenuClickCallback(this);
+		ribbonMenuView.setMenuItems(R.menu.ribbon_menu);
 
-		sv = (SurfaceView) findViewById(R.id.SV);
-		view = new AndroidSensorMessageView(this, sv);
-
+		surfaceView = (SurfaceView) findViewById(R.id.SV);
+		androidSensorMessageView = new AndroidSensorMessageView(this,
+				surfaceView);
+		surfaceView.setOnTouchListener(this);
 	}
 
-	private LinearLayout.LayoutParams createParam(int w, int h) {
-		return new LinearLayout.LayoutParams(w, h);
+	private LinearLayout.LayoutParams createParam(int width, int height) {
+		return new LinearLayout.LayoutParams(width, height);
 	}
 
 	@Override
@@ -222,7 +225,8 @@ public class AndroidSensorMessage extends RosActivity implements
 		super.onResume();
 		if (masterUri != null) {
 
-			intent = new Intent(getBaseContext(), AndroidSensorService.class);
+			intent = new Intent(getBaseContext(),
+					AndroidSensorMessageService.class);
 			intent.putExtra("masterUri", masterUri.toString());
 			bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 		}
@@ -274,7 +278,7 @@ public class AndroidSensorMessage extends RosActivity implements
 	}
 
 	private void exitOptionsDialog() {
-		stopService(new Intent(this, AndroidSensorService.class));
+		stopService(new Intent(this, AndroidSensorMessageService.class));
 		finish();
 	}
 
@@ -290,23 +294,58 @@ public class AndroidSensorMessage extends RosActivity implements
 
 	@Override
 	public void RibbonMenuItemClick(int itemId) {
-		Log.v("test", "" + itemId);
-		for (int i = 0; i < 9; i++) {
-			if (itemId == currentSensorNum[i]) {
+		for (int i = 0; i < 13; i++) {
+			if (itemId == selectedSensor[i]) {
 				currentSensor = i;
-				textViewName.setText(sensor_name[i]);
+				textViewSensorName.setText(androidSensorMessageService
+						.getSensorName(i));
 				textViewX.setText("x:");
 				textViewY.setText("y:");
 				textViewZ.setText("z:");
-				if(useFlag2[i]==-1){
-					setBtn.setText("ON");
+				if (publishedSensor[i] == -1) {
+					setButton.setText("ON");
+				} else {
+					setButton.setText("OFF");
 				}
-				else{
-					setBtn.setText("OFF");
-				}
-				myService.changeView(currentSensor);
+				androidSensorMessageService.changeView(currentSensor);
 				break;
 			}
 		}
 	}
+
+	public boolean onTouch(View v, MotionEvent event) {
+		if (event.getPointerCount() == 1) {
+			if (multiTouchAction > 0) {
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					multiTouchAction--;
+				}
+			} else {
+				if (event.getAction() == MotionEvent.ACTION_MOVE) {
+					androidSensorMessageView.updateOriginalY(event.getY()
+							- previousY);
+				}
+				previousY = event.getY();
+			}
+		} else {
+			int pointerId1 = event.getPointerId(0);
+			int pointerId2 = event.getPointerId(1);
+
+			int pointerIndex1 = event.findPointerIndex(pointerId1);
+			int pointerIndex2 = event.findPointerIndex(pointerId2);
+
+			float distanceY = event.getY(pointerIndex2) - event.getY(pointerIndex1);
+			distanceY = (float)Math.sqrt(distanceY * distanceY);
+			if (event.getAction() == MotionEvent.ACTION_MOVE) {
+				androidSensorMessageView.updateScale(distanceY - previousDistanceY);
+			}
+			Log.v("distance","pre:"+previousDistanceY+" now:"+distanceY);
+			previousDistanceY = distanceY;
+			
+			multiTouchAction = 1;
+
+		}
+
+		return true;
+	}
+
 }
