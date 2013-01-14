@@ -38,7 +38,7 @@
             android:id="@+id/sensorName"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="MagneticValue"
+            android:text="SensorName"
             android:textSize="20sp" />
 
         <TextView
