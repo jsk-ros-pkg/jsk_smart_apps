@@ -2,7 +2,7 @@
 (ros::load-ros-manifest "jsk_smart_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
 
-(ros::roseus "tablet-robot-controller")
+(ros::roseus "tablet_robot_controller")
 
 (load "package://pr2eus/speak.l")
 (load "package://jsk_smart_gui/src/tablet_callback.l")
