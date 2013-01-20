@@ -1,25 +1,40 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "dynamic_tf_publisher")
 ;; This script depends on tablet_callback.l
-;; Use when creating template for imagesift
+;; Use when creating template from imagesift
 (ros::roseus "template_creator")
+;;(load "package://jsk_smart_gui/src/tablet_receiver.l") - loop
+
+(defun ros::coords->tf-pose-stamped0 (coords id)
+  (let ((pose (ros::coords->tf-pose coords)))
+    (instance geometry_msgs::PoseStamped :init
+              :header (instance std_msgs::header :init
+                                :frame_id id
+                                :stamp (ros::time 0))
+				:pose pose)))
+
 (defun get_template_init ()
-  (setq *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
+  (defvar *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
   (defvar *tfl* (instance ros::transform-listener :init))
   (defvar *tfb* (instance ros::transform-broadcaster :init))
+  (defvar *width* 0)
+  (defvar *height* 0)
+  (defvar *template-origin* (make-coords))
+  (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
   )
-(defvar *width* 0)
-(defvar *height* 0)
+;;(GetTemplateExecute 320 240)
+;;(show-marker (send *template-origin* :pos))
 (defun GetTemplateExecute (x y)
   (let* ((c (screenpoint-srvcall x y))
 	 (time-now (send (ros::time-now) :to-sec))
 	 img_res poly_points) ;; width height)
     (publish_tf c "/touched_point")
     (change_cropbox_frame "/touched_point")
-    (ros::ros-info "waiting for 5 sec")
-    (unix::sleep 5)
-    ;;save img
-    (setq img_res (save_img (format nil "~A.jpg" time-now))) ;;call settemplate
+    (ros::ros-info "waiting for 3 sec")
+    (unix::sleep 3)
+    ;;save img and call settemplate
+    (setq img_res (save_img (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now)))
+
     ;; calculate width height
     (unless img_res
       (ros::ros-warn "img failed")
@@ -28,29 +43,30 @@
     (unless (eq (length poly_points) 4)
       (ros::ros-warn "poly_points did not have 4 points")
       (return-from GetTemplateExecute nil))
-
+    ;; 3  0
+    ;; 2  1
     (setq *width* (calc_distance poly_points 0 1))
     (setq *height* (calc_distance poly_points 0 2))
-
-    ;;TODO:translate from poly_header to base_footprint
+    (setq cam-cds (ros::coords->tf-pose-stamped0 (make-coords :pos (ros::tf-point->pos (elt poly_points 3))) "/openni_rgb_optical_frame"))
+    (send *tfl* :wait-for-transform "/openni_rgb_optical_frame" "base_footprint" (ros::time 0) 5)
+    (setq *template-origin* (send *tfl* :transform-pose "base_footprint" cam-cds))
     ;;TODO:calculate offset
 
-    ;; call settemplate for pointposeextractor ;; meaningless
-    (ros::set-param "/point_pose_extractor_test/window_name" "test_window")
-    (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "~/.ros/~A.jpg" time-now))
-    (ros::set-param "/point_pose_extractor_test/object_width" *width*)
-    (ros::set-param "/point_pose_extractor_test/object_height" *height*)
+    ;; call settemplate for pointposeextractor
+    (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now))
+    (ros::set-param "/point_pose_extractor_test/object_width" (/ *width* 1000.0))
+    (ros::set-param "/point_pose_extractor_test/object_height" (/ *height* 1000.0))
     (unix::system (format nil "rosparam set /point_pose_extractor_test/viewer_window true"))
     (dump-loadable-structure
      (format nil "get-template-~d.l" time-now)
      *width* *height*)
     ))
 
-(defun set_template ()
+(defun set_template_sample1 ()
   ;;(ros::set-param "/point_pose_extractor_test/window_name" "test_window")
   (ros::set-param "/point_pose_extractor_test/object_width" (/ *width* 1000.0))
   (ros::set-param "/point_pose_extractor_test/object_height" (/ *height* 1000.0))
-  (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "/home/chen/.ros/1.358595e+09.jpg"))
+  (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "/home/chen/.ros/1.358658e+09.jpg"))
   (unix::system (format nil "rosparam set /point_pose_extractor_test/viewer_window true"))
   )
 
