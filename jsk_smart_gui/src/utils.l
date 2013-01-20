@@ -226,7 +226,7 @@
 			   :stamp (ros::time-now) :frame_id "base_footprint"))
 	 (msg (instance visualization_msgs::MarkerArray :init))
 	 mks)
-    (mapcar #'(lambda(x) (push (sphere->marker-msg (make-sphere 10 :pos x) header :color col :alpha 1.0) mks)) pl)
+    (mapcar #'(lambda(x) (push (sphere->marker-msg (make-sphere 15 :pos x) header :color col :alpha 1.0) mks)) pl)
     (mapcar #'(lambda(x) (send x :lifetime (ros::time lf))
 		(send x :ns ns)) mks)
     (dotimes (x (length mks)) (send (elt mks x) :id x))
