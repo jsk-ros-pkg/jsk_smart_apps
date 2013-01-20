@@ -3,7 +3,7 @@
 ;; This script depends on tablet_callback.l
 ;; Use when creating template from imagesift
 (ros::roseus "template_creator")
-;;(load "package://jsk_smart_gui/src/tablet_receiver.l") - loop
+;;(load "package://jsk_smart_gui/src/tablet_receiver.l")
 
 (defun ros::coords->tf-pose-stamped0 (coords id)
   (let ((pose (ros::coords->tf-pose coords)))
@@ -13,6 +13,16 @@
                                 :stamp (ros::time 0))
 				:pose pose)))
 
+(defun template_init ()
+  (get_template_init)
+  (use_template_init)
+  )
+
+(defun main_loop ()
+  (do-until-key
+   (ros::spin-once)
+   (ros::sleep)))
+
 (defun get_template_init ()
   (defvar *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
   (defvar *tfl* (instance ros::transform-listener :init))
@@ -20,17 +30,26 @@
   (defvar *width* 0)
   (defvar *height* 0)
   (defvar *template-origin* (make-coords))
+  (defvar *username* "chen")
+  (ros::rate 0.5)
+  (setq *flag1* nil *flag2* nil *flag3* nil *flag4* nil)
   (ros::advertise "image_marker" image_view2::ImageMarker2 100)
   (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
   (ros::advertise "tablet_marker_array" visualization_msgs::MarkerArray 10)
   )
 
 (defun use_template_init ()
-  ;; (ros::subscribe "/ObjectDetection"
-  ;; 		  posedetection_msgs::ObjectDetection #'use_template_cb1)
+  (ros::subscribe "/ObjectDetection1"
+   		  posedetection_msgs::ObjectDetection #'use_template_cb1)
 
-  (ros::subscribe "/ObjectDetection"
-		  posedetection_msgs::ObjectDetection #'use_template_cb2)
+  (ros::subscribe "/ObjectDetection2"
+        	  posedetection_msgs::ObjectDetection #'use_template_cb2)
+
+  (ros::subscribe "/ObjectDetection3"
+                  posedetection_msgs::ObjectDetection #'use_template_cb3)
+
+  (ros::subscribe "/ObjectDetection4"
+                  posedetection_msgs::ObjectDetection #'use_template_cb4)
   )
 
 ;;(GetTemplateExecute 320 240)
@@ -75,13 +94,22 @@
 
 
 ;;(show-marker (send *detected-template-origin* :pos))
+
 (defun use_template_cb1(msg)
   (let* ((poses (car (send msg :objects)))
 	 (pose (send poses :pose))
 	 (frame-id (send msg :header :frame_id))
 	 (cam-cds (instance geometry_msgs::PoseStamped :init))
+         (taskname "fridge")
 	 )
-    (ros::ros-info "using template")
+    (ros::ros-info "using template1")
+
+    (unless *flag1*
+      (setusrtask *username* taskname)
+      (unix::sleep 1)
+      (setappealtask taskname)
+      (setq *flag1* t))
+
     (send cam-cds :header :stamp (ros::time 0))
     (send cam-cds :header :frame_id frame-id)
     (send cam-cds :pose pose)
@@ -93,7 +121,7 @@
     (show-line (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -150) :world) :pos) (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -450) :world) :pos))
     ;; image_view2
     (visualize-text-image-from-pos "Fridge/Open" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
-    (visualize-object-image-from-coords
+    (visualize-line-image-from-coords
      (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -150) :world)
 	   (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -450) :world)) :counter 100)
   ))
@@ -103,8 +131,15 @@
 	 (pose (send poses :pose))
 	 (frame-id (send msg :header :frame_id))
 	 (cam-cds (instance geometry_msgs::PoseStamped :init))
+         (taskname "ih")
 	 )
-    (ros::ros-info "using template")
+    (ros::ros-info "using template2")
+    (unless *flag2*
+      (setusrtask *username* taskname)
+      (unix::sleep 1)
+      (setappealtask taskname)
+      (setq *flag2* t))
+
     (send cam-cds :header :stamp (ros::time 0))
     (send cam-cds :header :frame_id frame-id)
     (send cam-cds :pose pose)
@@ -115,16 +150,89 @@
     ;; rviz
     (show-markers
      (list
-      (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -150) :world) :pos)
-      (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -450) :world) :pos)
-     ) :col #f(1 1 0))
+      (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -65 -80) :world) :pos)
+      (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -135 -70) :world) :pos)
+      (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -205 -80) :world) :pos)
+      ) :col #f(1 1 0))
+
     ;; image_view2
     (visualize-text-image-from-pos "IH button/Push(3)" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
-    (visualize-object-image-from-coords
-     (list
-      (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -150) :world)
-      (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -450) :world)) :counter 100)
-  ))
+    (visualize-point-image-from-coords
+     (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -65 -80) :world)
+           (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -135 -70) :world)
+           (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -205 -80) :world))  :counter 100)
+    ))
+
+(defun use_template_cb3(msg)
+  (let* ((poses (car (send msg :objects)))
+	 (pose (send poses :pose))
+	 (frame-id (send msg :header :frame_id))
+	 (cam-cds (instance geometry_msgs::PoseStamped :init))
+         (taskname "cupboard")
+	 )
+    (ros::ros-info "using template3")
+    (unless *flag3*
+      (setusrtask *username* taskname)
+      (unix::sleep 1)
+      (setappealtask taskname)
+      (setq *flag3* t))
+
+
+    (send cam-cds :header :stamp (ros::time 0))
+    (send cam-cds :header :frame_id frame-id)
+    (send cam-cds :pose pose)
+
+    (send *tfl* :wait-for-transform frame-id "base_footprint" (ros::time 0) 5)
+    (setq *detected-template-origin* (send *tfl* :transform-pose "base_footprint" cam-cds))
+
+    ;; rviz
+    (show-line (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -120 -200) :world) :pos) (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -120 -250) :world) :pos))
+    ;; (show-line (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(-130 -120 -200) :world) :pos) (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(-130 -120 -250) :world) :pos))
+    ;; image_view2
+    (visualize-text-image-from-pos "CupBoard/Open" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
+
+    (visualize-line-image-from-coords
+     (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -120 -200) :world)
+           (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -120 -250) :world)) :counter 100)
+    ;; (visualize-line-image-from-coords
+    ;;  (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(-130 -120 -200) :world)
+    ;;        (send (send *detected-template-origin* :copy-worldcoords) :translate #f(-130 -120 -250) :world)) :counter 100)
+    ))
+
+(defun use_template_cb4(msg)
+  (let* ((poses (car (send msg :objects)))
+	 (pose (send poses :pose))
+	 (frame-id (send msg :header :frame_id))
+	 (cam-cds (instance geometry_msgs::PoseStamped :init))
+         (taskname "microwave")
+	 )
+    (ros::ros-info "using template4")
+    (unless *flag4*
+      (setusrtask *username* taskname)
+      (unix::sleep 1)
+      (setappealtask taskname)
+      (setq *flag4* t))
+
+    (send cam-cds :header :stamp (ros::time 0))
+    (send cam-cds :header :frame_id frame-id)
+    (send cam-cds :pose pose)
+
+    (send *tfl* :wait-for-transform frame-id "base_footprint" (ros::time 0) 5)
+    (setq *detected-template-origin* (send *tfl* :transform-pose "base_footprint" cam-cds))
+
+    ;; rviz
+    (show-line (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 180 30) :world) :pos) (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -120 30) :world) :pos) :ns "3d_lines")
+    (show-markers (list (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(-140 -120 -40) :world) :pos)) :ns "3d_points")
+
+    ;; image_view2
+    (visualize-text-image-from-pos "MicroWave/Open" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 60) :world) :pos))
+    (visualize-text-image-from-pos "MicroWave/Push" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 20) :world) :pos) :counter 1)
+    (visualize-line-image-from-coords
+     (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 180 30) :world)
+           (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -120 30) :world)) :counter 100)
+    (visualize-point-image-from-coords
+     (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(-140 -120 -40) :world)) :counter 200)
+    ))
 
 (defun set_template_sample1 () ;;for refridge
   ;; (let ((width *width*) (height *height*)
@@ -136,13 +244,31 @@
   (unix::system (format nil "rosparam set /point_pose_extractor_test/viewer_window true"))
   ))
 
-(defun set_template_sample2 () ;;for IM
+(defun set_template_sample2 () ;;for IH
   (let ((width 207.005) (height 202.051))
   (ros::set-param "/point_pose_extractor_test/object_width" (/ width 1000.0))
   (ros::set-param "/point_pose_extractor_test/object_height" (/ height 1000.0))
   (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "/home/chen/.ros/1.358671e+09.jpg"))
   (unix::system (format nil "rosparam set /point_pose_extractor_test/viewer_window true"))
   ))
+
+(defun set_template_sample3 () ;;for cupboard
+  (let ((width 184.302) (height 250.753))
+  (ros::set-param "/point_pose_extractor_test/object_width" (/ width 1000.0))
+  (ros::set-param "/point_pose_extractor_test/object_height" (/ height 1000.0))
+  (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "/home/chen/.ros/1.358682e+09.jpg"))
+  (unix::system (format nil "rosparam set /point_pose_extractor_test/viewer_window true"))
+  ))
+
+(defun set_template_sample4 () ;;for microwave
+  (let ((width 207.167) (height 272.828))
+  (ros::set-param "/point_pose_extractor_test/object_width" (/ width 1000.0))
+  (ros::set-param "/point_pose_extractor_test/object_height" (/ height 1000.0))
+  (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "/home/chen/.ros/1.358684e+09.jpg"))
+  (unix::system (format nil "rosparam set /point_pose_extractor_test/viewer_window true"))
+  ))
+
+;;-----------------------------------------------------------------------
 
 (defun publish_tf (pos child_frame &key (parent_frame "base_footprint"))
   (let ((settf (instance dynamic_tf_publisher::SetDynamicTFRequest :init)))
@@ -181,7 +307,7 @@
     (distance a b)))
 
 
-(defun visualize-object-image-from-coords
+(defun visualize-line-image-from-coords
   (cds-list &key (counter 0) (ns nil) (lifetime 10)
 	    (outline-colors (list (instance std_msgs::ColorRGBA :init :r 1.0 :g 0.0 :b 0.0 :a 1.0))))
   (let* ((mrk (instance image_view2::ImageMarker2 :init))
@@ -201,6 +327,25 @@
     (ros::publish "image_marker" mrk)
   ))
 
+(defun visualize-point-image-from-coords
+  (cds-list &key (counter 0) (ns nil) (lifetime 10)
+	    (outline-colors (list (instance std_msgs::ColorRGBA :init :r 1.0 :g 0.0 :b 0.0 :a 1.0))))
+  (let* ((mrk (instance image_view2::ImageMarker2 :init))
+	 point-list)
+    (send mrk :header :stamp (ros::time-now))
+    (send mrk :type image_view2::ImageMarker2::*POINTS3D*)
+    (send mrk :points3D :header :frame_id "base_footprint")
+    (send mrk :lifetime (ros::Time lifetime))
+    (send mrk :id counter)
+    (dolist (cds cds-list)
+      ;;(ros::ros-warn "cds: ~A" (send cds :pos))
+      (push (ros::pos->tf-point (send cds :worldpos)) point-list))
+    (send mrk :points3D :points point-list)
+    (send mrk :scale 15)
+    (send mrk :outline_colors outline-colors)
+    (if ns (send mrk :ns ns))
+    (ros::publish "image_marker" mrk)
+  ))
 
 (defun visualize-text-image-from-pos
   (text pos &key (counter 0) (ns nil) (lifetime 10))
@@ -216,4 +361,43 @@
     (send text-mrk :text (if text text (format nil "~A" obj-cntr)))
     (if ns (send text-mrk :ns ns))
     (ros::publish "image_marker" text-mrk)
+    ))
+
+
+;; (setusrtask "chen" "fridge")
+;; (setusrtask "chen" "im")
+;; (setusrtask "chen" "cupboard")
+;; (setusrtask "chen" "microwave")
+;; (setappealtask "fridge")
+
+(defun setappealtask (name)
+  (unix::system (format nil "rosparam set /Tablet/Found '[~A]'" name)))
+
+(defun setusrtask (usrname taskname)
+  (let ((usrlst (ros::get-param "/Tablet/UserList"))
+        (ulstr "'[")
+        (fridgeaction (list "OpenFridgeDoor1"))
+        (ihaction (list "PushIHButton1" "PushIHButton2" "PushIHButton3"))
+        (cupboardaction (list "OpenCupboardDoor1"))
+        (microwaveaction (list "PushMicroWaveButton1" "OpenMicrowaveDoor1"))
+        (tasklst "'[DoNothing") (actlst nil))
+    (setq ulstr (format nil "~A~A" ulstr usrname))
+    (dolist (usr usrlst)
+      (if (not (string= usr usrname))
+          (setq ulstr (format nil "~A, ~A" ulstr usr))))
+    (setq ulstr (format nil "~A]'" ulstr))
+    ;;    (unix::system (format nil "rosparam set /Tablet/UserList ~A" ulstr))
+    (case (read-from-string taskname)
+      ('FRIDGE (setq actlst fridgeaction))
+      ('IH (setq actlst ihaction))
+      ('CUPBOARD (setq actlst cupboardaction))
+      ('MICROWAVE (setq actlst microwaveaction))
+      (t (ros::ros-error "~A is not found" taskname)
+         (return-from setusrtask nil)))
+    (dolist (act actlst)
+      (setq tasklst (format nil "~A, ~A" tasklst act)))
+    (setq tasklst (format nil "~A]'" tasklst))
+    (unix::system (format nil "rosparam set /Tablet/User/~A ~A" usrname tasklst))
+    (unix::system (format nil "rosparam set /Tablet/UserList ~A" ulstr))
+    (ros::ros-info (format nil "set ~A ~A param" usrname taskname))
     ))
