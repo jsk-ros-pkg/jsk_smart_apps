@@ -65,6 +65,7 @@
 
   ;;Default *ray_srv* is "/pointcloud_screenpoint_nodelet/screen_to_point"
   (setq *ray_srv* (ros::get-param "~ray_srv"))
+  (setq *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
   (setq *current-camera* "/openni/rgb")
   (change-inflation-range 0.15)
 

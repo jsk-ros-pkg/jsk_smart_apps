@@ -11,6 +11,7 @@ class TransformPixel
   ros::ServiceServer srv_;
   tf::TransformListener tf_listener_;
   image_geometry::PinholeCameraModel cam_model_;
+  std::string camera_topic;
 
 public:
   TransformPixel()
@@ -23,7 +24,6 @@ public:
                  jsk_smart_gui::point2screenpoint::Response &res)
   {
     ROS_INFO("3dtopixel request:x=%lf,y=%lf,z=%lf",req.point.point.x,req.point.point.y,req.point.point.z);
-    std::string camera_topic = nh_.resolveName("camera_topic");
     geometry_msgs::PointStamped point_transformed;
     tf_listener_.transformPoint(camera_topic, req.point, point_transformed);
     cv::Point3d xyz; cv::Point2d uv_rect;
@@ -39,6 +39,7 @@ public:
   {
     ROS_INFO("infocallback :shutting down camerainfosub");
     cam_model_.fromCameraInfo(info_msg);
+    camera_topic = info_msg->header.frame_id;
     camerainfosub_.shutdown();
   }
 };

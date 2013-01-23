@@ -1,6 +1,6 @@
 (load "package://jsk_smart_gui/src/utils.l")
 (load "package://jsk_smart_gui/src/get_spot.l")
-(load "package://jsk_smart_gui/src/get_template.l")
+;;(load "package://jsk_smart_gui/src/get_template.l")
 
 (load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://jsk_smart_gui/src/greetings.l")
@@ -150,18 +150,20 @@
 	  (t
 	   (ros::ros-info "/Tablet/task: touches >= 2")))
     (case taskname
-      ('DrawLine
-       (ros::ros-info "DrawLine called")
-       ;; assumed that touches = 2
-       (DrawLineExecute touches))
       ('OpenDoorInput
        (ros::ros-error "OpenDoorInput called")
        ;; assumed that touches = 3
-       (OpenDoorInputExecute arm-id touches))
+       ;; (OpenDoorInputExecute arm-id touches)
+       (OpenDoorInputExecute arm-id touches :use-openrave nil)
+       )
       ('MovingPointInfo
        (ros::ros-info "MovingPointInfoExecute called")
        ;; assumed that touches = 3
        (MovingPointInfoExecute touches))
+      ('DrawLine
+       (ros::ros-info "DrawLine called")
+       ;; assumed that touches = 2
+       (DrawLineExecute touches))
 
       ;; ('pick
       ;;  (ros::ros-info "pick-cb")
@@ -190,11 +192,14 @@
     (send msg1 :point :y (elt (elt *line* 0) 1))
     (send msg2 :point :x (elt (elt *line* 1) 0))
     (send msg2 :point :y (elt (elt *line* 1) 1))
-    (setq p0 (point-srvcall msg1) p1 (point-srvcall msg2))
+    (setq p0 (screenpoint-srvcall (send msg1 :point :x) (send msg1 :point :y)))
+    (setq p1 (screenpoint-srvcall (send msg2 :point :x) (send msg2 :point :y)))
+    ;;(setq p0 (point-srvcall msg1) p1 (point-srvcall msg2))
     (if (or (null p0) (null p1)) (return-from DrawLineExecute nil))
-    (ros::ros-info "DrawLineExecute: point-srvcall succeed")
+    (ros::ros-info "DrawLineExecute: screenpoint-srvcall succeed")
+    ;; visualization_msgs::MarkerArray
     (show-line (setf (elt *door* 0) (send p0 :worldpos))
-	       (setf (elt *door* 1) (send p1 :worldpos))) ;; visualization_msgs::MarkerArray
+               (setf (elt *door* 1) (send p1 :worldpos)))
     (setf (elt *drawer* 0) (send p0 :worldpos))
     (setf (elt *drawer* 1) (send p1 :worldpos))
     ))

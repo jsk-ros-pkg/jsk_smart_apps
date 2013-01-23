@@ -1,9 +1,13 @@
 #!/usr/bin/env roseus
+(ros::load-ros-manifest "jsk_smart_gui")
+(ros::load-ros-manifest "jsk_pcl_ros")
 (ros::load-ros-manifest "dynamic_tf_publisher")
 ;; This script depends on tablet_callback.l
 ;; Use when creating template from imagesift
 (ros::roseus "template_creator")
-;;(load "package://jsk_smart_gui/src/tablet_receiver.l")
+(load "package://jsk_smart_gui/src/util.l")
+(load "package://pr2eus_openrave/pr2eus-openrave.l")
+(load "package://jsk_2011_07_pr2_semantic/euslisp/actions.l")
 
 (defun ros::coords->tf-pose-stamped0 (coords id)
   (let ((pose (ros::coords->tf-pose coords)))
@@ -124,6 +128,15 @@
     (visualize-line-image-from-coords
      (list (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -150) :world)
 	   (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -450) :world)) :counter 100)
+
+    (setq *door* (list 
+                  (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -545 -150) :world) :pos)
+                  (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -545 -450) :world) :pos) 0))
+
+    (setq rad (/ pi 3))
+    (OpenDoorInputEusExecute :rarm (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -300) :world) :pos) rad)
+
+    (OpenDoorEusExecute :rarm rad) ;;todo
   ))
 
 (defun use_template_cb2(msg)

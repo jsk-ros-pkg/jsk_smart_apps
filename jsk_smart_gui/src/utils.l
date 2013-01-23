@@ -157,7 +157,7 @@
 			    (instance geometry_msgs::Point :init
 				      :x (elt p2 0) :y (elt p2 1))))
     (send mrk :outline_color (instance std_msgs::ColorRGBA :init :r 0.0 :g 1.0 :b 0.0 :a 1.0))
-    (ros::publish "image_marker" mrk))n)
+    (ros::publish "image_marker" mrk)))
 
 (defun stop-visualize-line ()
   (let ((mrk (instance image_view2::ImageMarker2 :init)))
@@ -240,7 +240,7 @@
 (defun close-gripper (arm)
   (send *ri* :start-grasp arm))
 (defun open-gripper (arm)
-  (send *ri* :stop-grasp arm))
+  (send *ri* :stop-grasp arm :wait t))
 
 (defun reset-all ()
   (setq *node-debug* nil *visualize* nil *chosen-ret* nil)
