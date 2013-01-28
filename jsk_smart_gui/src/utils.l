@@ -243,6 +243,12 @@
   (send *ri* :stop-grasp arm :wait t))
 
 (defun reset-all ()
+  (ros::ros-error "not reseting all")
+  (stop-visualize-line)
+  (stop-visualize-point)
+  )
+
+(defun reset-all-bak ()
   (setq *node-debug* nil *visualize* nil *chosen-ret* nil)
   (setq *line* (make-list 2) *door* (make-list 3) *drawer* (make-list 3))
   (setq *opendoor* nil *slidedoor* nil)

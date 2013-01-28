@@ -1,9 +1,10 @@
 (load "package://jsk_smart_gui/src/utils.l")
 (load "package://jsk_smart_gui/src/get_spot.l")
 ;;(load "package://jsk_smart_gui/src/get_template.l")
-
 (load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://jsk_smart_gui/src/greetings.l")
+
+(load "package://euslib/irteus_proposals/string.l");;
 
 (defun subscribe-tablet ()
   (ros::subscribe "/Tablet/Command"
@@ -154,7 +155,7 @@
        (ros::ros-error "OpenDoorInput called")
        ;; assumed that touches = 3
        ;; (OpenDoorInputExecute arm-id touches)
-       (OpenDoorInputExecute arm-id touches :use-openrave nil)
+       (OpenDoorInputExecute arm-id touches :use-openrave nil :grab t);;!!
        )
       ('MovingPointInfo
        (ros::ros-info "MovingPointInfoExecute called")
@@ -227,7 +228,7 @@
     (print (list *chosen-ret* *finger1* *ret2d*))
     ))
 
-(defun MoveCameraCenterExecute (x y)
+(defun MoveCameraCenterExecute (x y);;todo
   (let (c)
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (setq c (make-camera-from-ros-camera-info-aux 640 480 #f(892.302 0.0 422.326 0.0 0.0 892.302 268.051 0.0 0.0 0.0 1.0 0.0) (make-cascoords :pos (send *pr2* :wide_stereo-left :worldpos))))
@@ -236,19 +237,18 @@
 
 (defun Show3DScreenPointExecute (x y cam)
   (let* ((c (screenpoint-srvcall x y))
-	 (cam-name-orig (string-left-trim "/" cam))
-	 (cam-name (substitute #\- #\/ (string-downcase cam-name-orig)))
-	 (cam-method-name (intern (string-upcase cam-name) *keyword-package*)))
+         (cam-name-orig (string-left-trim "/" cam))
+         (cam-name (substitute #\- #\/ (string-downcase cam-name-orig)))
+         ;; ex) from /wide_stereo/left to :wide_stereo-left
+         (cam-method-name (intern (string-upcase cam-name) *keyword-package*)))
     (ros::ros-info "cam-method-name : ~A" cam-method-name)
     (if (null c) (return-from Show3DScreenPointExecute nil))
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (visualize-point x y :sca 10 :r 1.0 :lifetime 10)
     (show-marker (send (send c :copy-worldcoords) :pos) :lifetime 10)
-    ;; for old pr2.l
-    ;;(if (eq cam-method-name :camera-rgb) (setq cam-method-name :openni-rgb))
     (if (find-method *pr2* cam-method-name)
-	(show-line (send (send c :copy-worldcoords) :pos)
-		   (send (funcall 'send *pr2* cam-method-name :copy-worldcoords) :pos) :lifetime 10)
+        (show-line (send (send c :copy-worldcoords) :pos)
+                   (send (funcall 'send *pr2* cam-method-name :copy-worldcoords) :pos) :lifetime 10)
       (ros::ros-warn "Assume that you are using external camera"))
     (ros::ros-info "Show3DScreenPointExecute: showing for 10 seconds")
     ))
@@ -259,34 +259,30 @@
 ;;          )
 ;;     ))
 
-;; Example: (setq str "((:image /r_forearm_cam) (:points /camera/rgb/points))")
+;; Example: (setq str "((:image /r_forearm_cam/image_mono) (:points /camera/rgb/points) (:camera_info /r_forearm_cam/camera_info))")
 (defun SwitchSensorExecute (switch-str)
   (let* ((switch-lst (read-from-string switch-str))
-         (image (assoc :image switch-lst))(points (assoc :points switch-lst)))
-    (if (or (null image) (null points))
-        (progn (ros::ros-warn "SwitchSensorExecute: nor image or points")
-               (return-from SwitchSensorExecute nil)))
-    (print image) (print points)
+         (image (assoc :image switch-lst)) (points (assoc :points switch-lst))
+         (camera_info (assoc :camera_info switch-lst)))
+    (if (or (null image) (null points) (null camera_info))
+        (progn (ros::ros-warn "SwitchSensorExecute: nor image/camera_info or points") (return-from SwitchSensorExecute nil)))
+    (print image) (print camera_info) (print points)
     (if (eq (elt image 1) 'cameras) (setq image nil))
     (if (eq (elt points 1) 'points) (setq points nil))
+    (if (eq (elt camera_info 1) 'camera_info) (setq camera_info nil));;nonsense
     (let ((mux-req1 (instance topic_tools::MuxSelectRequest :init))
           (mux-req2 (instance topic_tools::MuxSelectRequest :init))
           (mux-req3 (instance topic_tools::MuxSelectRequest :init)))
-      (when (and image (ros::service-exists "/camera_info_mux/select"))
-        (setq *current-camera* (elt image 1))
+      (when (and camera_info (ros::service-exists "/camera_info_mux/select"))
         ;;for image_view2 and depth_image_creator
-        (send mux-req1 :topic (format nil "~A/camera_info" (elt image 1)))
+        (send mux-req1 :topic (format nil "~A" (elt camera_info 1)))
         (ros::service-call "/camera_info_mux/select" mux-req1))
       (when (and image (ros::service-exists "/image_mux/select"))
-        ;;for image_view2 , set mono image to ~image_raw, color image to
-        ;; ~image_color and PR2 has 4 mono camera: narrow_stereo/{right,left}
-        ;; and {r/l}_forearm_cam
-        (send mux-req2 :topic
-              (if (or (string-left= "/r_forearm_cam" (string-downcase (elt image 1)))
-                      (string-left= "/l_forearm_cam" (string-downcase (elt image 1)))
-                      (string-left= "/narrow_stereo" (string-downcase (elt image 1))))
-                  (format nil "~A/image_mono" (elt image 1))
-                (format nil "~A/image_color" (elt image 1))))
+        (setq *current-image* (string-downcase (elt image 1)))
+        ;; ex) from "/wide_stereo/left/image_color" to /wide_stereo/left
+        (setq *current-camera* (read-from-string (string-right-trim (concatenate string "/" (car (last (split-string *current-image* #\/)))) *current-image*)))
+        ;;for image_view2
+        (send mux-req2 :topic (format nil "~A" (elt image 1)))
         (ros::service-call "/image_mux/select" mux-req2))
       (when (and points (ros::service-exists "/points_mux/select"))
         ;;for depth_image_creator

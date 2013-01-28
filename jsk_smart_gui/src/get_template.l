@@ -5,7 +5,8 @@
 ;; This script depends on tablet_callback.l
 ;; Use when creating template from imagesift
 (ros::roseus "template_creator")
-(load "package://jsk_smart_gui/src/util.l")
+(load "package://jsk_smart_gui/src/utils.l")
+(load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://pr2eus_openrave/pr2eus-openrave.l")
 (load "package://jsk_2011_07_pr2_semantic/euslisp/actions.l")
 
@@ -20,6 +21,8 @@
 (defun template_init ()
   (get_template_init)
   (use_template_init)
+  (pr2)
+  (setq *ri* (instance pr2-interface :init))
   )
 
 (defun main_loop ()
@@ -105,6 +108,7 @@
 	 (frame-id (send msg :header :frame_id))
 	 (cam-cds (instance geometry_msgs::PoseStamped :init))
          (taskname "fridge")
+         (rad (/ pi 3))
 	 )
     (ros::ros-info "using template1")
 
@@ -134,8 +138,10 @@
                   (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -545 -450) :world) :pos) 0))
 
     (setq rad (/ pi 3))
-    (OpenDoorInputEusExecute :rarm (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -300) :world) :pos) rad)
-
+    (ros::ros-error "excute?")
+    (read-line)
+    (setq *current-arm* :rarm)
+    (OpenDoorInputEusExecute :rarm (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 -45 -300) :world) :pos) rad :grab t)
     (OpenDoorEusExecute :rarm rad) ;;todo
   ))
 
