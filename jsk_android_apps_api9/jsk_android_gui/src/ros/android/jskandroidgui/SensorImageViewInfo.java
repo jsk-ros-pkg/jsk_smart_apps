@@ -447,13 +447,14 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     		    SendCommandMsg("RotateGripper", RobotArmId, "PINCH", -45, null, 0,
     				   fingerList, startXList, startYList, 0, 0);
     		}
-    	    } else if ( fingerCount_temp == 3 && fingerCount == 3 ) {
+    	    } else if ( fingerCount_temp == 2 && fingerCount == 3 ) {
     		Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] startXList = " + startXList + ", startYList = " + startYList);
     		Log.v("JskAndroidGui:TouchEvent","[ACTION_POINTER_UP] curXList = " + curXList + ", curYList = " + curYList);
 
-    		//TODO: estimate open or slide ?
+    		//estimate open or slide?
     		SendTaskMsg("OpenDoorInput", RobotArmId, "TOUCH", 0, null, 0,
     			    fingerList, startXList, startYList, 0, 0);
+		android.os.SystemClock.sleep(1000);
     		unSetDrawLine();
     		SetMovingFingerInfo();
     	    }

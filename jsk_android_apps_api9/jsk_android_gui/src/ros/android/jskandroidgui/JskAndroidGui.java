@@ -4,8 +4,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -14,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ImageView;
@@ -21,13 +27,22 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView;
+//import android.widget.PopupWindow;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.hardware.SensorManager;
+import android.graphics.Color;
+
+import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import org.ros.node.Node;
 import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.Publisher;
+
 import org.ros.node.parameter.ParameterTree;
+import org.ros.node.parameter.ParameterListener;
+import org.ros.node.service.ServiceServer; //
+import org.ros.internal.node.service.ServiceResponseBuilder;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.exception.RosException;
@@ -35,13 +50,14 @@ import org.ros.message.Time;
 import org.ros.message.std_msgs.Empty;
 import org.ros.message.roseus.StringStamped;
 import org.ros.message.jsk_gui_msgs.Action;
+import org.ros.service.jsk_gui_msgs.Query;
 
 import ros.android.views.JoystickView;
 import ros.android.activity.RosAppActivity;
 import java.util.ArrayList;
 
-//import java.util.Timer;
-//import java.util.TimerTask;
+import java.util.Timer;
+import java.util.TimerTask;
 //import java.util.*;
 
 /**
@@ -52,27 +68,31 @@ public class JskAndroidGui extends RosAppActivity {
     private String robotAppName, cameraTopic;
     private SensorImageViewInfo cameraView;
     private JoystickView joystickView;
+    private TextView tview;
     private Publisher<Empty> GetSpotPub;
     private Publisher<StringStamped> StartDemoPub;
     private Publisher<StringStamped> MoveToSpotPub;
     private Publisher<StringStamped> SelectPub;
     private Publisher<StringStamped> EmergencyStopPub;
     private ParameterTree params;
-
-    //private Button demo_button;
-    private Button yes_button;
-    private Button no_button;
+    private Node public_node;
+    private ServiceServer<Query.Request, Query.Response> server;
+    private Button yes_button, no_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
-    private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(),
-	camera_list = new ArrayList(), points_list = new ArrayList();
-    private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points_throttle"; // will be renamed when parameter comes
-    private boolean isDrawLine = false,isAdapterSet_spots = false, isAdapterSet_tasks = false,isNotParamInit = true,isAdapterSet_camera = false, isAdapterSet_points = false;
+    private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(), camera_list = new ArrayList(), points_list = new ArrayList();
+    //todo camera -> image, camera_info list?
+    private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points_throttle"; // will be renamed when parameter updates
+
+    private Object[] found_task, query_input;
+
+    private boolean isDrawLine = false, isAdapterSet_spots = false, isAdapterSet_tasks = false, isNotParamInit = true, isAdapterSet_camera = false, isAdapterSet_points = false, isParamSet = false, LongTouchFlag = true;
 
     private Handler mHandler;
     static final int CONTEXT_MENU1_ID = 0;
     static final int CONTEXT_MENU2_ID = 1;
     static final int CONTEXT_MENU3_ID = 2;
+    static final int CONTEXT_MENU4_ID = 4;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -251,15 +271,16 @@ public class JskAndroidGui extends RosAppActivity {
 		}});
 	/* for tasks */
 	try{
+	    public_node = node;
 	    String defaultTask_ns = "/Tablet";
-	    GraphName gtask0 = new GraphName(defaultTask_ns);
-	    NameResolver resolver0 = node.getResolver().createResolver(gtask0);
-	    Object[] user_list = params.getList(resolver0.resolve("UserList")).toArray();
+	    GraphName guser = new GraphName(defaultTask_ns);
+	    NameResolver resolver_user = node.getResolver().createResolver(guser);
+	    Object[] user_list = params.getList(resolver_user.resolve("UserList")).toArray();
 	    tasks_list.clear();tasks_list.add("tasks");
 	    for (int i = 0; i < user_list.length; i++) {
 		GraphName gtask = new GraphName(defaultTask_ns + "/User");
-		NameResolver resolver = node.getResolver().createResolver(gtask);
-		Object[] task_param_list = params.getList(resolver.resolve((String)user_list[i])).toArray();
+		NameResolver resolver_task = node.getResolver().createResolver(gtask);
+		Object[] task_param_list = params.getList(resolver_task.resolve((String)user_list[i])).toArray();
 
 		Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
 		for (int j = 0; j < task_param_list.length; j++) {
@@ -295,16 +316,18 @@ public class JskAndroidGui extends RosAppActivity {
 
 	/* for camera */
 	try{
-	    String defaultCamera_ns = "/jsk_ns";
-	    GraphName param_ns = new GraphName(defaultCamera_ns);
-	    NameResolver resolver1 = node.getResolver().createResolver(param_ns);
-	    Object[] camera_param_list = params.getList(resolver1.resolve("camera")).toArray();
-	    Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_param_list.length);
+	    String defaultCamera_ns = "/jsk_cameras";
+	    GraphName gcamera = new GraphName(defaultCamera_ns);
+	    NameResolver resolver_camera = node.getResolver().createResolver(gcamera);
+	    Object[] camera_names_list = params.getList(resolver_camera.resolve("CameraList")).toArray();
+	    Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_names_list.length);
 	    camera_list.clear();camera_list.add("cameras");
-	    for (int i = 0; i < camera_param_list.length; i++) {
-		if (i == 0) {defaultCamera = (String)camera_param_list[i];}
-		camera_list.add((String)camera_param_list[i]);
-		Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[i]);
+	    for (int i = 0; i < camera_names_list.length; i++) {
+
+		Object[] camera_param_list = params.getList(resolver_camera.resolve((String)camera_names_list[i])).toArray();
+		if (i == 0) {defaultCamera = (String)camera_param_list[0];}
+		camera_list.add((String)camera_param_list[0]);
+		Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[0]);
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
@@ -347,10 +370,10 @@ public class JskAndroidGui extends RosAppActivity {
 
 	/* for points */
 	try{
-	    String defaultCamera_ns = "/jsk_ns";
-	    GraphName param_ns = new GraphName(defaultCamera_ns);
-	    NameResolver resolver2 = node.getResolver().createResolver(param_ns);
-	    Object[] points_param_list = params.getList(resolver2.resolve("points")).toArray();
+	    String defaultPoints_ns = "/jsk_points";
+	    GraphName gparam = new GraphName(defaultPoints_ns);
+	    NameResolver resolver_point = node.getResolver().createResolver(gparam);
+	    Object[] points_param_list = params.getList(resolver_point.resolve("points")).toArray();
 	    Log.i("JskAndroidGui:GetPointsParam", "point length = " + points_param_list.length);
 	    points_list.clear();points_list.add("points");
 	    for (int i = 0; i < points_param_list.length; i++) {
@@ -375,7 +398,7 @@ public class JskAndroidGui extends RosAppActivity {
 
 		    } else {
 			isAdapterSet_points = true;
-			Log.i("JskAndroidGui:", "camera adapter not set");
+			Log.i("JskAndroidGui:", "points adapter not set");
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
@@ -397,11 +420,232 @@ public class JskAndroidGui extends RosAppActivity {
 	// 	    GetParamAndSetSpinner();
 	// 	}});
 
+
+	params.addParameterListener("/Tablet/UserList", new ParameterListener()     {
+		@Override
+		    public void onNewValue(Object value) {
+		    //try{
+	try{
+	    String defaultTask_ns = "/Tablet";
+	    GraphName guser = new GraphName(defaultTask_ns);
+	    NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+	    Object[] user_list = params.getList(resolver_user.resolve("UserList")).toArray();
+	    tasks_list.clear();tasks_list.add("tasks");
+	    for (int i = 0; i < user_list.length; i++) {
+		GraphName gtask = new GraphName(defaultTask_ns + "/User");
+		NameResolver resolver_task = public_node.getResolver().createResolver(gtask);
+		Object[] task_param_list = params.getList(resolver_task.resolve((String)user_list[i])).toArray();
+
+		Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
+		for (int j = 0; j < task_param_list.length; j++) {
+		    Log.i("JskAndroidGui:GetTasksParam", "lists: " +  i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+		    tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+		}
+	    }
+	} catch (Exception ex) {
+	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+	    safeToastStatus("No Param Found: " + ex.getMessage());
+	}
+
+	Log.i("JskAndroidGui:GetTasksParam", "end");
+	tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
+		    if(isAdapterSet_tasks){
+			Spinner spinner = (Spinner)parent;
+			String item = (String)spinner.getSelectedItem();
+			StringStamped StrMsg = new StringStamped();
+			StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
+			StrMsg.data = item;
+			StartDemoPub.publish( StrMsg );
+			safeToastStatus("tasks: StartDemo " + item);
+			Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
+
+			TextView tv = (TextView) findViewById(R.id.textarea_test);
+			try {
+			    tv.setText("param update searching");
+			    tv.setTextSize(14);
+			    tv.setTextColor(Color.WHITE);
+			    Log.i("JskAndroidGui:GetTasksParam", "setting text");
+			} catch (Exception ex) {
+			    Log.i("JskAndroidGui:GetTasksParam", "set text error");
+			}
+		    } else {
+			isAdapterSet_tasks = true;
+			Log.i("JskAndroidGui:", "tasks adapter not set");
+		    }
+
+		}
+		public void onNothingSelected(AdapterView parent) {
+		    safeToastStatus("Updating Param");
+		    TextView tv = (TextView) findViewById(R.id.textarea_test);
+		    try {
+			tv.setText("param update searching");
+			tv.setTextSize(14);
+			tv.setTextColor(Color.WHITE);
+			Log.i("JskAndroidGui:GetTasksParam", "setting text");
+		    } catch (Exception ex) {
+			Log.i("JskAndroidGui:GetTasksParam", "set text error");
+		    }
+		}});
+
+	mHandler.post(new Runnable() {
+		public void run() {
+		    TextView tv = (TextView) findViewById(R.id.textarea_test);
+		    if (isParamSet) {
+			try {
+			    tv.setText("Updated");
+			    tv.setTextSize(50);
+			    tv.setTextColor(Color.RED);
+			    Log.i("JskAndroidGui:GetTasksParam", "setting text");
+			} catch (Exception ex) {
+			    Log.i("JskAndroidGui:GetTasksParam", "set text error");
+			}
+		    } else {
+			isParamSet = true;
+			Log.i("JskAndroidGui:", "param not set");
+		    }
+
+		    Log.i("JskAndroidGui:debug", "spinner updating");
+		    isAdapterSet_spots = false; isAdapterSet_tasks = false;
+		    isAdapterSet_camera = false; isAdapterSet_points = false;
+		    GetParamAndSetSpinner();
+
+		}
+	    });
+
+	Log.i("JskAndroidGui:GetTasksParam", "updated");
+
+		}
+	    });//end of parameter listener
+
+	params.addParameterListener("/Tablet/Found", new ParameterListener()     {
+		@Override
+		    public void onNewValue(Object value) {
+
+		    //try{
+		    String defaultTask_ns = "/Tablet";
+		    GraphName guser = new GraphName(defaultTask_ns);
+		    NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+		    try{
+			found_task = params.getList(resolver_user.resolve("Found")).toArray();
+		    } catch (Exception ex) {
+			Log.i("JskAndroidGui:GetTasksParam", (String)found_task[0] + " set text error");
+		    }
+		    mHandler.post(new Runnable() {
+			    public void run() {
+				TextView tv = (TextView) findViewById(R.id.textarea_test);
+				if (isParamSet) {
+				    try {
+					//tv.setText((String)found_task);
+					tv.setText((String)found_task[0]);
+					tv.setTextSize(40);
+					tv.setTextColor(Color.GREEN);
+					Log.i("JskAndroidGui:GetTasksParam", "setting text");
+				    } catch (Exception ex) {
+					Log.i("JskAndroidGui:GetTasksParam", "set text error");
+				    }
+				} else {
+				    isParamSet = true;
+				    Log.i("JskAndroidGui:", "param not set");
+				}
+				Log.i("JskAndroidGui:debug", "spinner updating");
+				isAdapterSet_spots = false; isAdapterSet_tasks = false;
+				isAdapterSet_camera = false; isAdapterSet_points = false;
+				GetParamAndSetSpinner();
+
+			    }
+			});
+		}
+	    });//end of parameter listener
+
+	params.addParameterListener("/Tablet/query_input", new ParameterListener()     {
+		@Override
+		    public void onNewValue(Object value) {
+
+
+
+		    String defaultTask_ns = "/Tablet";
+		    GraphName guser = new GraphName(defaultTask_ns);
+		    NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+		    try{
+			query_input = params.getList(resolver_user.resolve("query_input")).toArray();
+		    } catch (Exception ex) {
+			Log.i("JskAndroidGui:GetTasksParam", query_input[0] + " set text error");
+		    }
+		    LayoutInflater inflater
+			= LayoutInflater.from(JskAndroidGui.this);
+		    final View view = inflater.inflate(R.layout.dialog, null);
+
+		    final EditText editText
+			= (EditText)view.findViewById(R.id.editText1);
+		    mHandler.post(new Runnable() {
+			    public void run() {
+				Log.i("JskAndroidGui:debug", "dialog handler");
+				new AlertDialog.Builder(JskAndroidGui.this)
+				    .setTitle("teach name: " + query_input[0])
+				    .setView(view)
+				    .setPositiveButton("Save",
+						       new DialogInterface.OnClickListener() {
+							   @Override
+							       public void onClick(DialogInterface dialog, int which) {
+							       StringStamped StrMsg_dialog = new StringStamped();
+							       StrMsg_dialog.header.stamp = Time.fromMillis(System.currentTimeMillis());
+							       StrMsg_dialog.data = editText.getText().toString();
+							       SelectPub.publish( StrMsg_dialog );
+							       safeToastStatus("tasks: Send dialog msg");
+							       Log.i("JskAndroidGui:debug", "dialog clicked");
+							   }
+						       })
+				    .show();
+			    }
+			});
+		}
+	    });//end of parameter listener
+
+	//ServiceServer<Query.Request, Query.Response>
+        // server = node.newServiceServer("/query_input", "jsk_gui_msgs/Query",
+	// 			       new ServiceResponseBuilder<Query.Request, Query.Response>() {
+	// 				   @Override
+	// 				   public Query.Response build(Query.Request request) {
+	// 				       Query.Response res = new Query.Response();
+	// 				       //alert dialog
+	// 				       LayoutInflater inflater
+	// 				       = LayoutInflater.from(JskAndroidGui.this);
+	// 				       View view = inflater.inflate(R.layout.dialog, null);
+
+	// 				       final EditText editText
+	// 				       = (EditText)view.findViewById(R.id.editText1);
+	// 				       new AlertDialog.Builder(JskAndroidGui.this)
+	// 				       .setTitle("teach name: " + request.id)
+	// 				       .setView(view)
+	// 				       .setPositiveButton("Save",
+	// 							  new DialogInterface.OnClickListener() {
+	// 							      @Override
+	// 								  public void onClick(DialogInterface dialog, int which) {
+	// 								  // StringStamped StrMsg_dialog = new StringStamped();
+	// 								  // StrMsg_dialog.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	// 								  // StrMsg_dialog.data = "ResultYes";
+	// 								  // SelectPub.publish( StrMsg_dialog );
+	// 								  safeToastStatus("tasks: Send dialog msg");
+	// 								  Log.i("JskAndroidGui:debug", "dialog clicked");
+	// 							      }
+	// 							  })
+	// 				       .show();
+	// 				       res.res = editText.getText().toString();
+
+	// 				       Log.i("JskAndroidGui:debug", "service return");
+	// 				       return res;
+	// 				   }
+	// 			       });
+
+
 	Log.i("JskAndroidGui:debug", "before first spinner update");
+
 	mHandler.post(new Runnable() {
 		public void run() {
 		    Log.i("JskAndroidGui:debug", "spinner updating");
 		    GetParamAndSetSpinner();
+		    isParamSet = true;
 		}
 	    });
 
@@ -416,12 +660,15 @@ public class JskAndroidGui extends RosAppActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 					ContextMenuInfo menuInfo) {
 	super.onCreateContextMenu(menu, v, menuInfo);
+
+	
 	Log.i("JskAndroidGui:debug", "onCreateContextMenu");
 	menu.setHeaderTitle("Long touch detected");
 	//Menu.add(int groupId, int itemId, int order, CharSequence title)
 	menu.add(0, CONTEXT_MENU1_ID, 0, "PUSHONCE");
 	menu.add(0, CONTEXT_MENU2_ID, 0, "PICKONCE");
 	menu.add(0, CONTEXT_MENU3_ID, 0, "PLACEONCE");
+	menu.add(0, CONTEXT_MENU4_ID, 0, "GetTemplate");
     }
 
     @Override
@@ -449,6 +696,10 @@ public class JskAndroidGui extends RosAppActivity {
 	case CONTEXT_MENU3_ID:
 	    Log.i("JskAndroidGui:ItemSeleted", "Publish PlaceOnce");
 	    cameraView.PublishPlaceOnce();
+	    return true;
+	case CONTEXT_MENU4_ID:
+	    Log.i("JskAndroidGui:ItemSeleted", "Publish GetTemplate");
+	    cameraView.PublishPlaceOnce();//todo
 	    return true;
 	default:
 	    return super.onContextItemSelected(item);
@@ -525,11 +776,30 @@ public class JskAndroidGui extends RosAppActivity {
 	    cameraView.ChangeTouchMode();
 	    Log.i("JskAndroidGui:ItemSeleted", "Change TouchMode");
 	    return true;
+	case R.id.changelongtouch:
+	    Log.i("JskAndroidGui:ItemSeleted", "Change LongTouch");
+	    if(LongTouchFlag){
+		ImageView ivInContext = (ImageView) findViewById(R.id.image);
+		unregisterForContextMenu(ivInContext);
+		LongTouchFlag = false;
+	    } else {
+		ImageView ivInContext = (ImageView) findViewById(R.id.image);
+		ivInContext.setFocusable(true);
+		ivInContext.setClickable(true);
+		registerForContextMenu(ivInContext);
+		LongTouchFlag = true;
+	    }
+	    return true;
 	case R.id.resetall:
 	    isAdapterSet_spots = false; isAdapterSet_tasks = false;
 	    GetParamAndSetSpinner();
 	    cameraView.SetResetAll();
 	    isDrawLine = false;
+	    ImageView ivInContext = (ImageView) findViewById(R.id.image);
+	    ivInContext.setFocusable(true);
+	    ivInContext.setClickable(true);
+	    registerForContextMenu(ivInContext);
+	    LongTouchFlag = true;
 	    Log.i("JskAndroidGui:ItemSeleted", "Set ResetAll");
 	    return true;
 	case R.id.stopjoint:
@@ -560,19 +830,22 @@ public class JskAndroidGui extends RosAppActivity {
 	// tasks_list.clear(); spots_list.clear();
 	// camera_list.clear(); points_list.clear();
 
-	ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this, R.layout.list);
-	adapter_spots.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	for (int i = 0; i <= spots_list.size() - 1; i++) {
-	    adapter_spots.add(spots_list.get(i));
-	}
-	spots_spinner.setAdapter(adapter_spots);
-
+	try {
 	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list);
 	adapter_tasks.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	for (int i = 0; i <= tasks_list.size() - 1; i++) {
 	    adapter_tasks.add(tasks_list.get(i));
 	}
 	tasks_spinner.setAdapter(adapter_tasks);
+	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
+
+	ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this, R.layout.list);
+	adapter_spots.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	for (int i = 0; i <= spots_list.size() - 1; i++) {
+	    adapter_spots.add(spots_list.get(i));
+	}
+	spots_spinner.setAdapter(adapter_spots);
+	spots_spinner.setPromptId(R.string.SpinnerPrompt_spots);
 
 	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list);
 	adapter_image.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -587,5 +860,11 @@ public class JskAndroidGui extends RosAppActivity {
 	    adapter_points.add(points_list.get(i));
 	}
 	points_spinner.setAdapter(adapter_points);
+
+	} catch (Exception ex) {
+	    Log.e("JskAndroidGui", "adapter error: " + ex.toString());
+	    safeToastStatus("adapter error: " + ex.getMessage());
+	}
     }
 }
+

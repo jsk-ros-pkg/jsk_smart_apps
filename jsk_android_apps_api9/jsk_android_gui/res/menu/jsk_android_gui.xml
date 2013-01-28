@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
   <!-- <item android:title="Kill" android:id="@+id/kill"></item> -->
 
-  <item android:title="Tasks" android:id="@+id/manipulation">
+  <item android:title="Tasks" android:id="@+id/tasks">
     <menu>
       <item android:title="PICK" android:id="@+id/pickonce"></item>
       <item android:title="OPEN" android:id="@+id/opendoor"></item>
@@ -13,7 +13,7 @@
     </menu>
   </item>
 
-  <item android:title="Utils" android:id="@+id/manipulation">
+  <item android:title="Utils" android:id="@+id/utils">
     <menu>
       <item android:title="StopJoint" android:id="@+id/stopjoint"></item>
       <item android:title="StopNav" android:id="@+id/stopnavigation"></item>
@@ -22,6 +22,7 @@
       <item android:title="GetSpot" android:id="@+id/getspot"></item>
       <item android:title="PassToHuman" android:id="@+id/passtohumanonce"></item>
       <item android:title="ChangeTouchMode" android:id="@+id/changetouchmode"></item>
+      <item android:title="ChangeLongTouch" android:id="@+id/changelongtouch"></item>
     </menu>
   </item>
 
