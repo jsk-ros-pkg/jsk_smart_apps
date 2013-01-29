@@ -1,10 +1,10 @@
 (load "package://jsk_smart_gui/src/utils.l")
 (load "package://jsk_smart_gui/src/get_spot.l")
-;;(load "package://jsk_smart_gui/src/get_template.l")
+(load "package://jsk_smart_gui/src/get_template.l")
 (load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://jsk_smart_gui/src/greetings.l")
 
-(load "package://euslib/irteus_proposals/string.l");;
+(require "package://euslib/irteus_proposals/string.l");;
 
 (defun subscribe-tablet ()
   (ros::subscribe "/Tablet/Command"
@@ -83,6 +83,9 @@
       ('GetTemplate
        (ros::ros-info "GetTemplate called")
        (GetTemplateExecute (send msg :action :touch_x) (send msg :action :touch_y)))
+      ('PushOnce
+       (ros::ros-info "PushOnce called")
+       (PushOnceExecute (send msg :action :touch_x) (send msg :action :touch_y) arm-id))
       ('SwitchSensor
        (ros::ros-info "SwitchSensor called")
        (SwitchSensorExecute (send msg :action :state)))

@@ -2,7 +2,7 @@
 (ros::load-ros-manifest "jsk_smart_gui")
 ;; Load this when creating jsk_maps' spots
 (ros::roseus "spot-creator")
-(load "package://euslib/irteus_proposals/string.l")
+(require "package://euslib/irteus_proposals/string.l")
 
 #|
 rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1

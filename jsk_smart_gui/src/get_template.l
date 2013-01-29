@@ -16,13 +16,12 @@
               :header (instance std_msgs::header :init
                                 :frame_id id
                                 :stamp (ros::time 0))
-				:pose pose)))
+              :pose pose)))
 
 (defun template_init ()
   (get_template_init)
   (use_template_init)
-  (pr2)
-  (setq *ri* (instance pr2-interface :init))
+  (pr2) (setq *ri* (instance pr2-interface :init))
   )
 
 (defun main_loop ()
@@ -38,39 +37,132 @@
   (defvar *height* 0)
   (defvar *template-origin* (make-coords))
   (defvar *username* "chen")
+  (setq *current-camera* "/openni/rgb/image_color")
+  (setq *time-count* (ros::time-now))
   (ros::rate 0.5)
   (setq *flag1* nil *flag2* nil *flag3* nil *flag4* nil)
+  (setq *flag_push* nil)
   (ros::advertise "image_marker" image_view2::ImageMarker2 100)
   (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
   (ros::advertise "tablet_marker_array" visualization_msgs::MarkerArray 10)
   )
 
 (defun use_template_init ()
-  (ros::subscribe "/ObjectDetection1"
-   		  posedetection_msgs::ObjectDetection #'use_template_cb1)
+  ;; (ros::subscribe "/ObjectDetection1"
+  ;;  		  posedetection_msgs::ObjectDetection #'use_template_cb1)
 
-  (ros::subscribe "/ObjectDetection2"
-        	  posedetection_msgs::ObjectDetection #'use_template_cb2)
+  ;; (ros::subscribe "/ObjectDetection2"
+  ;;       	  posedetection_msgs::ObjectDetection #'use_template_cb2)
 
-  (ros::subscribe "/ObjectDetection3"
-                  posedetection_msgs::ObjectDetection #'use_template_cb3)
+  ;; (ros::subscribe "/ObjectDetection3"
+  ;;                 posedetection_msgs::ObjectDetection #'use_template_cb3)
 
-  (ros::subscribe "/ObjectDetection4"
-                  posedetection_msgs::ObjectDetection #'use_template_cb4)
+  ;; (ros::subscribe "/ObjectDetection4"
+  ;;                 posedetection_msgs::ObjectDetection #'use_template_cb4)
+  ;; (ros::subscribe "/ObjectDetection"
+  ;;                 posedetection_msgs::ObjectDetection #'use_template_cb_push)
+
+  (ros::subscribe "/ObjectDetection_test"
+                  posedetection_msgs::ObjectDetection #'use_template_cb_push)
   )
+
+
+;; (subscribe-tablet)
+
+
+(defun use_template_cb_push (msg)
+  (let* ((poses (car (send msg :objects)))
+         (pose (send poses :pose))
+         (frame-id (send msg :header :frame_id))
+         (cam-cds (instance geometry_msgs::PoseStamped :init))
+         (taskname "fridge")
+         )
+    (ros::ros-info "using template_name")
+    (setq *username* "fujii")
+    (load "push-variables.l")
+
+    (unless *flag_push*
+      (setusrtask *username* taskname)
+      (unix::sleep 1)
+      (setappealtask taskname)
+      (setq *flag_push* t))
+
+    (send cam-cds :header :stamp (ros::time 0))
+    (send cam-cds :header :frame_id frame-id)
+    (send cam-cds :pose pose)
+
+    (send *tfl* :wait-for-transform frame-id "base_footprint" (ros::time 0) 5)
+    (setq *detected-template-origin* (send *tfl* :transform-pose "base_footprint" cam-cds))
+
+    (show-markers
+     (list
+      (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :pos)
+      ) :col #f(1 1 0))
+
+    (visualize-text-image-from-pos "Fridge Close/Push(1)" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
+    (visualize-point-image-from-coords
+     (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :pos)
+     :counter 100)
+
+    (ros::ros-error "excute?")
+    (read-line)
+    (setq *current-arm* :rarm)
+
+
+    (move-arm arm (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :translate #f(-100 0 0)) :rotation-axis t :rthre (deg2rad 55) :sec 3000)
+    (move-arm arm (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :translate #f(10 0 0)) :rotation-axis t :rthre (deg2rad 35) :sec 1000)
+    ))
+
+(defun PushOnceExecute (x y arm)
+  (let* ((c (screenpoint-srvcall x y))
+         (time-now (send (ros::time-now) :to-sec))
+         )
+    (unless (boundp '*template-origin*)
+      (ros::ros-error "template-origin not set!!")
+      (return-from PuchOnceExecute nil))
+
+    (setq *transform-diff* (v- (send (send *template-origin* :copy-worldcoords) :pos) (send (send c :copy-worldcoords) :pos)))
+
+    (dump-loadable-structure
+     "push-variables.l"
+     *image-name* *width* *height* *transform-diff*)
+
+    (let* ((launch_dir (ros::resolve-ros-path (format nil "package://jsk_smart_gui/src")))
+           (launch_file (format nil "~A/test_push.launch" launch_dir)))
+      (ros::ros-info "tablet_receiver:: creating launch for tablet")
+      (with-open-file
+       (f launch_file :direction :output)
+       (format f "<launch>~%")
+       (format f "<node pkg=\"jsk_perception\" type=\"point_pose_extractor\"~%")
+       (format f "        output=\"screen\" name=\"point_pose_extractor_test\" >~%")
+       (format f "   <remap from=\"ImageFeature0D\" to=\"/left/openni_feature\" />~%")
+       (format f "   <remap from=\"ObjectDetection\" to=\"ObjectDetection\" />~%")
+       (format f "   <param name=\"template_filename\" value=\"~A\"/>~%" *image-name*)
+       (format f "   <param name=\"object_width\" value=\"~A\"/>~%" (/ *width* 1000.0))
+       (format f "   <param name=\"object_height\" value=\"~A\"/>~%" (/ *height* 1000.0))
+       (format f "   <param name=\"viewer_window\" value=\"true\"/>~%")
+       (format f "</node>~%")
+       (format f "</launch>~%")
+       ))
+
+    (move-arm arm (send (send c :copy-worldcoords) :translate #f(-100 0 0)) :rotation-axis t :rthre (deg2rad 55) :sec 3000)
+    (move-arm arm (send (send c :copy-worldcoords) :translate #f(10 0 0)) :rotation-axis t :rthre (deg2rad 35) :sec 1000)
+    ))
 
 ;;(GetTemplateExecute 320 240)
 ;;(show-marker (send *template-origin* :pos))
 (defun GetTemplateExecute (x y)
   (let* ((c (screenpoint-srvcall x y))
-	 (time-now (send (ros::time-now) :to-sec))
-	 img_res poly_points cam-cds)
+         (time-now (send (ros::time-now) :to-sec))
+         img_res poly_points cam-cds)
     (publish_tf c "/touched_point")
     (change_cropbox_frame "/touched_point")
     (ros::ros-info "waiting for 3 sec")
     (unix::sleep 3)
     ;;save img and call settemplate
     (setq img_res (save_img (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now)))
+
+    (setq *image-name* (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now))
 
     ;; calculate width height
     (unless img_res
@@ -87,7 +179,7 @@
     (setq cam-cds (ros::coords->tf-pose-stamped0 (make-coords :pos (ros::tf-point->pos (elt poly_points 3))) "/openni_rgb_optical_frame"))
     (send *tfl* :wait-for-transform "/openni_rgb_optical_frame" "base_footprint" (ros::time 0) 5)
     (setq *template-origin* (send *tfl* :transform-pose "base_footprint" cam-cds))
-    ;;TODO:calculate offset
+    ;; calculate offset in push once
 
     ;; call settemplate for pointposeextractor
     (ros::set-param "/point_pose_extractor_test/template_filename" (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now))
@@ -99,17 +191,16 @@
      *width* *height*)
     ))
 
-
-;;(show-marker (send *detected-template-origin* :pos))
+;; (show-marker (send *detected-template-origin* :pos))
 
 (defun use_template_cb1(msg)
   (let* ((poses (car (send msg :objects)))
-	 (pose (send poses :pose))
-	 (frame-id (send msg :header :frame_id))
-	 (cam-cds (instance geometry_msgs::PoseStamped :init))
+         (pose (send poses :pose))
+         (frame-id (send msg :header :frame_id))
+         (cam-cds (instance geometry_msgs::PoseStamped :init))
          (taskname "fridge")
          (rad (/ pi 3))
-	 )
+         )
     (ros::ros-info "using template1")
 
     (unless *flag1*
