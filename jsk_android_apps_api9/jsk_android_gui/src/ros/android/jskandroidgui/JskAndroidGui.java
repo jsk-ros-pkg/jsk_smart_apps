@@ -80,9 +80,11 @@ public class JskAndroidGui extends RosAppActivity {
     private Button yes_button, no_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
-    private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(), camera_list = new ArrayList(), points_list = new ArrayList();
-    //todo camera -> image, camera_info list?
-    private String defaultCamera = "/openni/rgb", defaultPoints = "/openni/depth_registered/points_throttle"; // will be renamed when parameter updates
+    private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(), image_list = new ArrayList(), camera_info_list = new ArrayList(), points_list = new ArrayList();
+    private String defaultImage = "/openni/rgb/image_color",
+	defaultCameraInfo = "/openni/rgb/camera_info",
+	defaultPoints = "/openni/depth_registered/points_throttle";
+    // will be renamed when parameter updates
 
     private Object[] found_task, query_input;
 
@@ -134,15 +136,13 @@ public class JskAndroidGui extends RosAppActivity {
 	tasks_spinner.setPromptId(R.string.SpinnerPrompt_tasks);
 
 	image_spinner = (Spinner)findViewById(R.id.spinner_image);
-	// String[] image_list = {"cameras", "/openni/rgb", "/wide_stereo/left", "/wide_stereo/right", "/narrow_stereo/left", "/narrow_stereo/right", "/l_forearm_cam", "/r_forearm_cam"};
-	//ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list, image_list);
+
 	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list);
 	image_spinner.setAdapter(adapter_image);
 	adapter_image.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 	points_spinner = (Spinner)findViewById(R.id.spinner_points);
-	// String[] points_list = {"points", "/openni/depth_registered/points", "/tilt_laser_cloud2"};
-	//ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list, points_list);
+
 	ArrayAdapter<String> adapter_points = new ArrayAdapter<String>(this, R.layout.list);
 	points_spinner.setAdapter(adapter_points);
 	adapter_points.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -236,9 +236,9 @@ public class JskAndroidGui extends RosAppActivity {
 	try{
 	    String defaultSpot_ns = "/jsk_spots";
 	    String targetSpot = "/eng2/7f"; // Todo get current targetSpot
-	    GraphName param_ns = new GraphName(defaultSpot_ns + targetSpot);
-	    NameResolver resolver = node.getResolver().createResolver(param_ns);
-	    Object[] spots_param_list = params.getList(resolver.resolve("spots")).toArray();
+	    GraphName gspot = new GraphName(defaultSpot_ns + targetSpot);
+	    NameResolver resolver_spot = node.getResolver().createResolver(gspot);
+	    Object[] spots_param_list = params.getList(resolver_spot.resolve("spots")).toArray();
 	    Log.i("JskAndroidGui:GetSpotsParam", "spots length = " + spots_param_list.length);
 	    spots_list.clear();spots_list.add("spots");
 	    for (int i = 0; i < spots_param_list.length; i++) {
@@ -321,13 +321,17 @@ public class JskAndroidGui extends RosAppActivity {
 	    NameResolver resolver_camera = node.getResolver().createResolver(gcamera);
 	    Object[] camera_names_list = params.getList(resolver_camera.resolve("CameraList")).toArray();
 	    Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_names_list.length);
-	    camera_list.clear();camera_list.add("cameras");
+	    image_list.clear(); image_list.add("cameras");
 	    for (int i = 0; i < camera_names_list.length; i++) {
 
 		Object[] camera_param_list = params.getList(resolver_camera.resolve((String)camera_names_list[i])).toArray();
-		if (i == 0) {defaultCamera = (String)camera_param_list[0];}
-		camera_list.add((String)camera_param_list[0]);
-		Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[0]);
+		if (i == 0) {
+		    defaultImage = (String)camera_param_list[0];
+		    defaultCameraInfo = (String)camera_param_list[1];
+		}
+		image_list.add((String)camera_param_list[0]);
+		camera_info_list.add((String)camera_param_list[1]);
+		Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[0] + camera_param_list[1]);
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
@@ -337,9 +341,10 @@ public class JskAndroidGui extends RosAppActivity {
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
 		    if(isAdapterSet_camera){
 			Spinner spinner = (Spinner)parent;
-			//String item = (String)spinner.getSelectedItem();
-			defaultCamera = (String)spinner.getSelectedItem();
-			String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
+			defaultImage = (String)spinner.getSelectedItem();
+			//assume that the first element is "cameras", so -1
+			defaultCameraInfo = camera_info_list.get(arg2 - 1);
+			String str =  "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
 			cameraView.PubSwitchSensor(str);
 			safeToastStatus("SwitchSensor: " + str);
 			Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
@@ -353,20 +358,6 @@ public class JskAndroidGui extends RosAppActivity {
 		    safeToastStatus("Updating Param");
 		    GetParamAndSetSpinner();
 		}});
-
-	// image_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
-	// 	public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
-	// 	    Spinner spinner = (Spinner)parent;
-	// 	    defaultCamera = (String)spinner.getSelectedItem();
-	// 	    String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
-	// 	    cameraView.PubSwitchSensor(str);
-	// 	    safeToastStatus("SwitchSensor: " + str);
-	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
-	// 	}
-	// 	public void onNothingSelected(AdapterView parent) {
-	// 	    safeToastStatus("Updating Param");
-	// 	    GetParamAndSetSpinner();
-	// 	}});
 
 	/* for points */
 	try{
@@ -389,13 +380,11 @@ public class JskAndroidGui extends RosAppActivity {
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
 		    if(isAdapterSet_points){
 			Spinner spinner = (Spinner)parent;
-			//String item = (String)spinner.getSelectedItem();
 			defaultPoints = (String)spinner.getSelectedItem();
-			String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
+			String str =  "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
 			cameraView.PubSwitchSensor(str);
 			safeToastStatus("SwitchSensor: " + str);
 			Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
-
 		    } else {
 			isAdapterSet_points = true;
 			Log.i("JskAndroidGui:", "points adapter not set");
@@ -406,50 +395,35 @@ public class JskAndroidGui extends RosAppActivity {
 		    GetParamAndSetSpinner();
 		}});
 
-	// points_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
-	// 	public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
-	// 	    Spinner spinner = (Spinner)parent;
-	// 	    defaultPoints = (String)spinner.getSelectedItem();
-	// 	    String str =  "((:image "+ defaultCamera + ") (:points " + defaultPoints + "))";
-	// 	    cameraView.PubSwitchSensor(str);
-	// 	    safeToastStatus("SwitchSensor: " + str);
-	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
-	// 	}
-	// 	public void onNothingSelected(AdapterView parent) {
-	// 	    safeToastStatus("Updating Param");
-	// 	    GetParamAndSetSpinner();
-	// 	}});
-
 
 	params.addParameterListener("/Tablet/UserList", new ParameterListener()     {
 		@Override
 		    public void onNewValue(Object value) {
-		    //try{
-	try{
-	    String defaultTask_ns = "/Tablet";
-	    GraphName guser = new GraphName(defaultTask_ns);
-	    NameResolver resolver_user = public_node.getResolver().createResolver(guser);
-	    Object[] user_list = params.getList(resolver_user.resolve("UserList")).toArray();
-	    tasks_list.clear();tasks_list.add("tasks");
-	    for (int i = 0; i < user_list.length; i++) {
-		GraphName gtask = new GraphName(defaultTask_ns + "/User");
-		NameResolver resolver_task = public_node.getResolver().createResolver(gtask);
-		Object[] task_param_list = params.getList(resolver_task.resolve((String)user_list[i])).toArray();
+		    try{
+			String defaultTask_ns = "/Tablet";
+			GraphName guser = new GraphName(defaultTask_ns);
+			NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+			Object[] user_list = params.getList(resolver_user.resolve("UserList")).toArray();
+			tasks_list.clear();tasks_list.add("tasks");
+			for (int i = 0; i < user_list.length; i++) {
+			    GraphName gtask = new GraphName(defaultTask_ns + "/User");
+			    NameResolver resolver_task = public_node.getResolver().createResolver(gtask);
+			    Object[] task_param_list = params.getList(resolver_task.resolve((String)user_list[i])).toArray();
 
-		Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
-		for (int j = 0; j < task_param_list.length; j++) {
-		    Log.i("JskAndroidGui:GetTasksParam", "lists: " +  i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
-		    tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
-		}
-	    }
-	} catch (Exception ex) {
-	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("No Param Found: " + ex.getMessage());
-	}
+			    Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
+			    for (int j = 0; j < task_param_list.length; j++) {
+				Log.i("JskAndroidGui:GetTasksParam", "lists: " +  i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+				tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+			    }
+			}
+		    } catch (Exception ex) {
+			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+			safeToastStatus("No Param Found: " + ex.getMessage());
+		    }
 
-	Log.i("JskAndroidGui:GetTasksParam", "end");
-	tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
-		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
+		    Log.i("JskAndroidGui:GetTasksParam", "end");
+		    tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+			    public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
 		    if(isAdapterSet_tasks){
 			Spinner spinner = (Spinner)parent;
 			String item = (String)spinner.getSelectedItem();
@@ -514,15 +488,12 @@ public class JskAndroidGui extends RosAppActivity {
 	    });
 
 	Log.i("JskAndroidGui:GetTasksParam", "updated");
-
 		}
 	    });//end of parameter listener
-
 	params.addParameterListener("/Tablet/Found", new ParameterListener()     {
 		@Override
 		    public void onNewValue(Object value) {
 
-		    //try{
 		    String defaultTask_ns = "/Tablet";
 		    GraphName guser = new GraphName(defaultTask_ns);
 		    NameResolver resolver_user = public_node.getResolver().createResolver(guser);
@@ -536,7 +507,6 @@ public class JskAndroidGui extends RosAppActivity {
 				TextView tv = (TextView) findViewById(R.id.textarea_test);
 				if (isParamSet) {
 				    try {
-					//tv.setText((String)found_task);
 					tv.setText((String)found_task[0]);
 					tv.setTextSize(40);
 					tv.setTextColor(Color.GREEN);
@@ -561,8 +531,6 @@ public class JskAndroidGui extends RosAppActivity {
 	params.addParameterListener("/Tablet/query_input", new ParameterListener()     {
 		@Override
 		    public void onNewValue(Object value) {
-
-
 
 		    String defaultTask_ns = "/Tablet";
 		    GraphName guser = new GraphName(defaultTask_ns);
@@ -828,7 +796,7 @@ public class JskAndroidGui extends RosAppActivity {
 
     protected void GetParamAndSetSpinner() {
 	// tasks_list.clear(); spots_list.clear();
-	// camera_list.clear(); points_list.clear();
+	// image_list.clear(); camera_info_list.clear(); points_list.clear();
 
 	try {
 	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list);
@@ -849,8 +817,8 @@ public class JskAndroidGui extends RosAppActivity {
 
 	ArrayAdapter<String> adapter_image = new ArrayAdapter<String>(this, R.layout.list);
 	adapter_image.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	for (int i = 0; i <= camera_list.size() - 1; i++) {
-	    adapter_image.add(camera_list.get(i));
+	for (int i = 0; i <= image_list.size() - 1; i++) {
+	    adapter_image.add(image_list.get(i));
 	}
 	image_spinner.setAdapter(adapter_image);
 
