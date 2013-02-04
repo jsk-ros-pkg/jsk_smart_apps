@@ -23,11 +23,18 @@
   (use_template_init)
   (pr2) (setq *ri* (instance pr2-interface :init))
   )
-
 (defun main_loop ()
   (do-until-key
    (ros::spin-once)
    (ros::sleep)))
+
+(defun setup ()
+  (change-inflation-range 0.15)
+  (template_init)
+  (subscribe-tablet)
+  (make-spots-yaml (get-current-spot))
+  (main_loop)
+  )
 
 (defun get_template_init ()
   (defvar *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
@@ -49,70 +56,116 @@
 
 (defun use_template_init ()
   ;; (ros::subscribe "/ObjectDetection1"
-  ;;  		  posedetection_msgs::ObjectDetection #'use_template_cb1)
+  ;;   posedetection_msgs::ObjectDetection #'use_template_cb1)
 
   ;; (ros::subscribe "/ObjectDetection2"
-  ;;       	  posedetection_msgs::ObjectDetection #'use_template_cb2)
+  ;;        posedetection_msgs::ObjectDetection #'use_template_cb2)
 
   ;; (ros::subscribe "/ObjectDetection3"
   ;;                 posedetection_msgs::ObjectDetection #'use_template_cb3)
 
   ;; (ros::subscribe "/ObjectDetection4"
   ;;                 posedetection_msgs::ObjectDetection #'use_template_cb4)
+
   ;; (ros::subscribe "/ObjectDetection"
   ;;                 posedetection_msgs::ObjectDetection #'use_template_cb_push)
 
-  (ros::subscribe "/ObjectDetection_test"
-                  posedetection_msgs::ObjectDetection #'use_template_cb_push)
+  ;; (ros::subscribe "/ObjectDetection"
+  ;;                 posedetection_msgs::ObjectDetection #'use_template_cb_push_no)
+;;(ros::unsubscribe "/ObjectDetection")
   )
 
+(defun use_yes ()
+  (ros::subscribe "/ObjectDetection"
+                  posedetection_msgs::ObjectDetection #'use_template_cb_push))
+(defun use_no ()
+  (ros::subscribe "/ObjectDetection"
+                  posedetection_msgs::ObjectDetection #'use_template_cb_push_no))
 
-;; (subscribe-tablet)
+(defun use_template_cb_push_no (msg) )
 
-
+;;(move-to-spot "/eng2/7f/room73B2-cooking-header")
 (defun use_template_cb_push (msg)
   (let* ((poses (car (send msg :objects)))
          (pose (send poses :pose))
          (frame-id (send msg :header :frame_id))
          (cam-cds (instance geometry_msgs::PoseStamped :init))
-         (taskname "fridge")
-         )
-    (ros::ros-info "using template_name")
-    (setq *username* "fujii")
+         (taskname "kettle") (arm :rarm)
+         target-cds)
+    (ros::ros-info "using template_push")
+    (setq *username* taskname)
     (load "push-variables.l")
 
     (unless *flag_push*
-      (setusrtask *username* taskname)
+      ;;(setusrtask *username* taskname)
       (unix::sleep 1)
       (setappealtask taskname)
       (setq *flag_push* t))
-
     (send cam-cds :header :stamp (ros::time 0))
     (send cam-cds :header :frame_id frame-id)
     (send cam-cds :pose pose)
 
+    (setq *cam-cds* cam-cds)
     (send *tfl* :wait-for-transform frame-id "base_footprint" (ros::time 0) 5)
     (setq *detected-template-origin* (send *tfl* :transform-pose "base_footprint" cam-cds))
 
-    (show-markers
-     (list
-      (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :pos)
-      ) :col #f(1 1 0))
+    (setq target-cds (make-coords :pos (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :pos) :rot *hand-rot*))
 
-    (visualize-text-image-from-pos "Fridge Close/Push(1)" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
+    (setq point2d (point2pixel :px (aref (send target-cds :worldpos) 0) :py (aref (send target-cds :worldpos) 1) :pz (aref (send target-cds :worldpos) 2)))
+
+    (setq new-target-cds (screenpoint-srvcall (elt point2d 0) (elt point2d 1)))
+
+    (setq new-target-cds-transformed (make-coords :pos (float-vector (aref (send new-target-cds :worldpos) 0) (aref (send target-cds :worldpos) 1) (aref (send target-cds :worldpos) 2)) :rot *hand-rot*))
+
+    ;; (show-marker
+    ;;   (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :pos)
+    ;;   :col #f(1 1 0))
+
+    (show-markers
+      (list (send (send *detected-template-origin* :copy-worldcoords) :pos)
+            (send (send target-cds :copy-worldcoords) :pos)
+            (send (send new-target-cds :copy-worldcoords) :pos)
+            (send (send new-target-cds-transformed :copy-worldcoords) :pos)
+            ) :col #f(1 1 0))
+
+;;    (visualize-text-image-from-pos "StopIH/Push(1)" (send (send (send *detected-template-origin* :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
+    (visualize-text-image-from-pos "OffSwitch/Push(1)" (send (send (send new-target-cds-transformed :copy-worldcoords) :translate #f(0 0 0) :world) :pos))
     (visualize-point-image-from-coords
-     (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :pos)
+     (list
+      (send new-target-cds-transformed :copy-worldcoords))
      :counter 100)
 
-    (ros::ros-error "excute?")
-    (read-line)
-    (setq *current-arm* :rarm)
+;;    (send *detected-template-origin* :rotate pi/2 :y)
 
+    (ros::ros-warn "use this?")
+    (unless (y-or-n-p)
+      (ros::ros-error "return")
+      (setq *flag_push* nil)
+      (pr2-tuckarm-pose :rarm)
+      (return-from use_template_cb_push nil))
 
-    (move-arm arm (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :translate #f(-100 0 0)) :rotation-axis t :rthre (deg2rad 55) :sec 3000)
-    (move-arm arm (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :translate #f(10 0 0)) :rotation-axis t :rthre (deg2rad 35) :sec 1000)
+    (setq *current-arm* arm)
+
+;;    (move-arm arm (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :translate #f(-100 0 0)) :rotation-axis nil :rthre (deg2rad 55) :sec 3000)
+;;    (move-arm arm (send (send (send *detected-template-origin* :copy-worldcoords) :translate *transform-diff* :world) :translate #f(10 0 0)) :rotation-axis nil :rthre (deg2rad 35) :sec 1000)
+
+    (print 'movearm1)
+    
+    (if *changeflag*
+        (progn
+          (move-arm arm (send (send new-target-cds :copy-worldcoords) :translate #f(-150 0 0) :world) :rotation-axis t :rthre (deg2rad 35) :sec 3000)
+          (print 'movearm2)
+          (move-arm arm (send (send new-target-cds :copy-worldcoords) :translate #f(50 0 0) :world) :rotation-axis t :rthre (deg2rad 15) :sec 1000)
+          (setq *changeflag* nil)
+          )
+      (progn
+        (move-arm arm (send (send new-target-cds-transformed :copy-worldcoords) :translate #f(-150 0 0) :world) :rotation-axis t :rthre (deg2rad 35) :sec 3000)
+        (print 'movearm2)
+        (move-arm arm (send (send new-target-cds-transformed :copy-worldcoords) :translate #f(50 0 0) :world) :rotation-axis t :rthre (deg2rad 15) :sec 1000)
+        (setq *changeflag* t)
+        ))
     ))
-
+(setq *changeflag* t)
 (defun PushOnceExecute (x y arm)
   (let* ((c (screenpoint-srvcall x y))
          (time-now (send (ros::time-now) :to-sec))
@@ -121,11 +174,13 @@
       (ros::ros-error "template-origin not set!!")
       (return-from PuchOnceExecute nil))
 
-    (setq *transform-diff* (v- (send (send *template-origin* :copy-worldcoords) :pos) (send (send c :copy-worldcoords) :pos)))
+    (setq *transform-diff* (v- (send (send c :copy-worldcoords) :pos) (send (send *template-origin* :copy-worldcoords) :pos)))
+
+    (setq *hand-rot* (send (send c :copy-worldcoords) :rot))
 
     (dump-loadable-structure
      "push-variables.l"
-     *image-name* *width* *height* *transform-diff*)
+     *image-name* *width* *height* *hand-rot* *transform-diff*)
 
     (let* ((launch_dir (ros::resolve-ros-path (format nil "package://jsk_smart_gui/src")))
            (launch_file (format nil "~A/test_push.launch" launch_dir)))
@@ -144,9 +199,10 @@
        (format f "</node>~%")
        (format f "</launch>~%")
        ))
-
-    (move-arm arm (send (send c :copy-worldcoords) :translate #f(-100 0 0)) :rotation-axis t :rthre (deg2rad 55) :sec 3000)
-    (move-arm arm (send (send c :copy-worldcoords) :translate #f(10 0 0)) :rotation-axis t :rthre (deg2rad 35) :sec 1000)
+    (print c)
+    (pr2-tuckarm-pose arm)
+    (move-arm arm (send (send c :copy-worldcoords) :translate #f(-100 0 0) :world) :rotation-axis t :rthre (deg2rad 55) :sec 3000)
+    (move-arm arm (send (send c :copy-worldcoords) :translate #f(10 0 0) :world) :rotation-axis t :rthre (deg2rad 35) :sec 1000)
     ))
 
 ;;(GetTemplateExecute 320 240)
@@ -160,9 +216,11 @@
     (ros::ros-info "waiting for 3 sec")
     (unix::sleep 3)
     ;;save img and call settemplate
-    (setq img_res (save_img (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now)))
+    ;; (setq img_res (save_img (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now)))
+    ;; (setq *image-name* (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now))
 
-    (setq *image-name* (format nil "~A/.ros/~A.jpg" (unix:getenv "HOME") time-now))
+    (setq img_res (save_img (format nil "/tmp/~A.jpg" time-now)))
+    (setq *image-name* (format nil "/tmp/~A.jpg" time-now))
 
     ;; calculate width height
     (unless img_res
@@ -486,7 +544,7 @@
 (defun setusrtask (usrname taskname)
   (let ((usrlst (ros::get-param "/Tablet/UserList"))
         (ulstr "'[")
-        (fridgeaction (list "OpenFridgeDoor1"))
+        (fridgeaction (list "CloseDoor"))
         (ihaction (list "PushIHButton1" "PushIHButton2" "PushIHButton3"))
         (cupboardaction (list "OpenCupboardDoor1"))
         (microwaveaction (list "PushMicroWaveButton1" "OpenMicrowaveDoor1"))
@@ -511,3 +569,18 @@
     (unix::system (format nil "rosparam set /Tablet/UserList ~A" ulstr))
     (ros::ros-info (format nil "set ~A ~A param" usrname taskname))
     ))
+
+(defun pr2-tuckarm-pose (&rest args)
+  (no-head-reset-pose)
+  )
+
+(defun no-head-reset-pose (&rest args)
+  (let* ((current-arm (check-tuckarm-pose :thre 40)) ;; nil rarm larm
+         (free-arm (or (car args) current-arm :larm))
+         (msec 2000))
+    (send *pr2* :larm :angle-vector #f(60.0 74.0 70.0 -120.0 20.0 -30.0 180.0))
+    (send *pr2* :rarm :angle-vector #f(-60.0 74.0 -70.0 -120.0 -20.0 -30.0 180.0))
+    (send *ri* :angle-vector (send *pr2* :angle-vector) 2000)
+    (send *ri* :wait-interpolation)))
+
+

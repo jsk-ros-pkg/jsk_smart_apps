@@ -260,7 +260,7 @@
 (defun move-arm ;;TODO::choose openrave or eus
   (arm coords &rest args &key (rotation-axis :z) (debug nil) (sec 2000) &allow-other-keys)
   (unless
-      (send* *pr2* :inverse-kinematics coords :move-arm arm :rotation-axis rotation-axis :debug-view debug args)
+      (send* *pr2* :inverse-kinematics coords :move-arm arm :rotation-axis rotation-axis :revert-if-fail nil :debug-view debug args)
     (setq *ik-fail-av*  (send *pr2* :angle-vector))
     (setq *ik-fail-coords*  (send coords :copy-worldcoords))
     (dump-loadable-structure (format nil "ik-fail-~d.l" (send (ros::time-now) :to-sec))
