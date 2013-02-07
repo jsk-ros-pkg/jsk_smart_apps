@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import roslib,rospy;
 import sys,yaml;
 
