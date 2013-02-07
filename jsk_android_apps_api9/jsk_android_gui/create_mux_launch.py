@@ -3,6 +3,12 @@
 import roslib,rospy;
 import sys,yaml;
 
+"""
+if cameras.yaml or points.yaml is updated,
+please run "./create_mux_launch.py" manually
+to update cameras_and_points_mux.launch
+"""
+
 cameras_list_yaml = yaml.load(open('cameras.yaml').read());
 points_list_yaml = yaml.load(open('points.yaml').read());
 new_mux_file = open('cameras_and_points_mux.launch', 'w');
