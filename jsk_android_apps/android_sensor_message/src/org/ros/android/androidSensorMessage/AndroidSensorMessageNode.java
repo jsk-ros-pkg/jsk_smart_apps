@@ -196,13 +196,9 @@ public class AndroidSensorMessageNode implements NodeMain {
 		}
 	}
 
-	public void shutdown() {
-		sensorManager.unregisterListener(this.sensorListener);
-
-	}
-
 	@Override
 	public void onShutdown(Node node) {
+		sensorManager.unregisterListener(this.sensorListener);
 	}
 
 	@Override

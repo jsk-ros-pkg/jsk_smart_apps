@@ -30,6 +30,7 @@ public class AndroidSensorMessageService extends IntentService {
 	private List<Sensor> sensors;
 	private AndroidSensorMessageNode androidSensorMessageNode;
 	private Intent mintent;
+	NodeMainExecutor nodeMainExecutor;
 	private int[] availableSensor;
 	private int[] publishedSensor;
 	private String[] sensorName;
@@ -65,8 +66,8 @@ public class AndroidSensorMessageService extends IntentService {
 			int sensorType = sensor.getType();
 			switch (sensorType) {
 			/*
-			 * case Sensor.TYPE_AMBIENT_TEMPERATURE: sensorName[sensorType-1]
-			 * =new String("Temperature"); availableSensor[sensorType-1] = 1;
+			 * case Sensor.TYPE_AMBIENT_TEMPERATURE: sensorName[sensorType - 1]
+			 * = new String("Temperature"); availableSensor[sensorType - 1] = 1;
 			 * break;
 			 */
 			case Sensor.TYPE_ACCELEROMETER:
@@ -106,8 +107,9 @@ public class AndroidSensorMessageService extends IntentService {
 				availableSensor[sensorType - 1] = 1;
 				break;
 			/*
-			 * case Sensor.TYPE_RELATIVE_HUMIDITY: sensorName[sensorType-1] =new
-			 * String("Humidity"); availableSensor[sensorType-1] = 1; break;
+			 * case Sensor.TYPE_RELATIVE_HUMIDITY: sensorName[sensorType - 1] =
+			 * new String("Humidity"); availableSensor[sensorType - 1] = 1;
+			 * break;
 			 */
 
 			}
@@ -151,10 +153,7 @@ public class AndroidSensorMessageService extends IntentService {
 				URI masterUri = new URI(b.getString("masterUri"));
 				String hostLocal = InetAddressFactory.newNonLoopback()
 						.getHostAddress();
-				// At this point, the user has already been prompted to either
-				// enter the URI
-				// of a master to use or to start a master locally.
-				NodeMainExecutor e = DefaultNodeMainExecutor.newDefault();
+				nodeMainExecutor = DefaultNodeMainExecutor.newDefault();
 
 				NodeConfiguration nodeConfiguration = NodeConfiguration
 						.newPublic(hostLocal, masterUri);
@@ -165,7 +164,8 @@ public class AndroidSensorMessageService extends IntentService {
 						sensorManager, sensors, view, textViewX, textViewY,
 						textViewZ, publishedSensor);
 
-				e.execute(androidSensorMessageNode, nodeConfiguration);
+				nodeMainExecutor.execute(androidSensorMessageNode,
+						nodeConfiguration);
 
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
@@ -188,18 +188,19 @@ public class AndroidSensorMessageService extends IntentService {
 	 */
 	private void showNotification() {
 
-		Intent i = new Intent(this, AndroidSensorMessage.class);
+		Intent intent = new Intent(this, AndroidSensorMessage.class);
 
-		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-		PendingIntent pi = PendingIntent.getActivity(this, 0, i, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+				intent, 0);
 
 	}
 
 	@Override
 	public void onDestroy() {
-		this.androidSensorMessageNode.onShutdown(null);
+		nodeMainExecutor.shutdownNodeMain(androidSensorMessageNode);
 	}
 
 }
