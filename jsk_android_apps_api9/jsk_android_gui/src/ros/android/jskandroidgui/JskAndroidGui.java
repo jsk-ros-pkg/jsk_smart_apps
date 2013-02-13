@@ -27,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView;
-//import android.widget.PopupWindow;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.hardware.SensorManager;
 import android.graphics.Color;
@@ -91,6 +90,7 @@ public class JskAndroidGui extends RosAppActivity {
     private boolean isDrawLine = false, isAdapterSet_spots = false, isAdapterSet_tasks = false, isNotParamInit = true, isAdapterSet_camera = false, isAdapterSet_points = false, isParamSet = false, LongTouchFlag = true;
 
     private Handler mHandler;
+
     static final int CONTEXT_MENU1_ID = 0;
     static final int CONTEXT_MENU2_ID = 1;
     static final int CONTEXT_MENU3_ID = 2;
@@ -195,22 +195,9 @@ public class JskAndroidGui extends RosAppActivity {
 	SelectPub =
 	    node.newPublisher( "/Tablet/Select" , "roseus/StringStamped" );
 
-	// demo_button.setOnClickListener(new OnClickListener(){
-	// 	public void onClick(View viw) {
-	// 	    Button button = (Button)viw;
-	// 	    // button.setText("starting");
-	// 	    StringStamped StrMsg = new StringStamped();
-	// 	    StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
-	// 	    StrMsg.data = "StartMainDemo";
-	// 	    StartDemoPub.publish( StrMsg );
-	// 	    safeToastStatus("demo: " + "StartMainDemo");
-	// 	    Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo main messgae");
-	// 	}});
-
 	yes_button.setOnClickListener(new OnClickListener(){
 		public void onClick(View viw) {
 		    Button button = (Button)viw;
-		    // button.setText("starting");
 		    StringStamped StrMsg_resultyes = new StringStamped();
 		    StrMsg_resultyes.header.stamp = Time.fromMillis(System.currentTimeMillis());
 		    StrMsg_resultyes.data = "ResultYes";
@@ -222,7 +209,6 @@ public class JskAndroidGui extends RosAppActivity {
 	no_button.setOnClickListener(new OnClickListener(){
 		public void onClick(View viw) {
 		    Button button = (Button)viw;
-		    // button.setText("starting");
 		    StringStamped StrMsg_resultno = new StringStamped();
 		    StrMsg_resultno.header.stamp = Time.fromMillis(System.currentTimeMillis());
 		    StrMsg_resultno.data = "ResultNo";
@@ -235,7 +221,7 @@ public class JskAndroidGui extends RosAppActivity {
 	/* for spots */
 	try{
 	    String defaultSpot_ns = "/jsk_spots";
-	    String targetSpot = "/eng2/7f"; // Todo get current targetSpot
+	    String targetSpot = "/eng2/7f"; // TODO: get current targetSpot
 	    GraphName gspot = new GraphName(defaultSpot_ns + targetSpot);
 	    NameResolver resolver_spot = node.getResolver().createResolver(gspot);
 	    Object[] spots_param_list = params.getList(resolver_spot.resolve("spots")).toArray();
@@ -616,7 +602,6 @@ public class JskAndroidGui extends RosAppActivity {
 		    isParamSet = true;
 		}
 	    });
-
     }
 
     @Override
@@ -629,7 +614,6 @@ public class JskAndroidGui extends RosAppActivity {
 					ContextMenuInfo menuInfo) {
 	super.onCreateContextMenu(menu, v, menuInfo);
 
-	
 	Log.i("JskAndroidGui:debug", "onCreateContextMenu");
 	menu.setHeaderTitle("Long touch detected");
 	//Menu.add(int groupId, int itemId, int order, CharSequence title)
@@ -667,7 +651,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    return true;
 	case CONTEXT_MENU4_ID:
 	    Log.i("JskAndroidGui:ItemSeleted", "Publish GetTemplate");
-	    cameraView.PublishPlaceOnce();//todo
+	    cameraView.PublishGetTemplateOnce();
 	    return true;
 	default:
 	    return super.onContextItemSelected(item);
@@ -797,7 +781,6 @@ public class JskAndroidGui extends RosAppActivity {
     protected void GetParamAndSetSpinner() {
 	// tasks_list.clear(); spots_list.clear();
 	// image_list.clear(); camera_info_list.clear(); points_list.clear();
-
 	try {
 	ArrayAdapter<String> adapter_tasks = new ArrayAdapter<String>(this, R.layout.list);
 	adapter_tasks.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -830,7 +813,7 @@ public class JskAndroidGui extends RosAppActivity {
 	points_spinner.setAdapter(adapter_points);
 
 	} catch (Exception ex) {
-	    Log.e("JskAndroidGui", "adapter error: " + ex.toString());
+	    Log.e("JskAndroidGui", "param adapter error: " + ex.toString());
 	    safeToastStatus("adapter error: " + ex.getMessage());
 	}
     }

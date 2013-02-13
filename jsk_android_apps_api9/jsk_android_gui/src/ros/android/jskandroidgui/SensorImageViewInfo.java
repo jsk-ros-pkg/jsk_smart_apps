@@ -31,9 +31,9 @@ import java.util.ArrayList;
 
 public class SensorImageViewInfo extends ImageView implements MessageListener<CompressedImage>, Runnable {
 
-    static{
-    	System.loadLibrary("calculate");
-    }
+    // static{
+    // 	System.loadLibrary("calculate");
+    // }
     public native long translateBGRtoRGB(int[] src,int width,int height);
 
     private final int minLength = 30, SWIPE_WAIT_TIME = 1, SWIPE_NONE = 0,
@@ -93,6 +93,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void PublishPushOnce() {SendCommandMsg("PushOnce", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
     public void PublishPickOnce() {SendCommandMsg("PickObjectSelected", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
     public void PublishPlaceOnce() {SendCommandMsg("PlaceObjectSelected", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
+    public void PublishGetTemplateOnce() {SendCommandMsg("GetTemplate", RobotArmId, "TOUCH", 0, null, 0, fingerList, startXList, startYList, last_x, last_y);}
     public void SetDrawLine () {isDrawLine = true;}
     public void unSetDrawLine () {isDrawLine = false;}
     public void SetMovingFingerInfo () {isMovingFingerInfo = true;}
@@ -475,26 +476,26 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 
     @Override
 	public void run() {
-	final int bWidth = bitmap.getWidth();
-	final int bHeight = bitmap.getHeight();
-	Bitmap bitmap_tmp = Bitmap.createBitmap(bWidth, bHeight, Bitmap.Config.ARGB_8888);
-	int[] bpixels = new int[bWidth*bHeight];
-	bitmap.getPixels(bpixels, 0, bWidth, 0, 0, bWidth, bHeight);
-	translateBGRtoRGB(bpixels,bWidth,bHeight);
-	bitmap_tmp.setPixels(bpixels, 0, bWidth, 0, 0, bWidth, bHeight);
+	// final int bWidth = bitmap.getWidth();
+	// final int bHeight = bitmap.getHeight();
+	// Bitmap bitmap_tmp = Bitmap.createBitmap(bWidth, bHeight, Bitmap.Config.ARGB_8888);
+	// int[] bpixels = new int[bWidth*bHeight];
+	// bitmap.getPixels(bpixels, 0, bWidth, 0, 0, bWidth, bHeight);
+	// translateBGRtoRGB(bpixels,bWidth,bHeight);
+	// bitmap_tmp.setPixels(bpixels, 0, bWidth, 0, 0, bWidth, bHeight);
 
 	if (SwipeDetectedType != SWIPE_NONE && SwipeCounter < SWIPE_WAIT_TIME ){
 	    Log.v("JskAndroidGui:onNewMessage","[changing Bitmap] changing now " + (SwipeCounter + 1) + " / " + SWIPE_WAIT_TIME);
 	    this.invalidate();
 	    SwipeCounter++;
-	    final int Width = bitmap_tmp.getWidth();
-	    final int Height = bitmap_tmp.getHeight();
-	    //final int Width = bitmap.getWidth();
-	    //final int Height = bitmap.getHeight();
+	    // final int Width = bitmap_tmp.getWidth();
+	    // final int Height = bitmap_tmp.getHeight();
+	    final int Width = bitmap.getWidth();
+	    final int Height = bitmap.getHeight();
 	    Bitmap bitmap_output = Bitmap.createBitmap(Width, Height, Bitmap.Config.ARGB_8888);
 	    int[] pixels = new int[Width*Height];
-	    //bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
-	    bitmap_tmp.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    bitmap.getPixels(pixels, 0, Width, 0, 0, Width, Height);
+	    // bitmap_tmp.getPixels(pixels, 0, Width, 0, 0, Width, Height);
 	    for(int x = 0; x < Width; x++){
 		for(int y = 0; y < Height; y++){
 		    // int pixel = pixels[x + y * Width];
@@ -515,8 +516,7 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
 	    Log.v("JskAndroidGui:onNewMessage","[changing Bitmap] back to normal");
 	    unSetSwipeDetected();
 	} else {
-	    //this.invalidate();
-	    setImageBitmap(bitmap_tmp);
+	    setImageBitmap(bitmap);
 	}
     }
 }
