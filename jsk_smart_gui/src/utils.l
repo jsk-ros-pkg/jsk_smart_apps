@@ -209,14 +209,14 @@
     ))
 
 ;;frame_id is based on "base_footprint"
-(defun show-marker (p &key ((:lifetime lf) 60) (col #f(1 0 1)) (ns "3d_point"))
-  (let* ((header (instance std_msgs::header :init
-			   :stamp (ros::time-now) :frame_id "base_footprint"))
-	 (msg (sphere->marker-msg (make-sphere 20 :pos p) header :color col :alpha 1.0)))
-    (send msg :lifetime (ros::time lf))
-    (send msg :ns ns)
-    (ros::publish "tablet_marker" msg)
-    ))
+;; (defun show-marker (p &key ((:lifetime lf) 60) (col #f(1 0 1)) (ns "3d_point"))
+;;   (let* ((header (instance std_msgs::header :init
+;; 			   :stamp (ros::time-now) :frame_id "base_footprint"))
+;; 	 (msg (sphere->marker-msg (make-sphere 20 :pos p) header :color col :alpha 1.0)))
+;;     (send msg :lifetime (ros::time lf))
+;;     (send msg :ns ns)
+;;     (ros::publish "tablet_marker" msg)
+;;     ))
 
 (defun show-markers (pl &key ((:lifetime lf) 60) (col #f(0 0 1)) (ns "3d_points"))
   (unless (listp pl)

@@ -15,17 +15,17 @@
 (defun move-to-spot (spot &key (frame-id "/world"))
   (let* ((s1 (send *scene* :find-object spot)) (s2 nil) temp-scene)
     (if (boundp '*temp-spots*)
-	(progn (setq temp-scene (make-temp-scene))
-	       (setq s2 (send temp-scene :find-object spot))))
+        (progn (setq temp-scene (make-temp-scene))
+               (setq s2 (send temp-scene :find-object spot))))
     (cond ((null (or s1 s2))
-	   (ros::ros-warn "no such place like ~A" spot)
-	   (return-from move-to-spot nil))
-	  (s1
-	   (ros::ros-info "spot found: ~A" spot)
-	   (send *ri* :move-to (car s1) :frame-id frame-id))
-	  (s2
-	   (ros::ros-info "spot found: ~A" spot)
-	   (send *ri* :move-to (car s2) :frame-id frame-id)))
+           (ros::ros-warn "no such place like ~A" spot)
+           (return-from move-to-spot nil))
+          (s1
+           (ros::ros-info "spot found: ~A" spot)
+           (send *ri* :move-to (car s1) :frame-id frame-id))
+          (s2
+           (ros::ros-info "spot found: ~A" spot)
+           (send *ri* :move-to (car s2) :frame-id frame-id)))
     (speak-jp "とうちゃく")))
 
 (defun start-prosilica();;
@@ -66,7 +66,8 @@
   ;;Default *ray_srv* is "/pointcloud_screenpoint_nodelet/screen_to_point"
   (setq *ray_srv* (ros::get-param "~ray_srv"))
   ;;(setq *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
-  (setq *current-camera* "/openni/rgb/image_color")
+  (setq *current-image* "/openni/rgb/image_color")
+  (setq *current-camera* "/openni/rgb")
   (change-inflation-range 0.15)
 
   ;;load all current spot and convert to javascript/yaml
@@ -79,7 +80,7 @@
   (ros::advertise "robotsound_jp" sound_play::SoundRequest 5)
   (ros::advertise "ray_coords" geometry_msgs::PoseStamped 1)
   (ros::advertise "tablet_marker_array" visualization_msgs::MarkerArray 10)
-  (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
+  ;; (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
   (ros::advertise "image_marker" image_view2::ImageMarker2 10)
   (subscribe-tablet)
   ;;(start-prosilica)

@@ -245,10 +245,12 @@
          ;; ex) from /wide_stereo/left to :wide_stereo-left
          (cam-method-name (intern (string-upcase cam-name) *keyword-package*)))
     (ros::ros-info "cam-method-name : ~A" cam-method-name)
+    ;; (setq cam-method-name :openni-rgb)
+    ;; (ros::ros-info "re cam-method-name : ~A" cam-method-name)
     (if (null c) (return-from Show3DScreenPointExecute nil))
     (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
     (visualize-point x y :sca 10 :r 1.0 :lifetime 10)
-    (show-marker (send (send c :copy-worldcoords) :pos) :lifetime 10)
+    (show-markers (list (send (send c :copy-worldcoords) :pos)) :lifetime 10)
     (if (find-method *pr2* cam-method-name)
         (show-line (send (send c :copy-worldcoords) :pos)
                    (send (funcall 'send *pr2* cam-method-name :copy-worldcoords) :pos) :lifetime 10)
@@ -283,7 +285,14 @@
       (when (and image (ros::service-exists "/image_mux/select"))
         (setq *current-image* (string-downcase (elt image 1)))
         ;; ex) from "/wide_stereo/left/image_color" to /wide_stereo/left
-        (setq *current-camera* (read-from-string (string-right-trim (concatenate string "/" (car (last (split-string *current-image* #\/)))) *current-image*)))
+        ;; ex) from "/r_forearm_cam/image_mono" to /r_forearm_cam
+        (cond ((= 2 (count #\/ *current-image*))
+               (setq *current-camera* (read-from-string (string-right-trim "/" (string-right-trim (car (last (split-string *current-image* #\/))) *current-image*)))))
+              ((= 3 (count #\/ *current-image*))
+               (setq *current-camera* (read-from-string (string-right-trim (concatenate string "/" (car (last (split-string *current-image* #\/)))) *current-image*))))
+              (t
+               (ros::ros-error "*current-image*:~A did not have two or three slash(/), *current-camera* not created" *current-image*)
+               ))
         ;;for image_view2
         (send mux-req2 :topic (format nil "~A" (elt image 1)))
         (ros::service-call "/image_mux/select" mux-req2))
