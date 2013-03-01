@@ -29,10 +29,11 @@
   <item android:title="Manipulation" android:id="@+id/manipulation">
     <menu>
       <item android:title="TuckArmPose" android:id="@+id/tuckarmpose"></item>
-      <item android:title="TorsoUp(DEPRECATED)" android:id="@+id/torsoup"></item>
-      <item android:title="TorsoDown(DEPRECATED)" android:id="@+id/torsodown"></item>
-      <item android:title="OpenGripper(DEPRECATED)" android:id="@+id/opengripper"></item>
-      <item android:title="CloseGripper(DEPRECATED)" android:id="@+id/closegripper"></item>
+      <item android:title="SwitchJoy" android:id="@+id/switchjoy"></item>
+      <item android:title="TorsoUp" android:id="@+id/torsoup"></item>
+      <item android:title="TorsoDown" android:id="@+id/torsodown"></item>
+      <item android:title="OpenGripper" android:id="@+id/opengripper"></item>
+      <item android:title="CloseGripper" android:id="@+id/closegripper"></item>
     </menu>
   </item>
 </menu>

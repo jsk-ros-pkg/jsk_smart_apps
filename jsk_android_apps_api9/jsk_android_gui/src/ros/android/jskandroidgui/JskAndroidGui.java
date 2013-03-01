@@ -152,8 +152,8 @@ public class JskAndroidGui extends RosAppActivity {
 	} else {
 	    cameraTopic = "/tablet/marked/image_rect_color/compressed_throttle";
 	}
-	//joystickView = (JoystickView) findViewById(R.id.joystick);
-	//joystickView.setBaseControlTopic("android/cmd_vel");
+	joystickView = (JoystickView) findViewById(R.id.joystick);
+	joystickView.setBaseControlTopic("android/cmd_vel");
 	cameraView = (SensorImageViewInfo) findViewById(R.id.image);
 	cameraView.setClickable(true);
 	cameraView.SetRobotArm(Action.LARMID);
@@ -178,7 +178,7 @@ public class JskAndroidGui extends RosAppActivity {
 			cameraView.setSelected(true);
 		    }
 		});
-	    //joystickView.start(node);
+	    joystickView.start(node);
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Init error: " + ex.toString());
 	    safeToastStatus("Failed: " + ex.getMessage());
@@ -772,6 +772,16 @@ public class JskAndroidGui extends RosAppActivity {
 	    return true;
 	case R.id.resetcollider:
 	    cameraView.SetResetCollider();
+	    return true;
+
+	case R.id.switchjoy:
+	    StringStamped StrMsg_switchjoy = new StringStamped();
+	    StrMsg_switchjoy.header.stamp = Time.fromMillis(System.currentTimeMillis());
+	    StrMsg_switchjoy.data = "Switchjoy";
+	    SelectPub.publish( StrMsg_switchjoy );
+	    safeToastStatus("tasks: Switchjoy");
+	    Log.i("JskAndroidGui:ItemSelected", "Sending switchjoy");
+
 	    return true;
 	default:
 	    return super.onOptionsItemSelected(item);
