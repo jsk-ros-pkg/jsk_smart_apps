@@ -8,21 +8,50 @@
 
 (defun subscribe-tablet ()
   (ros::subscribe "/Tablet/Command"
-		  jsk_gui_msgs::Tablet #'tablet-command-cb)
+                  jsk_gui_msgs::Tablet #'tablet-command-cb)
 
   (ros::subscribe "/Tablet/Task"
-		  jsk_gui_msgs::Tablet #'tablet-task-cb)
+                  jsk_gui_msgs::Tablet #'tablet-task-cb)
 
   (ros::subscribe "/Tablet/GetSpot"
-		  std_msgs::Empty #'tablet-getspot-cb)
+                  std_msgs::Empty #'tablet-getspot-cb)
 
   (ros::subscribe "/Tablet/MoveToSpot"
-		  roseus::StringStamped #'tablet-movetospot-cb)
+                  roseus::StringStamped #'tablet-movetospot-cb)
 
   (ros::subscribe "/Tablet/StartDemo"
-		  roseus::StringStamped #'tablet-startdemo-cb)
+                  roseus::StringStamped #'tablet-startdemo-cb)
+
+  (ros::subscribe "/android/cmd_vel"
+                  geometry_msgs::Twist #'cmd-vel-cb)
+
+  ;; warning tablet-select-cb is also defined in template_grasp_samples.l
+  (ros::subscribe "/Tablet/Select" roseus::StringStamped #'tablet-select-cb)
+
   ;; (ros::subscribe "/Tablet/CommandDebug"
-  ;; 		  jsk_gui_msgs::Tablet #'tablet-command-debug-cb)
+  ;;   jsk_gui_msgs::Tablet #'tablet-command-debug-cb)
+  )
+
+
+(defun tablet-select-cb (msg)
+  (if (is-old-msg msg) (return-from tablet-select-cb nil))
+  (ros::ros-info "tablet-select-cb called")
+  (let ((taskname (read-from-string (send msg :data))))
+    (case taskname
+      ('SwitchJoy (if *use-joy*
+                      (progn (ros::ros-warn "set joy nil")
+                             (setq *use-joy* nil))
+                    (progn (ros::ros-warn "set joy t")
+                           (setq *use-joy* t))))
+      )))
+
+(defun cmd-vel-cb (msg)
+  (if *use-joy*
+      (progn
+        (ros::ros-warn "input_vel changing")
+        (ros::publish "input_vel" msg))
+    (progn
+      (ros::ros-info "input_vel not changing")))
   )
 
 (defun tablet-movetospot-cb(msg)
@@ -131,7 +160,6 @@
       ('ResetAll
        (ros::ros-info "ResetAll called")
        (reset-all))
-
       ;;  ('give
       ;;  (ros::ros-info "give-cb")
       ;;  (hand-over hand))

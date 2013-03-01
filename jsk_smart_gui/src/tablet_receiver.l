@@ -1,6 +1,7 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "jsk_smart_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
+(ros::load-ros-manifest "roseus")
 
 (ros::roseus "tablet_robot_controller")
 
@@ -80,11 +81,12 @@
   (ros::advertise "robotsound_jp" sound_play::SoundRequest 5)
   (ros::advertise "ray_coords" geometry_msgs::PoseStamped 1)
   (ros::advertise "tablet_marker_array" visualization_msgs::MarkerArray 10)
-  ;; (ros::advertise "tablet_marker" visualization_msgs::Marker 10)
+  (ros::advertise "input_vel" geometry_msgs::Twist)
   (ros::advertise "image_marker" image_view2::ImageMarker2 10)
   (subscribe-tablet)
   ;;(start-prosilica)
   (setq *time-count* (ros::time-now))
+  (setq *use-joy* nil)
   (ros::rate 10)
   (ros::ros-info "begin tablet controller")
 
