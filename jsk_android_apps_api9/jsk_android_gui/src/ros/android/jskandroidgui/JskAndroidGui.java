@@ -69,32 +69,25 @@ public class JskAndroidGui extends RosAppActivity {
     private JoystickView joystickView;
     private TextView tview;
     private Publisher<Empty> GetSpotPub;
-    private Publisher<StringStamped> StartDemoPub;
-    private Publisher<StringStamped> MoveToSpotPub;
-    private Publisher<StringStamped> SelectPub;
-    private Publisher<StringStamped> EmergencyStopPub;
+    private Publisher<StringStamped> StartDemoPub, MoveToSpotPub, SelectPub, TweetPub, EmergencyStopPub;
     private ParameterTree params;
     private Node public_node;
     private ServiceServer<Query.Request, Query.Response> server;
-    private Button yes_button, no_button;
+    private Button tweet_button, yes_button, no_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
     private ArrayList<String> spots_list = new ArrayList(), tasks_list = new ArrayList(), image_list = new ArrayList(), camera_info_list = new ArrayList(), points_list = new ArrayList();
     private String defaultImage = "/openni/rgb/image_color",
 	defaultCameraInfo = "/openni/rgb/camera_info",
 	defaultPoints = "/openni/depth_registered/points_throttle";
-    // will be renamed when parameter updates
+    // will be renamed when parameter updated
 
     private Object[] found_task, query_input;
-
     private boolean isDrawLine = false, isAdapterSet_spots = false, isAdapterSet_tasks = false, isNotParamInit = true, isAdapterSet_camera = false, isAdapterSet_points = false, isParamSet = false, LongTouchFlag = true;
 
     private Handler mHandler;
 
-    static final int CONTEXT_MENU1_ID = 0;
-    static final int CONTEXT_MENU2_ID = 1;
-    static final int CONTEXT_MENU3_ID = 2;
-    static final int CONTEXT_MENU4_ID = 4;
+    static final int CONTEXT_MENU1_ID = 0, CONTEXT_MENU2_ID = 1, CONTEXT_MENU3_ID = 2, CONTEXT_MENU4_ID = 4;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -103,6 +96,7 @@ public class JskAndroidGui extends RosAppActivity {
 	setMainWindowResource(R.layout.main);
 	super.onCreate(savedInstanceState);
 
+	tweet_button = (Button)findViewById(R.id.tweet);
 	yes_button = (Button)findViewById(R.id.resultyes);
 	no_button = (Button)findViewById(R.id.resultno);
 
@@ -195,9 +189,46 @@ public class JskAndroidGui extends RosAppActivity {
 	SelectPub =
 	    node.newPublisher( "/Tablet/Select" , "roseus/StringStamped" );
 
+	TweetPub =
+	    node.newPublisher( "/pr2twit_from_tablet" , "roseus/StringStamped" );
+
+	tweet_button.setOnClickListener(new OnClickListener(){
+		public void onClick(View viw) {
+		    StringStamped StrMsg_tweet = new StringStamped();
+		    StrMsg_tweet.header.stamp = Time.fromMillis(System.currentTimeMillis());
+
+		    LayoutInflater inflater
+			= LayoutInflater.from(JskAndroidGui.this);
+		    final View view = inflater.inflate(R.layout.dialog, null);
+
+		    final EditText editText
+			= (EditText)view.findViewById(R.id.editText1);
+		    mHandler.post(new Runnable() {
+			    public void run() {
+				Log.i("JskAndroidGui:debug", "dialog handler");
+				new AlertDialog.Builder(JskAndroidGui.this)
+				    .setTitle("tweet with image")
+				    .setView(view)
+				    .setPositiveButton("tweet",
+						       new DialogInterface.OnClickListener() {
+							   @Override
+							       public void onClick(DialogInterface dialog, int which) {
+							       StringStamped StrMsg_tweet = new StringStamped();
+							       StrMsg_tweet.header.stamp = Time.fromMillis(System.currentTimeMillis());
+							       StrMsg_tweet.data = editText.getText().toString();
+							       TweetPub.publish( StrMsg_tweet );
+							       safeToastStatus("tasks: Tweet");
+							       Log.i("JskAndroidGui:ButtonClicked", "Sending Tweet");
+							   }
+						       })
+				    .show();
+			    }
+			});
+		}});
+
 	yes_button.setOnClickListener(new OnClickListener(){
 		public void onClick(View viw) {
-		    Button button = (Button)viw;
+		    //	    Button button = (Button)viw;
 		    StringStamped StrMsg_resultyes = new StringStamped();
 		    StrMsg_resultyes.header.stamp = Time.fromMillis(System.currentTimeMillis());
 		    StrMsg_resultyes.data = "ResultYes";
@@ -208,7 +239,7 @@ public class JskAndroidGui extends RosAppActivity {
 
 	no_button.setOnClickListener(new OnClickListener(){
 		public void onClick(View viw) {
-		    Button button = (Button)viw;
+		    //	    Button button = (Button)viw;
 		    StringStamped StrMsg_resultno = new StringStamped();
 		    StrMsg_resultno.header.stamp = Time.fromMillis(System.currentTimeMillis());
 		    StrMsg_resultno.data = "ResultNo";
