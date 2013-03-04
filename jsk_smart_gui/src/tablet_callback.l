@@ -49,7 +49,15 @@
   (if *use-joy*
       (progn
         (ros::ros-warn "input_vel changing")
-        (ros::publish "input_vel" msg))
+        (let ((nmsg (instance geometry_msgs::Twist :init))
+              (+linear-factor+ 2.0) (+angular-factor+ 2.0))
+          (send nmsg :linear :x (/ (send msg :linear :x) +linear-factor+))
+          (send nmsg :linear :y (/ (send msg :linear :y) +linear-factor+))
+          (send nmsg :linear :z (/ (send msg :linear :z) +linear-factor+))
+          (send nmsg :angular :x (/ (send msg :angular :x) +angular-factor+))
+          (send nmsg :angular :y (/ (send msg :angular :y) +angular-factor+))
+          (send nmsg :angular :z (/ (send msg :angular :z) +angular-factor+))
+          (ros::publish "input_vel" nmsg)))
     (progn
       (ros::ros-info "input_vel not changing")))
   )
