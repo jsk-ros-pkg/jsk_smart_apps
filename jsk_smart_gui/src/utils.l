@@ -29,17 +29,17 @@
     ))
 
 (defun generate-slide-path
-  (start-point point1 point2 le &key (div 10))
+  (start-point point1 point2 path-length &key (div 10))
   (let* ((di (normalize-vector (v- point2 point1)))
-	 (ln (make-line point1 point2))
-	 (fp (send ln :point (send ln :foot start-point))))
+         (ln (make-line point1 point2))
+         (fp (send ln :point (send ln :foot start-point))))
     (let* ((ret nil)
-	   (fc (make-coords :pos start-point))
-	   (l (/ le 10)))
+           (fc (make-coords :pos (copy-object start-point))))
       (push (send fc :copy-worldcoords) ret)
+      (scale (/ path-length (float div)) di di)
       (dotimes (i div)
-	(send fc :translate (scale l di))
-	(push (send fc :copy-worldcoords) ret))
+        (send fc :translate di)
+        (push (send fc :copy-worldcoords) ret))
       (nreverse ret))))
 
 (defun generate-circle-path
@@ -52,7 +52,7 @@
 		 (float-vector-p axis)
 		 (= (length axis) 3))
       (return-from generate-circle-path nil))
-    (setq *fp* fp);;
+    (setq *tmp-fp* fp);;
     (let* ((ret nil)
 	   (fc (make-coords :pos fp))
 	   (trans (send fc :transformation (make-coords :pos start-point))))
@@ -258,16 +258,22 @@
   )
 
 (defun move-arm ;;TODO::choose openrave or eus
-  (arm coords &rest args &key (rotation-axis :z) (debug nil) (sec 2000) &allow-other-keys)
+  (arm coords &rest args &key (move-robot t) (wait-interpolation t) (rotation-axis :z) (debug nil)
+       (sec 2000) (use-torso 0.005) (record-ik nil) &allow-other-keys)
   (unless
-      (send* *pr2* :inverse-kinematics coords :move-arm arm :rotation-axis rotation-axis :revert-if-fail nil :debug-view debug args)
-    (setq *ik-fail-av*  (send *pr2* :angle-vector))
-    (setq *ik-fail-coords*  (send coords :copy-worldcoords))
-    (dump-loadable-structure (format nil "ik-fail-~d.l" (send (ros::time-now) :to-sec))
-			     *ik-fail-coords* *ik-fail-av*)
+      (send* *pr2* :inverse-kinematics coords :move-arm arm :rotation-axis rotation-axis
+             :use-torso use-torso
+             :revert-if-fail nil :debug-view debug args)
+    (when record-ik
+      (setq *ik-fail-av*  (send *pr2* :angle-vector))
+      (setq *ik-fail-coords*  (send coords :copy-worldcoords))
+      (dump-loadable-structure (format nil "ik-fail-~d.l" (send (ros::time-now) :to-sec))
+                               *ik-fail-coords* *ik-fail-av*))
     (return-from move-arm nil))
-  (send *ri* :angle-vector (send *pr2* :angle-vector) sec)
-  (send *ri* :wait-interpolation))
+  (when move-robot
+    (send *ri* :angle-vector (send *pr2* :angle-vector) sec)
+    (when wait-interpolation (send *ri* :wait-interpolation)))
+  t)
 
 (defun RotateGripper (arm num)
   (let (current-angle)
