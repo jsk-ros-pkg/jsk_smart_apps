@@ -5,10 +5,8 @@
   <item android:title="Tasks" android:id="@+id/tasks">
     <menu>
       <item android:title="PICK" android:id="@+id/pickonce"></item>
-      <item android:title="OPEN" android:id="@+id/opendoor"></item>
       <item android:title="PUSH" android:id="@+id/pushonce"></item>
       <item android:title="PLACE" android:id="@+id/placeonce"></item>
-      <item android:title="CLOSE" android:id="@+id/closedoor"></item>
       <item android:title="SetAxis" android:id="@+id/setdrawline"></item>
     </menu>
   </item>

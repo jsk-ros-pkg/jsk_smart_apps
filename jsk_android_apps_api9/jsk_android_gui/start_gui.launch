@@ -3,5 +3,94 @@
   <sphinxdoc><![CDATA[
   jsk_android_gui: tap, pinch and sweep and use multi fingers to manipulate the Robots.
   Avaiable on Google Play.
+
+<Setup>
+
+On api-9 ros-android applications, app_manager and appmaster are needed.
+You can launch them by "roslaunch local_app_manager app_manager.launch".
+Currently we include this launches on robot.launch(/etc/ros/fuerte/robot.launch), so all the app_manager will be launched on ROBOT START.
+
+When you start jsk_android_gui(this application) from the application "App Chooser", jsk_android_gui/start_gui.launch will be launched on the background. Thie launch file sets camera,points,spots,tasks parameter for auto-creating the buttons of GUI.
+
+<Images>
+
+The Default Subscribing topic is /tablet/marked/image_rect_color/compressed_throttle as sensor_msgs/CompressedImage.
+We use mux to switch cameras and 3D sensors and  use image_view2 to illustrate.
+
+ - jsk_android_gui/cameras_and_points_mux.launch is generated from cameras.yaml and points.yaml. If you changed sensors of ROBOT, you should add or delete the image topic (on cameras.yaml) or the pointcloud topic (on points.yaml).
+
+ - RULE of cameras.yaml: please put a new camera's name to CameraList, and add new lines for the new camera: (new camera name): [(new topic name of image), (new topic name of camera_info)], and run create_mux_launch.py to re-generate cameras_and_points_mux.launch.
+
+All the launch files are included in jsk_pr2_startup/jsk_pr2_sensors/tablet_startup.launch(see jsk_pr2_startup/pr2.launch:launch_tablet)
+ - For using kinect, you also need to extra launch kinect_head.launch.(see jsk_pr2_startup/pr2.launch:launch_openni)
+ - For using Show3DScreenPoint, you also need to extra launch pointcloud_screenpoint.launch.(see jsk_pr2_startup/pr2.launch:launch_jsk_pcl)
+ - For using tweet, you also need to extra launch db_client.launch.(see jsk_pr2_startup/pr2.launch:launch_db)
+
+<Touches>
+
+All the commands concering manipulation(using arm) will look up the selection of the radio button of :rarm and :larm.
+
+touch(1 finger, not moving)
+ - (Show3DScreePoint mode) Send "/Tablet/Command" as jsk_smart_gui/Tablet, for visualization, you can see a Sphere and a line between the target and the camera from tablet_marker_array as visualization/MarkerArray.
+ - (MoveCameraCenter mode) Send "/Tablet/Command" as jsk_smart_gui/Tablet, move ROBOT to look at the point you touched, see jsk_smart_gui/src/tablet_callback.l:MoveCameraCenterExecute().
+
+touches(4 fingers)
+ - (swiping up) Send "/Tablet/Command" as jsk_smart_gui/Tablet, TorsoUp.
+ - (swiping down) Send "/Tablet/Command" as jsk_smart_gui/Tablet, TorsoDown.
+ - (the others) Send "/Tablet/Command" as jsk_smart_gui/Tablet, TorsoStop.
+
+touches(5 fingers)
+ - (at least one finger moves more than 30 dots) Send "/Tablet/Command" as jsk_smart_gui/Tablet, TuckArmPose.
+
+swipe(1 finger)
+ - (MoveNeck mode) Send "/Tablet/Command" as jsk_smart_gui/Tablet, for moving the head(neck) of ROBOT, you have to swipe more than 30dots.
+
+long touch(1 finger)
+ - PushOnce: Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ - PickOnce: Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ - PlaceOnce: Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ - GetTemplate: Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+
+<Menu>
+
+menu
+ -Tasks: "PICK","PUSH","PLACE","SetAxis"
+ -Utils: "StopJoint": Send "/Tablet/EmergencyCommnad" as roseus/StringStamped.
+ 	 "StopNav": Send "/Tablet/EmergencyCommnad" as roseus/StringStamped.
+ 	 "ResetCollider": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ 	 "ResetAll": Send "/Tablet/Command" as jsk_smart_gui/Tablet, all the setting of the Interface will be initialized.
+ 	 "GetSpot": Send "/Tablet/GetSpot" as std_msgs/Empty.
+ 	 "PassToHuman": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ 	 "ChangeTouchMode": Switch the touch mode between Show3DScreenPoint mode and MoveCameraCenter mode.
+ 	 "ChangeLongTouch": Stop detecting LongTouch when you want to detect more than one finger or the trajectories of fingers.
+ -Manipulation: "TuckArmPose": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ 	       	"SwitchJoy": Send "/Tablet/Command" as jsk_smart_gui/Tablet, this will switch whether use android/cmd_vel for teleoperation or not.
+ 	      	"TorsoUp": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ 	       	"TorsoDown": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ 	       	"OpenGripper": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+ 	       	"CloseGripper": Send "/Tablet/Command" as jsk_smart_gui/Tablet.
+
+Joy
+ - (joystick view) BaseController, send "android/cmd_vel" as geometry_msgs/Twist, will be changed to "input_vel", see tablet_callback.l:SwithJoyExecute()
+
+buttons
+ - (radio buttons) use :rarm or :larm.
+ - (cameras) Send "/Tablet/Command" as jsk_smart_gui/Tablet, change cameras.
+ - (points)  Send "/Tablet/Command" as jsk_smart_gui/Tablet, change PointCloud for depth_image_creator.
+ - (spots) Send "/Tablet/MoveToSpot" as roseus/StringStamped.
+ - (tasks) Send "/Tablet/StartDemo" as roseus/StringStamped.
+ - (yes, no) Send "/Tablet/Select" as roseus/StringStamped.
+ - (tweet) Send "/pr2twit_from_tablet" as roseus/StringStamped.
+
+<SPECIAL>
+
+ROS parameterListener
+ - "/Tablet/UserList": This is for demonstration. Users need to add user-name/tasks to jsk_android_gui/tasks.yaml or set ROS parameter /Tablet/UserList and /Tablet/User/(user's name) to changed the names of tasks button.
+ - "/Tablet/Found"
+
+
+GetSpot: Create temp-scene.l on jsk_spots/src, you just need to copy the new spots to eng-scene.l and the new spots will be added on restart.
+jsk_android_gui/spots.yaml is being generated everytime tablet_receiver.l launches.
+
   ]]></sphinxdoc>
 </launch>
