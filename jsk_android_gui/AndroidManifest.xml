@@ -3,7 +3,7 @@
 	  package="org.ros.android.jskAndroidGui" android:versionCode="13"
 	  android:versionName="4.0">
   <uses-sdk android:minSdkVersion="9" />
-  <application android:icon="@drawable/jskAndroidGui" android:label="@string/app_name">
+  <application android:icon="@drawable/jsk_android_gui" android:label="@string/app_name">
     <activity android:name=".JskAndroidGui" android:label="@string/app_name"
 	      android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden">
       <intent-filter>
