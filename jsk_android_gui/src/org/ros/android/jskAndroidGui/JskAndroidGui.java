@@ -72,8 +72,8 @@ import java.util.TimerTask;
 public class JskAndroidGui extends RosAppActivity {
 	
 	
-	protected JskAndroidGui(String notificationTicker, String notificationTitle) {
-		super(notificationTicker, notificationTitle);
+	public JskAndroidGui() {
+		super("jsk android gui","jsk android gui");
 	}
 
 	private String robotAppName, cameraTopic;
@@ -112,6 +112,8 @@ public class JskAndroidGui extends RosAppActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		
+		setDefaultRobotName("pr1040");
 		setDefaultAppName("jsk_gui/jsk_android_gui");
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
@@ -187,6 +189,8 @@ public class JskAndroidGui extends RosAppActivity {
 		cameraView = (SensorImageViewInfo) findViewById(R.id.image);
 		cameraView.setClickable(true);
 		cameraView.SetRobotArm(Action.LARMID);
+		cameraView.setCameraTopic(cameraTopic);
+		
 		mHandler = new Handler();
 
 		ImageView ivInContext = (ImageView) findViewById(R.id.image);
@@ -205,8 +209,9 @@ public class JskAndroidGui extends RosAppActivity {
 				getMasterUri());
 
 		NameResolver appNamespace = getAppNameSpace();
-
-		/*cameraView.start(node, appNamespace.resolve(cameraTopic).toString());
+		nodeMainExecutor.execute(cameraView, nodeConfiguration.setNodeName("android/camera_view"));
+		
+		//cameraView.start(node, appNamespace.resolve(cameraTopic).toString());
 		cameraView.post(new Runnable() {
 			@Override
 			public void run() {
@@ -214,8 +219,7 @@ public class JskAndroidGui extends RosAppActivity {
 				cameraView.setSelected(true);
 			}
 		});
-		joystickView.start(node);
-*/
+		nodeMainExecutor.execute(joystickView,nodeConfiguration.setNodeName("android/joystick"));
 	}
 
 	private void setListener() {
