@@ -14,4 +14,4 @@
  * the License.
  */
 
-include 'android_gingerbread_mr1', 'my_android_package','android_camera_viewer', 'android_sensor_message','android_voice_message'
+include 'android_gingerbread_mr1', 'my_android_package','android_camera_viewer', 'android_sensor_message','android_voice_message', 'jsk_android_gui'
