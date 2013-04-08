@@ -46,13 +46,13 @@ import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.exception.RosException;
 import org.ros.message.Time;
-import org.ros.message.std_msgs.Empty;
-import org.ros.message.roseus.StringStamped;
-import org.ros.message.jsk_gui_msgs.Action;
-import org.ros.service.jsk_gui_msgs.Query;
+import std_msgs.Empty;
+import roseus.StringStamped;
+import jsk_gui_msgs.Action;
+import jsk_gui_msgs.Query;
 
-import ros.android.views.JoystickView;
-import ros.android.activity.RosAppActivity;
+import org.ros.android.view.VirtualJoystickView;
+import org.ros.android.robotapp.RosAppActivity;
 import java.util.ArrayList;
 
 import java.util.Timer;
@@ -66,13 +66,13 @@ import java.util.TimerTask;
 public class JskAndroidGui extends RosAppActivity {
     private String robotAppName, cameraTopic;
     private SensorImageViewInfo cameraView;
-    private JoystickView joystickView;
+    private VirtualJoystickView joystickView;
     private TextView tview;
     private Publisher<Empty> GetSpotPub;
     private Publisher<StringStamped> StartDemoPub, MoveToSpotPub, SelectPub, TweetPub, EmergencyStopPub;
     private ParameterTree params;
     private Node public_node;
-    private ServiceServer<Query.Request, Query.Response> server;
+    private ServiceServer<Query., Query.Response> server;
     private Button tweet_button, yes_button, no_button;
     private RadioGroup radioGroup;
     private Spinner spots_spinner, tasks_spinner, image_spinner, points_spinner;
@@ -107,11 +107,11 @@ public class JskAndroidGui extends RosAppActivity {
 		    RadioButton radioButton = (RadioButton) findViewById(checkedId);
 		    if (radioButton.getText().equals("left")){
 			cameraView.SetRobotArm(Action.LARMID);
-			safeToastStatus("robot arm set to :larm");
+			Toast.makeText(JskAndroidGui.this,"robot arm set to :larm",Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Set arm to :larm");
 		    } else {
 			cameraView.SetRobotArm(Action.RARMID);
-			safeToastStatus("robot arm set to :rarm");
+			Toast.makeText(JskAndroidGui.this,"robot arm set to :rarm",Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Set arm to :rarm");
 		    }
 		}
@@ -146,7 +146,7 @@ public class JskAndroidGui extends RosAppActivity {
 	} else {
 	    cameraTopic = "/tablet/marked/image_rect_color/compressed_throttle";
 	}
-	joystickView = (JoystickView) findViewById(R.id.joystick);
+	joystickView = (VirtualJoystickView) findViewById(R.id.joystick);
 	joystickView.setBaseControlTopic("android/cmd_vel");
 	cameraView = (SensorImageViewInfo) findViewById(R.id.image);
 	cameraView.setClickable(true);
@@ -175,7 +175,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    joystickView.start(node);
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Init error: " + ex.toString());
-	    safeToastStatus("Failed: " + ex.getMessage());
+	    Toast.makeText(JskAndroidGui.this,"Failed: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 	}
 
 	GetSpotPub =
@@ -192,10 +192,10 @@ public class JskAndroidGui extends RosAppActivity {
 	TweetPub =
 	    node.newPublisher( "/pr2twit_from_tablet" , "roseus/StringStamped" );
 
-	tweet_button.setOnClickListener(new OnClickListener(){
-		public void onClick(View viw) {
+	tweet_button.setOnClickListener(new OnClickListener() {
+		public void onClick(View view) {
 		    StringStamped StrMsg_tweet = new StringStamped();
-		    StrMsg_tweet.header.stamp = Time.fromMillis(System.currentTimeMillis());
+		    StrMsg_tweet.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
 
 		    LayoutInflater inflater
 			= LayoutInflater.from(JskAndroidGui.this);
@@ -214,10 +214,10 @@ public class JskAndroidGui extends RosAppActivity {
 							   @Override
 							       public void onClick(DialogInterface dialog, int which) {
 							       StringStamped StrMsg_tweet = new StringStamped();
-							       StrMsg_tweet.header.stamp = Time.fromMillis(System.currentTimeMillis());
-							       StrMsg_tweet.data = editText.getText().toString();
+							       StrMsg_tweet.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+							       StrMsg_tweet.setData(editText.getText().toString());
 							       TweetPub.publish( StrMsg_tweet );
-							       safeToastStatus("tasks: Tweet");
+							       Toast.makeText(JskAndroidGui.this,"tasks: Tweet",Toast.LENGTH_SHORT).show();
 							       Log.i("JskAndroidGui:ButtonClicked", "Sending Tweet");
 							   }
 						       })
@@ -233,7 +233,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    StrMsg_resultyes.header.stamp = Time.fromMillis(System.currentTimeMillis());
 		    StrMsg_resultyes.data = "ResultYes";
 		    SelectPub.publish( StrMsg_resultyes );
-		    safeToastStatus("tasks: ResultYes");
+		    Toast.makeText(JskAndroidGui.this,"tasks: ResultYes",Toast.LENGTH_SHORT).show();
 		    Log.i("JskAndroidGui:ButtonClicked", "Sending ResultYes");
 		}});
 
@@ -244,7 +244,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    StrMsg_resultno.header.stamp = Time.fromMillis(System.currentTimeMillis());
 		    StrMsg_resultno.data = "ResultNo";
 		    SelectPub.publish( StrMsg_resultno );
-		    safeToastStatus("tasks: ResultNo");
+		    Toast.makeText(JskAndroidGui.this,"tasks: ResultNo",Toast.LENGTH_SHORT).show();
 		    Log.i("JskAndroidGui:ButtonClicked", "Sending ResultNo");
 		}});
 
@@ -264,7 +264,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("No Param Found: " + ex.getMessage());
+	    Toast.makeText(JskAndroidGui.this,"No Param Found: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 	}
 	spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
@@ -275,7 +275,7 @@ public class JskAndroidGui extends RosAppActivity {
 			StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
 			StrMsg.data = item;
 			MoveToSpotPub.publish( StrMsg );
-			safeToastStatus("spots: MoveToSpot " + item);
+			Toast.makeText(JskAndroidGui.this,"spots: MoveToSpot " + item,Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Sending MoveToSpot messgae");
 		    } else {
 			isAdapterSet_spots = true;
@@ -283,7 +283,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
-		    safeToastStatus("Updating Param");
+			Toast.makeText(JskAndroidGui.this,"Updating Param",Toast.LENGTH_SHORT).show();
 		    GetParamAndSetSpinner();
 		}});
 	/* for tasks */
@@ -307,7 +307,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("No Param Found: " + ex.getMessage());
+	    Toast.makeText(JskAndroidGui.this,"No Param Found: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 	}
 
 	tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -319,7 +319,7 @@ public class JskAndroidGui extends RosAppActivity {
 			StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
 			StrMsg.data = item;
 			StartDemoPub.publish( StrMsg );
-			safeToastStatus("tasks: StartDemo " + item);
+			Toast.makeText(JskAndroidGui.this,"tasks: StartDemo " + item,Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
 		    } else {
 			isAdapterSet_tasks = true;
@@ -327,7 +327,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
-		    safeToastStatus("Updating Param");
+			Toast.makeText(JskAndroidGui.this,"Updating Param",Toast.LENGTH_SHORT).show();
 		    GetParamAndSetSpinner();
 		}});
 
@@ -352,7 +352,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("No Param Found: " + ex.getMessage());
+	    Toast.makeText(JskAndroidGui.this,"No Param Found: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 	}
 	image_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
@@ -363,7 +363,7 @@ public class JskAndroidGui extends RosAppActivity {
 			defaultCameraInfo = camera_info_list.get(arg2 - 1);
 			String str =  "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
 			cameraView.PubSwitchSensor(str);
-			safeToastStatus("SwitchSensor: " + str);
+			Toast.makeText(JskAndroidGui.this,"SwitchSensor: " + str,Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
 
 		    } else {
@@ -372,7 +372,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
-		    safeToastStatus("Updating Param");
+			Toast.makeText(JskAndroidGui.this,"Updating Param",Toast.LENGTH_SHORT).show();
 		    GetParamAndSetSpinner();
 		}});
 
@@ -391,7 +391,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    }
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-	    safeToastStatus("No Param Found: " + ex.getMessage());
+	    Toast.makeText(JskAndroidGui.this,"No Param Found: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 	}
 	points_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 		public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
@@ -400,7 +400,7 @@ public class JskAndroidGui extends RosAppActivity {
 			defaultPoints = (String)spinner.getSelectedItem();
 			String str =  "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
 			cameraView.PubSwitchSensor(str);
-			safeToastStatus("SwitchSensor: " + str);
+			Toast.makeText(JskAndroidGui.this,"SwitchSensor: " + str,Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
 		    } else {
 			isAdapterSet_points = true;
@@ -408,7 +408,7 @@ public class JskAndroidGui extends RosAppActivity {
 		    }
 		}
 		public void onNothingSelected(AdapterView parent) {
-		    safeToastStatus("Updating Param");
+			Toast.makeText(JskAndroidGui.this,"Updating Param",Toast.LENGTH_SHORT).show();
 		    GetParamAndSetSpinner();
 		}});
 
@@ -435,7 +435,7 @@ public class JskAndroidGui extends RosAppActivity {
 			}
 		    } catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-			safeToastStatus("No Param Found: " + ex.getMessage());
+			Toast.makeText(JskAndroidGui.this,"No Param Found: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 		    }
 
 		    Log.i("JskAndroidGui:GetTasksParam", "end");
@@ -448,7 +448,7 @@ public class JskAndroidGui extends RosAppActivity {
 			StrMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
 			StrMsg.data = item;
 			StartDemoPub.publish( StrMsg );
-			safeToastStatus("tasks: StartDemo " + item);
+			Toast.makeText(JskAndroidGui.this,"tasks: StartDemo " + item,Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
 
 			TextView tv = (TextView) findViewById(R.id.textarea_test);
@@ -467,7 +467,7 @@ public class JskAndroidGui extends RosAppActivity {
 
 		}
 		public void onNothingSelected(AdapterView parent) {
-		    safeToastStatus("Updating Param");
+			Toast.makeText(JskAndroidGui.this,"Updating Param",Toast.LENGTH_SHORT).show();
 		    TextView tv = (TextView) findViewById(R.id.textarea_test);
 		    try {
 			tv.setText("param update searching");
@@ -577,7 +577,7 @@ public class JskAndroidGui extends RosAppActivity {
 							       StrMsg_dialog.header.stamp = Time.fromMillis(System.currentTimeMillis());
 							       StrMsg_dialog.data = editText.getText().toString();
 							       SelectPub.publish( StrMsg_dialog );
-							       safeToastStatus("tasks: Send dialog msg");
+							       Toast.makeText(JskAndroidGui.this,"tasks: Send dialog msg",Toast.LENGTH_SHORT).show();
 							       Log.i("JskAndroidGui:debug", "dialog clicked");
 							   }
 						       })
@@ -611,7 +611,7 @@ public class JskAndroidGui extends RosAppActivity {
 	// 								  // StrMsg_dialog.header.stamp = Time.fromMillis(System.currentTimeMillis());
 	// 								  // StrMsg_dialog.data = "ResultYes";
 	// 								  // SelectPub.publish( StrMsg_dialog );
-	// 								  safeToastStatus("tasks: Send dialog msg");
+	// 								  Toast.makeText(JskAndroidGui.this,"tasks: Send dialog msg",).show();
 	// 								  Log.i("JskAndroidGui:debug", "dialog clicked");
 	// 							      }
 	// 							  })
@@ -790,7 +790,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    StrMsg_stopjoint.header.stamp = Time.fromMillis(System.currentTimeMillis());
 	    StrMsg_stopjoint.data = "StopJoint";
 	    EmergencyStopPub.publish( StrMsg_stopjoint );
-	    safeToastStatus("tasks: EmergencyStopJoint");
+	    Toast.makeText(JskAndroidGui.this,"tasks: EmergencyStopJoint",Toast.LENGTH_SHORT).show();
 	    Log.i("JskAndroidGui:ItemSeleted", "Sending EmergencyStopJoint");
 	    return true;
 	case R.id.stopnavigation:
@@ -798,7 +798,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    StrMsg_stopnavigation.header.stamp = Time.fromMillis(System.currentTimeMillis());
 	    StrMsg_stopnavigation.data = "StopNavigation";
 	    EmergencyStopPub.publish( StrMsg_stopnavigation );
-	    safeToastStatus("tasks: EmergencyStopNavigation");
+	    Toast.makeText(JskAndroidGui.this,"tasks: EmergencyStopNavigation",Toast.LENGTH_SHORT).show();
 	    Log.i("JskAndroidGui:ItemSeleted", "Sending EmergencyStopNavigation");
 	    return true;
 	case R.id.resetcollider:
@@ -810,7 +810,7 @@ public class JskAndroidGui extends RosAppActivity {
 	    StrMsg_switchjoy.header.stamp = Time.fromMillis(System.currentTimeMillis());
 	    StrMsg_switchjoy.data = "Switchjoy";
 	    SelectPub.publish( StrMsg_switchjoy );
-	    safeToastStatus("tasks: Switchjoy");
+	    Toast.makeText(JskAndroidGui.this,"tasks: Switchjoy",Toast.LENGTH_SHORT).show();
 	    Log.i("JskAndroidGui:ItemSelected", "Sending switchjoy");
 
 	    return true;
@@ -855,7 +855,7 @@ public class JskAndroidGui extends RosAppActivity {
 
 	} catch (Exception ex) {
 	    Log.e("JskAndroidGui", "param adapter error: " + ex.toString());
-	    safeToastStatus("adapter error: " + ex.getMessage());
+	    Toast.makeText(JskAndroidGui.this,"adapter error: " + ex.getMessage(),Toast.LENGTH_SHORT).show();
 	}
     }
 }

@@ -1,4 +1,4 @@
-package ros.android.jskandroidgui;
+package org.ros.android.jskAndroidGui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,15 +17,14 @@ import org.ros.node.topic.Subscriber;
 import org.ros.node.topic.Publisher;
 import org.ros.exception.RosException;
 import org.ros.message.Time;
-import org.ros.message.Message;
 import org.ros.message.MessageListener;
-import org.ros.message.sensor_msgs.CompressedImage;
-import org.ros.message.geometry_msgs.PointStamped;
-import org.ros.message.jsk_gui_msgs.Tablet;
-import org.ros.message.jsk_gui_msgs.Touch;
-import org.ros.message.jsk_gui_msgs.Action;
+import sensor_msgs.CompressedImage;
+import geometry_msgs.PointStamped;
+import jsk_gui_msgs.Tablet;
+import jsk_gui_msgs.Touch;
+import jsk_gui_msgs.Action;
 
-import ros.android.activity.RosAppActivity;
+import org.ros.android.robotapp.RosAppActivity;
 
 import java.util.ArrayList;
 
@@ -115,11 +114,11 @@ public class SensorImageViewInfo extends ImageView implements MessageListener<Co
     public void SendCommandMsg(String task_name, int arm_id, String state, float state_value, String direction, float direction_value, ArrayList<Integer> fingerList, ArrayList<Integer> xList, ArrayList<Integer> yList, int touch_x, int touch_y) {
 	Log.v("JskAndroidGui:SendCommandMsg","START");
 	Tablet TabletMsg = new Tablet();
-	TabletMsg.header.seq = count++; //TabletMsg.header.frame_id = "";
-	TabletMsg.header.stamp = Time.fromMillis(System.currentTimeMillis());
-	TabletMsg.hardware_name = "Android"; // Get From hardware?
-	TabletMsg.hardware_id = "JSK Acer";
-	if( task_name != null ) TabletMsg.action.task_name = task_name;
+	TabletMsg.getHeader().setSeq(count++); //TabletMsg.header.frame_id = "";
+	TabletMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+	TabletMsg.setHardwareName("Android"); // Get From hardware?
+	TabletMsg.setHardwareId("JSK Acer");
+	if( task_name != null ) TabletMsg.getAction().setTaskName(task_name);
 	if( arm_id != 0 ) TabletMsg.action.arm_id = arm_id;
 	if( state != null ) TabletMsg.action.state = state;
 	if( state_value != 0 ) TabletMsg.action.state_value = state_value;

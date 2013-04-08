@@ -11,7 +11,7 @@
   <LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent">
-    <ros.android.jskandroidgui.SensorImageViewInfo android:layout_width="fill_parent"
+    <org.ros.android.jskAndroidGui.SensorImageViewInfo android:layout_width="fill_parent"
 						   android:layout_height="fill_parent"
 						   android:layout_weight=".25"
 						   android:src="@drawable/icon"
@@ -79,7 +79,7 @@
 	           android:layout_height="wrap_content"
 	           android:text="@string/button_label_demo"/> -->
 
-      <ros.android.views.JoystickView android:layout_width="fill_parent"
+      <org.ros.android.view.VirtualJoystickView android:layout_width="fill_parent"
 				      android:layout_height="wrap_content"
 				      android:adjustViewBounds="true"
 				      android:src="@drawable/joystick_white"
