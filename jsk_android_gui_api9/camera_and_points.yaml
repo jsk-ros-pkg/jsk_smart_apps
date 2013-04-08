@@ -1,0 +1,2 @@
+camera: [/openni/rgb, /wide_stereo/left, /wide_stereo/right, /narrow_stereo/left, /narrow_stereo/right, /l_forearm_cam, /r_forearm_cam]
+points: [/openni/depth_registered/points_throttle, /tilt_laser_cloud2]
