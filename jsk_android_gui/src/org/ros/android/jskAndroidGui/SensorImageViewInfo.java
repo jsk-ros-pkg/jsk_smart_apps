@@ -34,7 +34,7 @@ import org.ros.android.robotapp.RosAppActivity;
 import java.util.ArrayList;
 
 public class SensorImageViewInfo extends ImageView implements
-		MessageListener<CompressedImage>, Runnable, NodeMain {
+		Runnable, NodeMain {
 
 	// static{
 	// System.loadLibrary("calculate");
