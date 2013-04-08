@@ -629,11 +629,11 @@ public class JskAndroidGui extends RosAppActivity {
 			Log.i("JskAndroidGui:ItemSeleted", "Set PickOnce");
 			cameraView.SetPickOnce();
 			return true;
-		case R.id.opendoor:
+		/*case R.id.opendoor:
 			cameraView.unSetMovingFingerInfo();
 			cameraView.SendOpenDoorMsg();
 			Log.i("JskAndroidGui:ItemSeleted", "Send OpenDoorMsg");
-			return true;
+			return true;*/
 		case R.id.pushonce:
 			Log.i("JskAndroidGui:ItemSeleted", "Set PushOnce");
 			cameraView.SetPushOnce();
@@ -642,11 +642,11 @@ public class JskAndroidGui extends RosAppActivity {
 			Log.i("JskAndroidGui:ItemSeleted", "Set PlaceOnce");
 			cameraView.SetPlaceOnce();//
 			return true;
-		case R.id.closedoor:
+		/*case R.id.closedoor:
 			Log.i("JskAndroidGui:ItemSeleted", "Send CloseDoorMsg");
 			cameraView.SendCloseDoorMsg();//
 			return true;
-
+*/
 		case R.id.passtohumanonce:
 			Log.i("JskAndroidGui:ItemSeleted", "Set PassToHuman");
 			cameraView.SetPassToHumanOnce();//
