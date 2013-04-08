@@ -83,10 +83,10 @@ public class SensorImageViewInfo extends ImageView implements
 		super(context, attrs);
 	}
 
-	public void setCameraTopic(String cameratopic){
+	public void setCameraTopic(String cameratopic) {
 		this.cameratopic = cameratopic;
 	}
-	
+
 	@Override
 	public void onStart(ConnectedNode connectedNode){
 		this.connectedNode = connectedNode;
@@ -102,19 +102,19 @@ public class SensorImageViewInfo extends ImageView implements
 				jsk_gui_msgs.Tablet._TYPE);
 		MaxWidth = this.getWidth();
 		MaxHeight = this.getHeight();
+		imageSub.addMessageListener(new MessageListener<CompressedImage>(){
+			@Override
+			public void onNewMessage(CompressedImage message) {
+				bitmap = BitmapFactory.decodeByteArray(message.getData().toByteBuffer().array(), 0,
+						message.getData().readableBytes());
+			}
+		});
 	}
 
 	public void stop() {
 		if (imageSub != null)
 			imageSub.shutdown();
 		imageSub = null;
-	}
-
-	@Override
-	public void onNewMessage(CompressedImage message) {
-		bitmap = BitmapFactory.decodeByteArray(message.getData().toByteBuffer().array(), 0,
-				message.getData().readableBytes());
-		post(this);
 	}
 
 	public void SetSwipeDetected(int SwipeType) {
@@ -256,7 +256,8 @@ public class SensorImageViewInfo extends ImageView implements
 		Log.v("JskAndroidGui:SendTaskMsg", "START");
 		Tablet TabletMsg = TabletCommandPub.newMessage();
 		TabletMsg.getHeader().setSeq(count++);
-		TabletMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+		TabletMsg.getHeader().setStamp(
+				Time.fromMillis(System.currentTimeMillis()));
 		TabletMsg.setHardwareName("Android");
 		TabletMsg.setHardwareId("JSK Acer");
 		if (task_name != null)
@@ -291,7 +292,8 @@ public class SensorImageViewInfo extends ImageView implements
 		Log.v("JskAndroidGui:SendDebugMsg", "START");
 		Tablet DebugMsg = TabletPubDebug.newMessage();
 		DebugMsg.getHeader().setSeq(debug_count++);
-		DebugMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+		DebugMsg.getHeader().setStamp(
+				Time.fromMillis(System.currentTimeMillis()));
 		DebugMsg.getAction().setState(state);
 		DebugMsg.getAction().setStateValue(state_value);
 		Touch TouchMsg = messageFactory.newFromType(Touch._TYPE);
