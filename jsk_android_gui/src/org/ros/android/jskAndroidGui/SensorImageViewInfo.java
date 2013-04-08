@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.widget.Toast;
 import android.widget.ImageView;
 
+import org.ros.android.BitmapFromCompressedImage;
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
@@ -33,8 +34,8 @@ import org.ros.android.robotapp.RosAppActivity;
 
 import java.util.ArrayList;
 
-public class SensorImageViewInfo extends ImageView implements
-		Runnable, NodeMain {
+public class SensorImageViewInfo extends ImageView implements Runnable,
+		NodeMain {
 
 	// static{
 	// System.loadLibrary("calculate");
@@ -70,6 +71,8 @@ public class SensorImageViewInfo extends ImageView implements
 	private ConnectedNode connectedNode;
 	private NodeConfiguration nodeConfiguration;
 	private MessageFactory messageFactory;
+	private Thread thread = null;
+	private boolean nodeStart = false;
 
 	public SensorImageViewInfo(Context ctx) {
 		super(ctx);
@@ -77,38 +80,45 @@ public class SensorImageViewInfo extends ImageView implements
 
 	public SensorImageViewInfo(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-	}
+			}
 
 	public SensorImageViewInfo(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		
 	}
 
 	public void setCameraTopic(String cameratopic) {
 		this.cameratopic = cameratopic;
+		
 	}
 
 	@Override
-	public void onStart(ConnectedNode connectedNode){
+	public void onStart(ConnectedNode connectedNode) {
 		this.connectedNode = connectedNode;
 		this.nodeConfiguration = NodeConfiguration.newPrivate();
 		this.messageFactory = nodeConfiguration.getTopicMessageFactory();
 		ResetValue();
-		imageSub = connectedNode.newSubscriber(cameratopic, sensor_msgs.CompressedImage._TYPE);
+		imageSub = connectedNode.newSubscriber(cameratopic,
+				sensor_msgs.CompressedImage._TYPE);
 		TabletCommandPub = connectedNode.newPublisher("/Tablet/Command",
 				jsk_gui_msgs.Tablet._TYPE);
-		TabletTaskPub = connectedNode
-				.newPublisher("/Tablet/Task", jsk_gui_msgs.Tablet._TYPE);
+		TabletTaskPub = connectedNode.newPublisher("/Tablet/Task",
+				jsk_gui_msgs.Tablet._TYPE);
 		TabletPubDebug = connectedNode.newPublisher("/Tablet/CommandDebug",
 				jsk_gui_msgs.Tablet._TYPE);
 		MaxWidth = this.getWidth();
 		MaxHeight = this.getHeight();
-		imageSub.addMessageListener(new MessageListener<CompressedImage>(){
+		imageSub.addMessageListener(new MessageListener<CompressedImage>() {
 			@Override
 			public void onNewMessage(CompressedImage message) {
-				bitmap = BitmapFactory.decodeByteArray(message.getData().toByteBuffer().array(), 0,
-						message.getData().readableBytes());
+				bitmap = BitmapFactory.decodeByteArray(message.getData().array()
+						, message.getData().arrayOffset(), message.getData()
+						.readableBytes());
+								post(SensorImageViewInfo.this);
 			}
 		});
+		nodeStart = true;
+
 	}
 
 	public void stop() {
@@ -665,6 +675,8 @@ public class SensorImageViewInfo extends ImageView implements
 
 	@Override
 	public void run() {
+
+		
 		// final int bWidth = bitmap.getWidth();
 		// final int bHeight = bitmap.getHeight();
 		// Bitmap bitmap_tmp = Bitmap.createBitmap(bWidth, bHeight,
@@ -708,8 +720,10 @@ public class SensorImageViewInfo extends ImageView implements
 			bitmap_output.setPixels(pixels, 0, Width, 0, 0, Width, Height);
 			setImageBitmap(bitmap_output);
 
-			// Matrix matrix = new Matrix(); matrix.postSkew(skew_x, skew_y);
-			// final Bitmap bitmap_output = Bitmap.createBitmap(bitmap2, 0, 0,
+			// Matrix matrix = new Matrix(); matrix.postSkew(skew_x,
+			// skew_y);
+			// final Bitmap bitmap_output = Bitmap.createBitmap(bitmap2, 0,
+			// 0,
 			// w, h, matrix, true);
 		} else if (SwipeCounter >= SWIPE_WAIT_TIME) {
 			Log.v("JskAndroidGui:onNewMessage",
