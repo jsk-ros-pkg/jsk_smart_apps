@@ -5,7 +5,7 @@
   <author>Haseru Azuma</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/jsk_android_gui</url>
+  <url>http://ros.org/wiki/jsk_android_gui_api9</url>
 
   <depend package="roseus"/> <!--for StringStamped message-->
   <depend package="appmanandroid"/>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">JSK Android</string>
-    <string name="button_label_demo">Start Demo</string>
-    <string name="SpinnerPrompt_spots">spots</string>
-    <string name="SpinnerPrompt_tasks">tasks</string>
-</resources>
