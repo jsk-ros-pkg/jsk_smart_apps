@@ -263,13 +263,13 @@ public class JskAndroidGui extends RosAppActivity {
 
 	protected void onNodeCreate() {
 		try {
-
+			
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Init error: " + ex.toString());
 			Toast.makeText(JskAndroidGui.this, "Failed: " + ex.getMessage(),
 					Toast.LENGTH_SHORT).show();
 		}
-
+		
 		yes_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				jskAndroidGuiNode.yesTask();
@@ -278,7 +278,7 @@ public class JskAndroidGui extends RosAppActivity {
 				Log.i("JskAndroidGui:ButtonClicked", "Sending ResultYes");
 			}
 		});
-
+		
 		no_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				jskAndroidGuiNode.noTask();
@@ -288,278 +288,350 @@ public class JskAndroidGui extends RosAppActivity {
 			}
 		});
 
-		/*
-		 * params = node.newParameterTree(); // for spots try { String
-		 * defaultSpot_ns = "/jsk_spots"; String targetSpot = "/eng2/7f"; //
-		 * TODO: get current targetSpot GraphName gspot = new
-		 * GraphName(defaultSpot_ns + targetSpot); NameResolver resolver_spot =
-		 * node.getResolver().createResolver( gspot); Object[] spots_param_list
-		 * = params.getList( resolver_spot.resolve("spots")).toArray();
-		 * Log.i("JskAndroidGui:GetSpotsParam", "spots length = " +
-		 * spots_param_list.length); spots_list.clear();
-		 * spots_list.add("spots"); for (int i = 0; i < spots_param_list.length;
-		 * i++) { spots_list.add((String) spots_param_list[i]);
-		 * Log.w("JskAndroidGui:GetSpotsParam", "lists:" + i + " " +
-		 * spots_param_list[i]); } } catch (Exception ex) {
-		 * Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-		 * Toast.makeText(JskAndroidGui.this, "No Param Found: " +
-		 * ex.getMessage(), Toast.LENGTH_SHORT) .show(); }
-		 * 
-		 * spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		 * { public void onItemSelected(AdapterView parent, View viw, int arg2,
-		 * long arg3) { if (isAdapterSet_spots) { Spinner spinner = (Spinner)
-		 * parent; String item = (String) spinner.getSelectedItem();
-		 * StringStamped StrMsg = new StringStamped(); StrMsg.header.stamp =
-		 * Time.fromMillis(System .currentTimeMillis()); StrMsg.data = item;
-		 * MoveToSpotPub.publish(StrMsg); Toast.makeText(JskAndroidGui.this,
-		 * "spots: MoveToSpot " + item, Toast.LENGTH_SHORT) .show();
-		 * Log.i("JskAndroidGui:ItemSeleted", "Sending MoveToSpot messgae"); }
-		 * else { isAdapterSet_spots = true; Log.i("JskAndroidGui:",
-		 * "spots adapter not set"); } }
-		 * 
-		 * public void onNothingSelected(AdapterView parent) {
-		 * Toast.makeText(JskAndroidGui.this, "Updating Param",
-		 * Toast.LENGTH_SHORT).show(); GetParamAndSetSpinner(); } }); // for
-		 * tasks try { public_node = node; String defaultTask_ns = "/Tablet";
-		 * GraphName guser = new GraphName(defaultTask_ns); NameResolver
-		 * resolver_user = node.getResolver().createResolver( guser); Object[]
-		 * user_list = params.getList(
-		 * resolver_user.resolve("UserList")).toArray(); tasks_list.clear();
-		 * tasks_list.add("tasks"); for (int i = 0; i < user_list.length; i++) {
-		 * GraphName gtask = new GraphName(defaultTask_ns + "/User");
-		 * NameResolver resolver_task = node.getResolver().createResolver(
-		 * gtask); Object[] task_param_list = params.getList(
-		 * resolver_task.resolve((String) user_list[i])).toArray();
-		 * 
-		 * Log.i("JskAndroidGui:GetTasksParam", "task length = " +
-		 * task_param_list.length); for (int j = 0; j < task_param_list.length;
-		 * j++) { Log.i("JskAndroidGui:GetTasksParam", "lists: " + i + " " + j +
-		 * " /Tablet/" + (String) user_list[i] + "/" + (String)
-		 * task_param_list[j]); tasks_list.add("/Tablet/" + (String)
-		 * user_list[i] + "/" + (String) task_param_list[j]); } } } catch
-		 * (Exception ex) { Log.e("JskAndroidGui", "Param cast error: " +
-		 * ex.toString()); Toast.makeText(JskAndroidGui.this, "No Param Found: "
-		 * + ex.getMessage(), Toast.LENGTH_SHORT) .show(); }
-		 * 
-		 * tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		 * { public void onItemSelected(AdapterView parent, View viw, int arg2,
-		 * long arg3) { if (isAdapterSet_tasks) { Spinner spinner = (Spinner)
-		 * parent; String item = (String) spinner.getSelectedItem();
-		 * StringStamped StrMsg = new StringStamped(); StrMsg.header.stamp =
-		 * Time.fromMillis(System .currentTimeMillis()); StrMsg.data = item;
-		 * StartDemoPub.publish(StrMsg); Toast.makeText(JskAndroidGui.this,
-		 * "tasks: StartDemo " + item, Toast.LENGTH_SHORT) .show();
-		 * Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae"); }
-		 * else { isAdapterSet_tasks = true; Log.i("JskAndroidGui:",
-		 * "tasks adapter not set"); } }
-		 * 
-		 * public void onNothingSelected(AdapterView parent) {
-		 * Toast.makeText(JskAndroidGui.this, "Updating Param",
-		 * Toast.LENGTH_SHORT).show(); GetParamAndSetSpinner(); } });
-		 * 
-		 * // for camera try { String defaultCamera_ns = "/jsk_cameras";
-		 * GraphName gcamera = new GraphName(defaultCamera_ns); NameResolver
-		 * resolver_camera = node.getResolver().createResolver( gcamera);
-		 * Object[] camera_names_list = params.getList(
-		 * resolver_camera.resolve("CameraList")).toArray();
-		 * Log.i("JskAndroidGui:GetCameraParam", "camera length = " +
-		 * camera_names_list.length); image_list.clear();
-		 * image_list.add("cameras"); for (int i = 0; i <
-		 * camera_names_list.length; i++) {
-		 * 
-		 * Object[] camera_param_list = params.getList(
-		 * resolver_camera.resolve((String) camera_names_list[i])) .toArray();
-		 * if (i == 0) { defaultImage = (String) camera_param_list[0];
-		 * defaultCameraInfo = (String) camera_param_list[1]; }
-		 * image_list.add((String) camera_param_list[0]);
-		 * camera_info_list.add((String) camera_param_list[1]);
-		 * Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " +
-		 * camera_param_list[0] + camera_param_list[1]); } } catch (Exception
-		 * ex) { Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-		 * Toast.makeText(JskAndroidGui.this, "No Param Found: " +
-		 * ex.getMessage(), Toast.LENGTH_SHORT) .show(); }
-		 * image_spinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		 * { public void onItemSelected(AdapterView parent, View viw, int arg2,
-		 * long arg3) { if (isAdapterSet_camera) { Spinner spinner = (Spinner)
-		 * parent; defaultImage = (String) spinner.getSelectedItem(); // assume
-		 * that the first element is "cameras", so -1 defaultCameraInfo =
-		 * camera_info_list.get(arg2 - 1); String str = "((:image " +
-		 * defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points "
-		 * + defaultPoints + "))"; cameraView.PubSwitchSensor(str);
-		 * Toast.makeText(JskAndroidGui.this, "SwitchSensor: " + str,
-		 * Toast.LENGTH_SHORT).show(); Log.i("JskAndroidGui:ItemSeleted",
-		 * "Sending switch messgae");
-		 * 
-		 * } else { isAdapterSet_camera = true; Log.i("JskAndroidGui:",
-		 * "camera adapter not set"); } }
-		 * 
-		 * public void onNothingSelected(AdapterView parent) {
-		 * Toast.makeText(JskAndroidGui.this, "Updating Param",
-		 * Toast.LENGTH_SHORT).show(); GetParamAndSetSpinner(); } });
-		 * 
-		 * // for points try { String defaultPoints_ns = "/jsk_points";
-		 * GraphName gparam = new GraphName(defaultPoints_ns); NameResolver
-		 * resolver_point = node.getResolver().createResolver( gparam); Object[]
-		 * points_param_list = params.getList(
-		 * resolver_point.resolve("points")).toArray();
-		 * Log.i("JskAndroidGui:GetPointsParam", "point length = " +
-		 * points_param_list.length); points_list.clear();
-		 * points_list.add("points"); for (int i = 0; i <
-		 * points_param_list.length; i++) { if (i == 0) { defaultPoints =
-		 * (String) points_param_list[i]; } points_list.add((String)
-		 * points_param_list[i]); Log.w("JskAndroidGui:GetPointsParam", "lists:"
-		 * + i + " " + points_param_list[i]); } } catch (Exception ex) {
-		 * Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-		 * Toast.makeText(JskAndroidGui.this, "No Param Found: " +
-		 * ex.getMessage(), Toast.LENGTH_SHORT) .show(); }
-		 * points_spinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		 * { public void onItemSelected(AdapterView parent, View viw, int arg2,
-		 * long arg3) { if (isAdapterSet_points) { Spinner spinner = (Spinner)
-		 * parent; defaultPoints = (String) spinner.getSelectedItem(); String
-		 * str = "((:image " + defaultImage + ") (:camera_info " +
-		 * defaultCameraInfo + ") (:points " + defaultPoints + "))";
-		 * cameraView.PubSwitchSensor(str); Toast.makeText(JskAndroidGui.this,
-		 * "SwitchSensor: " + str, Toast.LENGTH_SHORT).show();
-		 * Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae"); } else
-		 * { isAdapterSet_points = true; Log.i("JskAndroidGui:",
-		 * "points adapter not set"); } }
-		 * 
-		 * public void onNothingSelected(AdapterView parent) {
-		 * Toast.makeText(JskAndroidGui.this, "Updating Param",
-		 * Toast.LENGTH_SHORT).show(); GetParamAndSetSpinner(); } });
-		 * 
-		 * params.addParameterListener("/Tablet/UserList", new
-		 * ParameterListener() {
-		 * 
-		 * @Override public void onNewValue(Object value) { try { String
-		 * defaultTask_ns = "/Tablet"; GraphName guser = new
-		 * GraphName(defaultTask_ns); NameResolver resolver_user = public_node
-		 * .getResolver().createResolver(guser); Object[] user_list =
-		 * params.getList( resolver_user.resolve("UserList")) .toArray();
-		 * tasks_list.clear(); tasks_list.add("tasks"); for (int i = 0; i <
-		 * user_list.length; i++) { GraphName gtask = new
-		 * GraphName(defaultTask_ns + "/User"); NameResolver resolver_task =
-		 * public_node .getResolver().createResolver(gtask); Object[]
-		 * task_param_list = params .getList( resolver_task .resolve((String)
-		 * user_list[i])) .toArray();
-		 * 
-		 * Log.i("JskAndroidGui:GetTasksParam", "task length = " +
-		 * task_param_list.length); for (int j = 0; j < task_param_list.length;
-		 * j++) { Log.i("JskAndroidGui:GetTasksParam", "lists: " + i + " " + j +
-		 * " /Tablet/" + (String) user_list[i] + "/" + (String)
-		 * task_param_list[j]); tasks_list.add("/Tablet/" + (String)
-		 * user_list[i] + "/" + (String) task_param_list[j]); } } } catch
-		 * (Exception ex) { Log.e("JskAndroidGui", "Param cast error: " +
-		 * ex.toString()); Toast.makeText(JskAndroidGui.this, "No Param Found: "
-		 * + ex.getMessage(), Toast.LENGTH_SHORT).show(); }
-		 * 
-		 * Log.i("JskAndroidGui:GetTasksParam", "end"); tasks_spinner
-		 * .setOnItemSelectedListener(new OnItemSelectedListener() { public void
-		 * onItemSelected( AdapterView parent, View viw, int arg2, long arg3) {
-		 * if (isAdapterSet_tasks) { Spinner spinner = (Spinner) parent; String
-		 * item = (String) spinner .getSelectedItem(); StringStamped StrMsg =
-		 * new StringStamped(); StrMsg.getHeader() .setStamp(
-		 * Time.fromMillis(System .currentTimeMillis())); StrMsg.setData(item);
-		 * StartDemoPub.publish(StrMsg); Toast.makeText(JskAndroidGui.this,
-		 * "tasks: StartDemo " + item, Toast.LENGTH_SHORT).show();
-		 * Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
-		 * 
-		 * TextView tv = (TextView) findViewById(R.id.textarea_test); try {
-		 * tv.setText("param update searching"); tv.setTextSize(14);
-		 * tv.setTextColor(Color.WHITE); Log.i("JskAndroidGui:GetTasksParam",
-		 * "setting text"); } catch (Exception ex) {
-		 * Log.i("JskAndroidGui:GetTasksParam", "set text error"); } } else {
-		 * isAdapterSet_tasks = true; Log.i("JskAndroidGui:",
-		 * "tasks adapter not set"); }
-		 * 
-		 * }
-		 * 
-		 * public void onNothingSelected( AdapterView parent) {
-		 * Toast.makeText(JskAndroidGui.this, "Updating Param",
-		 * Toast.LENGTH_SHORT).show(); TextView tv = (TextView)
-		 * findViewById(R.id.textarea_test); try {
-		 * tv.setText("param update searching"); tv.setTextSize(14);
-		 * tv.setTextColor(Color.WHITE); Log.i("JskAndroidGui:GetTasksParam",
-		 * "setting text"); } catch (Exception ex) {
-		 * Log.i("JskAndroidGui:GetTasksParam", "set text error"); } } });
-		 * 
-		 * mHandler.post(new Runnable() { public void run() { TextView tv =
-		 * (TextView) findViewById(R.id.textarea_test); if (isParamSet) { try {
-		 * tv.setText("Updated"); tv.setTextSize(50);
-		 * tv.setTextColor(Color.RED); Log.i("JskAndroidGui:GetTasksParam",
-		 * "setting text"); } catch (Exception ex) {
-		 * Log.i("JskAndroidGui:GetTasksParam", "set text error"); } } else {
-		 * isParamSet = true; Log.i("JskAndroidGui:", "param not set"); }
-		 * 
-		 * Log.i("JskAndroidGui:debug", "spinner updating"); isAdapterSet_spots
-		 * = false; isAdapterSet_tasks = false; isAdapterSet_camera = false;
-		 * isAdapterSet_points = false; GetParamAndSetSpinner();
-		 * 
-		 * } });
-		 * 
-		 * Log.i("JskAndroidGui:GetTasksParam", "updated"); } });// end of
-		 * parameter listener params.addParameterListener("/Tablet/Found", new
-		 * ParameterListener() {
-		 * 
-		 * @Override public void onNewValue(Object value) {
-		 * 
-		 * String defaultTask_ns = "/Tablet"; GraphName guser = new
-		 * GraphName(defaultTask_ns); NameResolver resolver_user =
-		 * public_node.getResolver() .createResolver(guser); try { found_task =
-		 * params.getList(resolver_user.resolve("Found")) .toArray(); } catch
-		 * (Exception ex) { Log.i("JskAndroidGui:GetTasksParam", (String)
-		 * found_task[0] + " set text error"); } mHandler.post(new Runnable() {
-		 * public void run() { TextView tv = (TextView)
-		 * findViewById(R.id.textarea_test); if (isParamSet) { try {
-		 * tv.setText((String) found_task[0]); tv.setTextSize(40);
-		 * tv.setTextColor(Color.GREEN); Log.i("JskAndroidGui:GetTasksParam",
-		 * "setting text"); } catch (Exception ex) {
-		 * Log.i("JskAndroidGui:GetTasksParam", "set text error"); } } else {
-		 * isParamSet = true; Log.i("JskAndroidGui:", "param not set"); }
-		 * Log.i("JskAndroidGui:debug", "spinner updating"); isAdapterSet_spots
-		 * = false; isAdapterSet_tasks = false; isAdapterSet_camera = false;
-		 * isAdapterSet_points = false; GetParamAndSetSpinner();
-		 * 
-		 * } }); } });// end of parameter listener
-		 * 
-		 * params.addParameterListener("/Tablet/query_input", new
-		 * ParameterListener() {
-		 * 
-		 * @Override public void onNewValue(Object value) {
-		 * 
-		 * String defaultTask_ns = "/Tablet"; GraphName guser = new
-		 * GraphName(defaultTask_ns); NameResolver resolver_user =
-		 * public_node.getResolver() .createResolver(guser); try { query_input =
-		 * params.getList( resolver_user.resolve("query_input")) .toArray(); }
-		 * catch (Exception ex) { Log.i("JskAndroidGui:GetTasksParam",
-		 * query_input[0] + " set text error"); } LayoutInflater inflater =
-		 * LayoutInflater .from(JskAndroidGui.this); final View view =
-		 * inflater.inflate(R.layout.dialog, null);
-		 * 
-		 * final EditText editText = (EditText) view
-		 * .findViewById(R.id.editText1); mHandler.post(new Runnable() { public
-		 * void run() { Log.i("JskAndroidGui:debug", "dialog handler"); new
-		 * AlertDialog.Builder(JskAndroidGui.this) .setTitle( "teach name: " +
-		 * query_input[0]) .setView(view) .setPositiveButton( "Save", new
-		 * DialogInterface.OnClickListener() {
-		 * 
-		 * @Override public void onClick( DialogInterface dialog, int which) {
-		 * StringStamped StrMsg_dialog = new StringStamped(); StrMsg_dialog
-		 * .getHeader() .setStamp( Time.fromMillis(System
-		 * .currentTimeMillis())); StrMsg_dialog .setData(editText .getText()
-		 * .toString()); SelectPub .publish(StrMsg_dialog); Toast.makeText(
-		 * JskAndroidGui.this, "tasks: Send dialog msg", Toast.LENGTH_SHORT)
-		 * .show(); Log.i("JskAndroidGui:debug", "dialog clicked"); } }).show();
-		 * } }); } });// end of parameter listener
-		 * 
-		 * Log.i("JskAndroidGui:debug", "before first spinner update");
-		 * 
-		 * mHandler.post(new Runnable() { public void run() {
-		 * Log.i("JskAndroidGui:debug", "spinner updating");
-		 * GetParamAndSetSpinner(); isParamSet = true; } });
-		 */
+		params = node.newParameterTree(); // for spots
+		try {
+			String defaultSpot_ns = "/jsk_spots";
+			String targetSpot = "/eng2/7f"; //TODO: get current targetSpot
+			GraphName gspot = new GraphName(defaultSpot_ns + targetSpot);
+			NameResolver resolver_spot = node.getResolver().createResolver(gspot);
+			Object[] spots_param_list = params.getList( resolver_spot.resolve("spots")).toArray();
+			Log.i("JskAndroidGui:GetSpotsParam", "spots length = " + spots_param_list.length);
+			spots_list.clear();
+			spots_list.add("spots");
+			for (int i = 0; i < spots_param_list.length; i++){
+				spots_list.add((String) spots_param_list[i]);
+				Log.w("JskAndroidGui:GetSpotsParam", "lists:" + i + " " + spots_param_list[i]);
+			} 
+		} catch (Exception ex) {
+			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT) .show();
+		}
+		spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) { 
+				if (isAdapterSet_spots) {
+					Spinner spinner = (Spinner) parent; 
+					String item = (String) spinner.getSelectedItem();
+					StringStamped StrMsg = new StringStamped();
+					StrMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+					 StrMsg.setData(item);
+					 MoveToSpotPub.publish(StrMsg);
+					 Toast.makeText(JskAndroidGui.this, "spots: MoveToSpot " + item, Toast.LENGTH_SHORT) .show();
+					 Log.i("JskAndroidGui:ItemSeleted", "Sending MoveToSpot messgae");
+				} else {
+					isAdapterSet_spots = true; Log.i("JskAndroidGui:", "spots adapter not set");
+				}
+			}
+			
+			public void onNothingSelected(AdapterView parent) {
+				Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
+				GetParamAndSetSpinner(); }
+		}); // for tasks
+		try {
+			public_node = node;
+			String defaultTask_ns = "/Tablet";
+			GraphName guser = new GraphName(defaultTask_ns);
+			NameResolver resolver_user = node.getResolver().createResolver( guser);
+			Object[] user_list = params.getList(resolver_user.resolve("UserList")).toArray();
+			tasks_list.clear();
+			tasks_list.add("tasks");
+			for (int i = 0; i < user_list.length; i++) {
+				GraphName gtask = new GraphName(defaultTask_ns + "/User");
+				NameResolver resolver_task = node.getResolver().createResolver(gtask);
+				Object[] task_param_list = params.getList(resolver_task.resolve((String)user_list[i])).toArray();
+				Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
+				for (int j = 0; j < task_param_list.length; j++){
+					Log.i("JskAndroidGui:GetTasksParam", "lists: " + i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+					tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+				}
+			}
+		} catch (Exception ex) {
+			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+		tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3){
+				if (isAdapterSet_tasks) {
+					Spinner spinner = (Spinner)parent; 
+					String item = (String)spinner.getSelectedItem();
+					StringStamped StrMsg = new StringStamped();
+					StrMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+					StrMsg.setData(item);
+					StartDemoPub.publish(StrMsg);
+					Toast.makeText(JskAndroidGui.this, "tasks: StartDemo " + item, Toast.LENGTH_SHORT).show();
+					Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
+				} else {
+					isAdapterSet_tasks = true;
+					Log.i("JskAndroidGui:", "tasks adapter not set");
+				}
+			}
+			
+			public void onNothingSelected(AdapterView parent) {
+				Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
+				GetParamAndSetSpinner();
+			}
+		});
+		// for camera
+		try {
+			String defaultCamera_ns = "/jsk_cameras";
+			GraphName gcamera = new GraphName(defaultCamera_ns);
+			NameResolver resolver_camera = node.getResolver().createResolver(gcamera);
+			Object[] camera_names_list = params.getList(resolver_camera.resolve("CameraList")).toArray();
+			Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_names_list.length);
+			image_list.clear();
+			image_list.add("cameras");
+			for (int i = 0; i <camera_names_list.length; i++) {
+				Object[] camera_param_list = params.getList(resolver_camera.resolve((String)camera_names_list[i])).toArray();
+				if (i == 0) {
+					defaultImage = (String)camera_param_list[0];
+					defaultCameraInfo = (String)camera_param_list[1];
+				}
+				image_list.add((String)camera_param_list[0]);
+				camera_info_list.add((String)camera_param_list[1]);
+				Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[0] + camera_param_list[1]);
+			}
+		} catch (Exception ex){
+			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+		image_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3){
+				if (isAdapterSet_camera) {
+					Spinner spinner = (Spinner)parent;
+					defaultImage = (String)spinner.getSelectedItem(); // assume that the first element is "cameras", so -1
+					defaultCameraInfo = camera_info_list.get(arg2 - 1);
+					String str = "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
+					cameraView.PubSwitchSensor(str);
+					Toast.makeText(JskAndroidGui.this, "SwitchSensor: " + str, Toast.LENGTH_SHORT).show();
+					Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+				} else {
+					isAdapterSet_camera = true; Log.i("JskAndroidGui:", "camera adapter not set");
+				}
+			}
+			
+			public void onNothingSelected(AdapterView parent) {
+				Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
+				GetParamAndSetSpinner();
+			}
+		});
+		
+		// for points
+		try {
+			String defaultPoints_ns = "/jsk_points";
+			GraphName gparam = new GraphName(defaultPoints_ns);
+			NameResolver resolver_point = node.getResolver().createResolver(gparam);
+			Object[] points_param_list = params.getList(resolver_point.resolve("points")).toArray();
+			Log.i("JskAndroidGui:GetPointsParam", "point length = " + points_param_list.length);
+			points_list.clear();
+			points_list.add("points");
+			for (int i = 0; i < points_param_list.length; i++) {
+				if (i == 0) {
+					defaultPoints = (String)points_param_list[i];
+				}
+				points_list.add((String)points_param_list[i]);
+				Log.w("JskAndroidGui:GetPointsParam", "lists:" + i + " " + points_param_list[i]);
+			}
+		} catch (Exception ex) {
+			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+		points_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
+			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
+				if (isAdapterSet_points) {
+					Spinner spinner = (Spinner)parent;
+					defaultPoints = (String)spinner.getSelectedItem();
+					String str = "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
+					cameraView.PubSwitchSensor(str);
+					Toast.makeText(JskAndroidGui.this, "SwitchSensor: " + str, Toast.LENGTH_SHORT).show();
+					Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
+				} else {
+					isAdapterSet_points = true;
+					Log.i("JskAndroidGui:", "points adapter not set");
+				}
+			}
+			
+			public void onNothingSelected(AdapterView parent) {
+				Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
+				GetParamAndSetSpinner();
+			}
+		});
+		
+		params.addParameterListener("/Tablet/UserList", new ParameterListener() {
+			@Override
+			public void onNewValue(Object value) {
+				try {
+					String defaultTask_ns = "/Tablet";
+					GraphName guser = new GraphName(defaultTask_ns);
+					NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+					Object[] user_list = params.getList( resolver_user.resolve("UserList")).toArray();
+					tasks_list.clear();
+					tasks_list.add("tasks");
+					for (int i = 0; i < user_list.length; i++) {
+						GraphName gtask = new GraphName(defaultTask_ns + "/User");
+						NameResolver resolver_task = public_node .getResolver().createResolver(gtask);
+						Object[] task_param_list = params.getList( resolver_task .resolve((String)user_list[i])).toArray(); 
+						Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
+						for (int j = 0; j < task_param_list.length; j++) {
+							Log.i("JskAndroidGui:GetTasksParam", "lists: " + i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+							tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
+						}
+					}
+				} catch (Exception ex) {
+					Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+					Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+				}
+				
+				Log.i("JskAndroidGui:GetTasksParam", "end");
+				tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+					public void onItemSelected( AdapterView parent, View viw, int arg2, long arg3) {
+						if (isAdapterSet_tasks) {
+							Spinner spinner = (Spinner)parent;
+							String item = (String)spinner.getSelectedItem();
+							StringStamped StrMsg = new StringStamped();
+							StrMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
+							StrMsg.setData(item);
+							StartDemoPub.publish(StrMsg);
+							Toast.makeText(JskAndroidGui.this, "tasks: StartDemo " + item, Toast.LENGTH_SHORT).show();
+							Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
+							
+							TextView tv = (TextView)findViewById(R.id.textarea_test);
+							try {
+								tv.setText("param update searching"); tv.setTextSize(14);
+								tv.setTextColor(Color.WHITE); Log.i("JskAndroidGui:GetTasksParam", "setting text");
+							} catch (Exception ex) {
+								Log.i("JskAndroidGui:GetTasksParam", "set text error");
+							}
+						} else {
+							isAdapterSet_tasks = true;
+							Log.i("JskAndroidGui:", "tasks adapter not set");
+						}
+					}
+					
+					public void onNothingSelected( AdapterView parent) {
+						Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
+						TextView tv = (TextView)findViewById(R.id.textarea_test);
+						try {
+							tv.setText("param update searching");
+							tv.setTextSize(14);
+							tv.setTextColor(Color.WHITE);
+							Log.i("JskAndroidGui:GetTasksParam", "setting text");
+						} catch (Exception ex) {
+							Log.i("JskAndroidGui:GetTasksParam", "set text error");
+						}
+					}
+				});
+				
+				mHandler.post(new Runnable() {
+					public void run() {
+						TextView tv = (TextView)findViewById(R.id.textarea_test);
+						if (isParamSet) {
+							try {
+								tv.setText("Updated");
+								tv.setTextSize(50);
+								tv.setTextColor(Color.RED);
+								Log.i("JskAndroidGui:GetTasksParam", "setting text");
+							} catch (Exception ex) {
+								Log.i("JskAndroidGui:GetTasksParam", "set text error");
+							}
+						} else {
+							isParamSet = true;
+							Log.i("JskAndroidGui:", "param not set");
+						}
+						
+						Log.i("JskAndroidGui:debug", "spinner updating");
+						isAdapterSet_spots = false;
+						isAdapterSet_tasks = false;
+						isAdapterSet_camera = false;
+						isAdapterSet_points = false;
+						GetParamAndSetSpinner();
+						
+					} 
+				});
+				
+				Log.i("JskAndroidGui:GetTasksParam", "updated");
+			}
+		});// end of parameter listener
+		params.addParameterListener("/Tablet/Found", new ParameterListener() {
+			@Override
+			public void onNewValue(Object value) {
+				String defaultTask_ns = "/Tablet";
+				GraphName guser = new GraphName(defaultTask_ns);
+				NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+				try {
+					found_task = params.getList(resolver_user.resolve("Found")).toArray();
+				} catch (Exception ex) {
+					Log.i("JskAndroidGui:GetTasksParam", (String)found_task[0] + " set text error");
+				}
+				mHandler.post(new Runnable() {
+					public void run() {
+						TextView tv = (TextView)findViewById(R.id.textarea_test);
+						if (isParamSet) {
+							try {
+								tv.setText((String)found_task[0]);
+								tv.setTextSize(40);
+								tv.setTextColor(Color.GREEN);
+								Log.i("JskAndroidGui:GetTasksParam", "setting text");
+							} catch (Exception ex) {
+								Log.i("JskAndroidGui:GetTasksParam", "set text error");
+							}
+						} else {
+							isParamSet = true;
+							Log.i("JskAndroidGui:", "param not set");
+						}
+						Log.i("JskAndroidGui:debug", "spinner updating");
+						isAdapterSet_spots = false;
+						isAdapterSet_tasks = false;
+						isAdapterSet_camera = false;
+						isAdapterSet_points = false;
+						GetParamAndSetSpinner();
+						
+					} 
+				});
+			} 
+		});// end of parameter listener
+		
+		params.addParameterListener("/Tablet/query_input", new ParameterListener() {
+			
+			@Override public void onNewValue(Object value) {
+				String defaultTask_ns = "/Tablet";
+				GraphName guser = new GraphName(defaultTask_ns);
+				NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+				try {
+					query_input = params.getList(resolver_user.resolve("query_input")).toArray();
+				} catch (Exception ex) {
+					Log.i("JskAndroidGui:GetTasksParam", query_input[0] + " set text error");
+				}
+				LayoutInflater inflater = LayoutInflater.from(JskAndroidGui.this);
+				final View view = inflater.inflate(R.layout.dialog, null);
+				
+				final EditText editText = (EditText) view.findViewById(R.id.editText1);
+				mHandler.post(new Runnable() { public void run() {
+					Log.i("JskAndroidGui:debug", "dialog handler");
+					new AlertDialog.Builder(JskAndroidGui.this).setTitle( "teach name: " + query_input[0]).setView(view).setPositiveButton( "Save", new DialogInterface.OnClickListener() {
+			pp			
+						@Override public void onClick( DialogInterface dialog, int which) {
+							StringStamped StrMsg_dialog = new StringStamped();
+							StrMsg_dialog.getHeader().setStamp( Time.fromMillis(System.currentTimeMillis()));
+							StrMsg_dialog .setData(editText .getText().toString());
+							SelectPub.publish(StrMsg_dialog);
+							Toast.makeText(JskAndroidGui.this, "tasks: Send dialog msg", Toast.LENGTH_SHORT).show();
+							Log.i("JskAndroidGui:debug", "dialog clicked");
+						}
+					}).show();
+				} 
+				}); 
+			}
+		});// end of parameter listener
+		
+		Log.i("JskAndroidGui:debug", "before first spinner update");
+		
+		mHandler.post(new Runnable() { public void run() {
+			Log.i("JskAndroidGui:debug", "spinner updating");
+			GetParamAndSetSpinner();
+			isParamSet = true;
+		}
+		});
 	}
-
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {

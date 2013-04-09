@@ -12,7 +12,6 @@ import android.view.MotionEvent;
 import android.widget.Toast;
 import android.widget.ImageView;
 
-import org.ros.android.BitmapFromCompressedImage;
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
