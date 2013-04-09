@@ -219,6 +219,7 @@ public class JskAndroidGui extends RosAppActivity {
 				cameraView.setSelected(true);
 			}
 		});
+		nodeMainExecutor.execute(jskAndroidGuiNode, nodeConfiguration.setNodeName("android/jsk_android_gui"));
 		nodeMainExecutor.execute(joystickView,nodeConfiguration.setNodeName("android/joystick"));
 	}
 
@@ -288,24 +289,15 @@ public class JskAndroidGui extends RosAppActivity {
 			}
 		});
 
-		params = node.newParameterTree(); // for spots
-		try {
-			String defaultSpot_ns = "/jsk_spots";
-			String targetSpot = "/eng2/7f"; //TODO: get current targetSpot
-			GraphName gspot = new GraphName(defaultSpot_ns + targetSpot);
-			NameResolver resolver_spot = node.getResolver().createResolver(gspot);
-			Object[] spots_param_list = params.getList( resolver_spot.resolve("spots")).toArray();
-			Log.i("JskAndroidGui:GetSpotsParam", "spots length = " + spots_param_list.length);
-			spots_list.clear();
-			spots_list.add("spots");
-			for (int i = 0; i < spots_param_list.length; i++){
-				spots_list.add((String) spots_param_list[i]);
-				Log.w("JskAndroidGui:GetSpotsParam", "lists:" + i + " " + spots_param_list[i]);
-			} 
+		try{
+			
+			
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
 			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT) .show();
 		}
+		
+
 		spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) { 
 				if (isAdapterSet_spots) {
