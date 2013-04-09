@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
@@ -15,7 +14,6 @@ import android.view.MenuItem;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
-import android.view.MotionEvent;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 import android.widget.Button;
@@ -28,30 +26,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.hardware.SensorManager;
 import android.graphics.Color;
-
-import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import org.ros.node.Node;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
-import org.ros.node.topic.Subscriber;
-import org.ros.node.topic.Publisher;
 
 import org.ros.node.parameter.ParameterTree;
 import org.ros.node.parameter.ParameterListener;
 import org.ros.node.service.ServiceServer;
-import org.ros.node.service.ServiceResponseBuilder;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
-import org.ros.exception.RosException;
-import org.ros.message.Time;
-import std_msgs.Empty;
-import roseus.StringStamped;
 import jsk_gui_msgs.Action;
-import jsk_gui_msgs.Query;
 import jsk_gui_msgs.QueryRequest;
 import jsk_gui_msgs.QueryResponse;
 
@@ -59,9 +45,6 @@ import org.ros.address.InetAddressFactory;
 import org.ros.android.view.VirtualJoystickView;
 import org.ros.android.robotapp.RosAppActivity;
 import java.util.ArrayList;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 //import java.util.*;
 
@@ -201,13 +184,13 @@ public class JskAndroidGui extends RosAppActivity {
 
 	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
-
+		
 		super.init(nodeMainExecutor);
-
+		
 		NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
-
+		
 		NameResolver appNamespace = getAppNameSpace();
 		nodeMainExecutor.execute(cameraView, nodeConfiguration.setNodeName("android/camera_view"));
 		
@@ -221,6 +204,8 @@ public class JskAndroidGui extends RosAppActivity {
 		});
 		nodeMainExecutor.execute(jskAndroidGuiNode, nodeConfiguration.setNodeName("android/jsk_android_gui"));
 		nodeMainExecutor.execute(joystickView,nodeConfiguration.setNodeName("android/joystick"));
+		params = jskAndroidGuiNode.getParameterTree();
+		setupListener();
 	}
 
 	private void setListener() {
@@ -262,18 +247,10 @@ public class JskAndroidGui extends RosAppActivity {
 		});
 	}
 
-	protected void onNodeCreate() {
-		try {
-			
-		} catch (Exception ex) {
-			Log.e("JskAndroidGui", "Init error: " + ex.toString());
-			Toast.makeText(JskAndroidGui.this, "Failed: " + ex.getMessage(),
-					Toast.LENGTH_SHORT).show();
-		}
-		
+	protected void setupListener() {
 		yes_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
-				jskAndroidGuiNode.yesTask();
+				jskAndroidGuiNode.selectTask("ResultYes");
 				Toast.makeText(JskAndroidGui.this, "tasks: ResultYes",
 						Toast.LENGTH_SHORT).show();
 				Log.i("JskAndroidGui:ButtonClicked", "Sending ResultYes");
@@ -282,33 +259,29 @@ public class JskAndroidGui extends RosAppActivity {
 		
 		no_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
-				jskAndroidGuiNode.noTask();
+				jskAndroidGuiNode.selectTask("ResultNo");
 				Toast.makeText(JskAndroidGui.this, "tasks: ResultNo",
 						Toast.LENGTH_SHORT).show();
 				Log.i("JskAndroidGui:ButtonClicked", "Sending ResultNo");
 			}
 		});
-
+		
 		try{
-			
-			
+			jskAndroidGuiNode.getSpotsParam();
+			spots_list = jskAndroidGuiNode.getSpotsList();
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
 			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT) .show();
 		}
 		
-
 		spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) { 
 				if (isAdapterSet_spots) {
 					Spinner spinner = (Spinner) parent; 
 					String item = (String) spinner.getSelectedItem();
-					StringStamped StrMsg = new StringStamped();
-					StrMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
-					 StrMsg.setData(item);
-					 MoveToSpotPub.publish(StrMsg);
-					 Toast.makeText(JskAndroidGui.this, "spots: MoveToSpot " + item, Toast.LENGTH_SHORT) .show();
-					 Log.i("JskAndroidGui:ItemSeleted", "Sending MoveToSpot messgae");
+					jskAndroidGuiNode.spotsSpinnerTask(item);
+					Toast.makeText(JskAndroidGui.this, "spots: MoveToSpot " + item, Toast.LENGTH_SHORT) .show();
+					Log.i("JskAndroidGui:ItemSeleted", "Sending MoveToSpot messgae");
 				} else {
 					isAdapterSet_spots = true; Log.i("JskAndroidGui:", "spots adapter not set");
 				}
@@ -319,23 +292,8 @@ public class JskAndroidGui extends RosAppActivity {
 				GetParamAndSetSpinner(); }
 		}); // for tasks
 		try {
-			public_node = node;
-			String defaultTask_ns = "/Tablet";
-			GraphName guser = new GraphName(defaultTask_ns);
-			NameResolver resolver_user = node.getResolver().createResolver( guser);
-			Object[] user_list = params.getList(resolver_user.resolve("UserList")).toArray();
-			tasks_list.clear();
-			tasks_list.add("tasks");
-			for (int i = 0; i < user_list.length; i++) {
-				GraphName gtask = new GraphName(defaultTask_ns + "/User");
-				NameResolver resolver_task = node.getResolver().createResolver(gtask);
-				Object[] task_param_list = params.getList(resolver_task.resolve((String)user_list[i])).toArray();
-				Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
-				for (int j = 0; j < task_param_list.length; j++){
-					Log.i("JskAndroidGui:GetTasksParam", "lists: " + i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
-					tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
-				}
-			}
+			jskAndroidGuiNode.getTasksParam();
+			tasks_list = jskAndroidGuiNode.getTasksList();
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
 			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -345,10 +303,7 @@ public class JskAndroidGui extends RosAppActivity {
 				if (isAdapterSet_tasks) {
 					Spinner spinner = (Spinner)parent; 
 					String item = (String)spinner.getSelectedItem();
-					StringStamped StrMsg = new StringStamped();
-					StrMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
-					StrMsg.setData(item);
-					StartDemoPub.publish(StrMsg);
+					jskAndroidGuiNode.tasksSpinnerTask(item);
 					Toast.makeText(JskAndroidGui.this, "tasks: StartDemo " + item, Toast.LENGTH_SHORT).show();
 					Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
 				} else {
@@ -364,23 +319,9 @@ public class JskAndroidGui extends RosAppActivity {
 		});
 		// for camera
 		try {
-			String defaultCamera_ns = "/jsk_cameras";
-			GraphName gcamera = new GraphName(defaultCamera_ns);
-			NameResolver resolver_camera = node.getResolver().createResolver(gcamera);
-			Object[] camera_names_list = params.getList(resolver_camera.resolve("CameraList")).toArray();
-			Log.i("JskAndroidGui:GetCameraParam", "camera length = " + camera_names_list.length);
-			image_list.clear();
-			image_list.add("cameras");
-			for (int i = 0; i <camera_names_list.length; i++) {
-				Object[] camera_param_list = params.getList(resolver_camera.resolve((String)camera_names_list[i])).toArray();
-				if (i == 0) {
-					defaultImage = (String)camera_param_list[0];
-					defaultCameraInfo = (String)camera_param_list[1];
-				}
-				image_list.add((String)camera_param_list[0]);
-				camera_info_list.add((String)camera_param_list[1]);
-				Log.w("JskAndroidGui:GetCameraParam", "lists:" + i + " " + camera_param_list[0] + camera_param_list[1]);
-			}
+			jskAndroidGuiNode.getCameraParam();
+			image_list = jskAndroidGuiNode.getImageList();
+			camera_info_list = jskAndroidGuiNode.getCameraInfoList();
 		} catch (Exception ex){
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
 			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -408,20 +349,8 @@ public class JskAndroidGui extends RosAppActivity {
 		
 		// for points
 		try {
-			String defaultPoints_ns = "/jsk_points";
-			GraphName gparam = new GraphName(defaultPoints_ns);
-			NameResolver resolver_point = node.getResolver().createResolver(gparam);
-			Object[] points_param_list = params.getList(resolver_point.resolve("points")).toArray();
-			Log.i("JskAndroidGui:GetPointsParam", "point length = " + points_param_list.length);
-			points_list.clear();
-			points_list.add("points");
-			for (int i = 0; i < points_param_list.length; i++) {
-				if (i == 0) {
-					defaultPoints = (String)points_param_list[i];
-				}
-				points_list.add((String)points_param_list[i]);
-				Log.w("JskAndroidGui:GetPointsParam", "lists:" + i + " " + points_param_list[i]);
-			}
+			jskAndroidGuiNode.getPointsParam();
+			points_list = jskAndroidGuiNode.getPointsList();
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
 			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -451,22 +380,7 @@ public class JskAndroidGui extends RosAppActivity {
 			@Override
 			public void onNewValue(Object value) {
 				try {
-					String defaultTask_ns = "/Tablet";
-					GraphName guser = new GraphName(defaultTask_ns);
-					NameResolver resolver_user = public_node.getResolver().createResolver(guser);
-					Object[] user_list = params.getList( resolver_user.resolve("UserList")).toArray();
-					tasks_list.clear();
-					tasks_list.add("tasks");
-					for (int i = 0; i < user_list.length; i++) {
-						GraphName gtask = new GraphName(defaultTask_ns + "/User");
-						NameResolver resolver_task = public_node .getResolver().createResolver(gtask);
-						Object[] task_param_list = params.getList( resolver_task .resolve((String)user_list[i])).toArray(); 
-						Log.i("JskAndroidGui:GetTasksParam", "task length = " + task_param_list.length);
-						for (int j = 0; j < task_param_list.length; j++) {
-							Log.i("JskAndroidGui:GetTasksParam", "lists: " + i + " " + j + " /Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
-							tasks_list.add("/Tablet/" + (String)user_list[i] + "/" + (String)task_param_list[j]);
-						}
-					}
+					jskAndroidGuiNode.getTasksParam();
 				} catch (Exception ex) {
 					Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
 					Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -478,10 +392,7 @@ public class JskAndroidGui extends RosAppActivity {
 						if (isAdapterSet_tasks) {
 							Spinner spinner = (Spinner)parent;
 							String item = (String)spinner.getSelectedItem();
-							StringStamped StrMsg = new StringStamped();
-							StrMsg.getHeader().setStamp(Time.fromMillis(System.currentTimeMillis()));
-							StrMsg.setData(item);
-							StartDemoPub.publish(StrMsg);
+							jskAndroidGuiNode.tasksSpinnerTask(item);
 							Toast.makeText(JskAndroidGui.this, "tasks: StartDemo " + item, Toast.LENGTH_SHORT).show();
 							Log.i("JskAndroidGui:ItemSeleted", "Sending StartDemo messgae");
 							
@@ -546,8 +457,8 @@ public class JskAndroidGui extends RosAppActivity {
 			@Override
 			public void onNewValue(Object value) {
 				String defaultTask_ns = "/Tablet";
-				GraphName guser = new GraphName(defaultTask_ns);
-				NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+				GraphName guser = GraphName.of(defaultTask_ns);
+				NameResolver resolver_user = public_node.getResolver().newChild(guser);
 				try {
 					found_task = params.getList(resolver_user.resolve("Found")).toArray();
 				} catch (Exception ex) {
@@ -585,8 +496,8 @@ public class JskAndroidGui extends RosAppActivity {
 			
 			@Override public void onNewValue(Object value) {
 				String defaultTask_ns = "/Tablet";
-				GraphName guser = new GraphName(defaultTask_ns);
-				NameResolver resolver_user = public_node.getResolver().createResolver(guser);
+				GraphName guser = GraphName.of(defaultTask_ns);
+				NameResolver resolver_user = public_node.getResolver().newChild(guser);
 				try {
 					query_input = params.getList(resolver_user.resolve("query_input")).toArray();
 				} catch (Exception ex) {
@@ -599,12 +510,9 @@ public class JskAndroidGui extends RosAppActivity {
 				mHandler.post(new Runnable() { public void run() {
 					Log.i("JskAndroidGui:debug", "dialog handler");
 					new AlertDialog.Builder(JskAndroidGui.this).setTitle( "teach name: " + query_input[0]).setView(view).setPositiveButton( "Save", new DialogInterface.OnClickListener() {
-			pp			
+				
 						@Override public void onClick( DialogInterface dialog, int which) {
-							StringStamped StrMsg_dialog = new StringStamped();
-							StrMsg_dialog.getHeader().setStamp( Time.fromMillis(System.currentTimeMillis()));
-							StrMsg_dialog .setData(editText .getText().toString());
-							SelectPub.publish(StrMsg_dialog);
+							jskAndroidGuiNode.selectTask(editText.getText().toString());
 							Toast.makeText(JskAndroidGui.this, "tasks: Send dialog msg", Toast.LENGTH_SHORT).show();
 							Log.i("JskAndroidGui:debug", "dialog clicked");
 						}
@@ -628,7 +536,7 @@ public class JskAndroidGui extends RosAppActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-
+		
 		Log.i("JskAndroidGui:debug", "onCreateContextMenu");
 		menu.setHeaderTitle("Long touch detected");
 		// Menu.add(int groupId, int itemId, int order, CharSequence title)
@@ -637,7 +545,7 @@ public class JskAndroidGui extends RosAppActivity {
 		menu.add(0, CONTEXT_MENU3_ID, 0, "PLACEONCE");
 		menu.add(0, CONTEXT_MENU4_ID, 0, "GetTemplate");
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.i("JskAndroidGui:debug", "onCreateOptionsMenu");
@@ -724,7 +632,7 @@ public class JskAndroidGui extends RosAppActivity {
 			Log.i("JskAndroidGui:ItemSeleted", "TuckArmPose");
 			cameraView.SendTuckArmPoseMsg();//
 			return true;
-		case R.id.torsoup: // DEPRECATED
+		case R.id.torsoup: // DECATED
 			cameraView.SendTorsoUpMsg();//
 			Log.i("JskAndroidGui:ItemSeleted", "Send TorsoUpMsg");
 			return true;
