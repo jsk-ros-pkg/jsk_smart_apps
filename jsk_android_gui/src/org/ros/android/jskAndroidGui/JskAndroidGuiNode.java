@@ -42,11 +42,11 @@ public class JskAndroidGuiNode extends AbstractNodeMain {
 	}
 	
 	public void selectTask(String str) {
-		StringStamped StrMsg_resultno = SelectPub.newMessage();
-		StrMsg_resultno.getHeader().setStamp(Time.fromMillis(System
+		StringStamped StrMsg_result = SelectPub.newMessage();
+		StrMsg_result.getHeader().setStamp(Time.fromMillis(System
 				.currentTimeMillis()));
-		StrMsg_resultno.setData("ResultNo");
-		SelectPub.publish(StrMsg_resultno);
+		StrMsg_result.setData(str);
+		SelectPub.publish(StrMsg_result);
 	}
 	
 	public void switchJoy() {
