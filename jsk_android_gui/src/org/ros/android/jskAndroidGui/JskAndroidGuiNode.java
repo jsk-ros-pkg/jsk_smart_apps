@@ -17,6 +17,7 @@ import std_msgs.Empty;
 
 public class JskAndroidGuiNode extends AbstractNodeMain {
 
+	public boolean setupEnd = false;
 	private Publisher<Empty> GetSpotPub;
 	private Publisher<StringStamped> StartDemoPub, MoveToSpotPub, SelectPub,
 			TweetPub, EmergencyStopPub;
@@ -215,5 +216,7 @@ public class JskAndroidGuiNode extends AbstractNodeMain {
 		getCameraParam();
 		getTasksParam();
 		getPointsParam();
+		
+		setupEnd = true;
 	}
 }

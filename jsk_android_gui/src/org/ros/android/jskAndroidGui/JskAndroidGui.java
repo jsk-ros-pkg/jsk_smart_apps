@@ -97,10 +97,12 @@ public class JskAndroidGui extends RosAppActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		
 		setDefaultRobotName("pr1040");
-		setDefaultAppName("jsk_gui/jsk_android_gui");
+		setDefaultAppName("jsk_android_gui/jsk_android_gui");
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
+		
+		jskAndroidGuiNode = new JskAndroidGuiNode();
 
 		tweet_button = (Button) findViewById(R.id.tweet);
 		yes_button = (Button) findViewById(R.id.resultyes);
@@ -204,7 +206,23 @@ public class JskAndroidGui extends RosAppActivity {
 		});
 		nodeMainExecutor.execute(jskAndroidGuiNode, nodeConfiguration.setNodeName("android/jsk_android_gui"));
 		nodeMainExecutor.execute(joystickView,nodeConfiguration.setNodeName("android/joystick"));
-		params = jskAndroidGuiNode.getParameterTree();
+		
+		
+		waitForSetupNode();
+	}
+	
+	
+	private void waitForSetupNode (){
+		while (!jskAndroidGuiNode.setupEnd){
+
+		try{
+			Thread.sleep(1000);
+		}catch (Exception e) {
+			
+		}
+		}
+
+		setListener();
 		setupListener();
 	}
 
@@ -271,7 +289,7 @@ public class JskAndroidGui extends RosAppActivity {
 			spots_list = jskAndroidGuiNode.getSpotsList();
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT) .show();
+			//Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT) .show();
 		}
 		
 		spots_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
@@ -296,7 +314,7 @@ public class JskAndroidGui extends RosAppActivity {
 			tasks_list = jskAndroidGuiNode.getTasksList();
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+		//	Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
 		}
 		tasks_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3){
@@ -313,7 +331,7 @@ public class JskAndroidGui extends RosAppActivity {
 			}
 			
 			public void onNothingSelected(AdapterView parent) {
-				Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
+			//	Toast.makeText(JskAndroidGui.this, "Updating Param", Toast.LENGTH_SHORT).show();
 				GetParamAndSetSpinner();
 			}
 		});
@@ -324,7 +342,7 @@ public class JskAndroidGui extends RosAppActivity {
 			camera_info_list = jskAndroidGuiNode.getCameraInfoList();
 		} catch (Exception ex){
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+	//		Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
 		}
 		image_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3){
@@ -334,7 +352,7 @@ public class JskAndroidGui extends RosAppActivity {
 					defaultCameraInfo = camera_info_list.get(arg2 - 1);
 					String str = "((:image " + defaultImage + ") (:camera_info " + defaultCameraInfo + ") (:points " + defaultPoints + "))";
 					cameraView.PubSwitchSensor(str);
-					Toast.makeText(JskAndroidGui.this, "SwitchSensor: " + str, Toast.LENGTH_SHORT).show();
+				//	Toast.makeText(JskAndroidGui.this, "SwitchSensor: " + str, Toast.LENGTH_SHORT).show();
 					Log.i("JskAndroidGui:ItemSeleted", "Sending switch messgae");
 				} else {
 					isAdapterSet_camera = true; Log.i("JskAndroidGui:", "camera adapter not set");
@@ -353,7 +371,7 @@ public class JskAndroidGui extends RosAppActivity {
 			points_list = jskAndroidGuiNode.getPointsList();
 		} catch (Exception ex) {
 			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+	//		Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
 		}
 		points_spinner.setOnItemSelectedListener(new OnItemSelectedListener(){
 			public void onItemSelected(AdapterView parent, View viw, int arg2, long arg3) {
@@ -376,6 +394,8 @@ public class JskAndroidGui extends RosAppActivity {
 			}
 		});
 		
+		
+		params = jskAndroidGuiNode.getParameterTree();
 		params.addParameterListener("/Tablet/UserList", new ParameterListener() {
 			@Override
 			public void onNewValue(Object value) {
@@ -383,7 +403,7 @@ public class JskAndroidGui extends RosAppActivity {
 					jskAndroidGuiNode.getTasksParam();
 				} catch (Exception ex) {
 					Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
-					Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+		//			Toast.makeText(JskAndroidGui.this, "No Param Found: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
 				}
 				
 				Log.i("JskAndroidGui:GetTasksParam", "end");
@@ -698,7 +718,7 @@ public class JskAndroidGui extends RosAppActivity {
 			return true;
 
 		case R.id.switchjoy:
-
+			jskAndroidGuiNode.switchJoy();
 			Toast.makeText(JskAndroidGui.this, "tasks: Switchjoy",
 					Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSelected", "Sending switchjoy");
