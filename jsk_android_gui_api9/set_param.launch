@@ -1,7 +1,7 @@
 <launch>
-  <rosparam file="$(find jsk_android_gui)/user_task.yaml" command="load" ns="Tablet" />
-  <rosparam file="$(find jsk_android_gui)/jsk_spots.yaml" command="load" ns="jsk_spots" />
-  <rosparam file="$(find jsk_android_gui)/points.yaml" command="load" ns="jsk_points" />
-  <rosparam file="$(find jsk_android_gui)/cameras.yaml" command="load" ns="jsk_cameras" />
+  <rosparam file="$(find jsk_android_gui_api9)/user_task.yaml" command="load" ns="Tablet" />
+  <rosparam file="$(find jsk_android_gui_api9)/jsk_spots.yaml" command="load" ns="jsk_spots" />
+  <rosparam file="$(find jsk_android_gui_api9)/points.yaml" command="load" ns="jsk_points" />
+  <rosparam file="$(find jsk_android_gui_api9)/cameras.yaml" command="load" ns="jsk_cameras" />
 
 </launch>
