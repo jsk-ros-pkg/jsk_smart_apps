@@ -212,11 +212,36 @@ public class JskAndroidGuiNode extends AbstractNodeMain {
 		TweetPub = connectedNode.newPublisher("/pr2twit_from_tablet",
 				roseus.StringStamped._TYPE);
 		
-		getSpotsParam();
-		getCameraParam();
-		getTasksParam();
-		getPointsParam();
+//		try{
+//			getSpotsParam();
+//			getCameraParam();
+//			getTasksParam();
+//			getPointsParam();
+//		}catch (Exception ex){
+//			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+//		}
+		getParamLoop() ;
 		
 		setupEnd = true;
 	}
+	
+	public void getParamLoop(){
+		try{
+			getSpotsParam();
+			getCameraParam();
+			getTasksParam();
+			getPointsParam();
+		}catch (Exception ex){
+			Log.e("JskAndroidGui", "Param cast error: " + ex.toString());
+			try{
+			Thread.sleep(1000) ;
+			} catch ( Exception e ){
+				e.printStackTrace() ;
+			}
+			getParamLoop() ;
+		}
+
+	}
+
+
 }
