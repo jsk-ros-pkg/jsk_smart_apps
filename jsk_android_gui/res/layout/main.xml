@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
@@ -11,7 +11,7 @@
         android:background="#ff404040"
         android:orientation="horizontal" >
     </LinearLayout>
-
+ 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -19,15 +19,17 @@
 
         <org.ros.android.jskAndroidGui.SensorImageViewInfo
             android:id="@+id/image"
-            android:layout_width="fill_parent"
+            android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight=".25"
+            android:layout_weight=".75"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
             android:src="@drawable/icon" />
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="0dp"
             android:layout_height="fill_parent"
-            android:layout_weight=".75"
+            android:layout_weight=".25"
             android:gravity="right"
             android:orientation="vertical" >
             <RadioGroup
@@ -107,21 +109,22 @@
             <org.ros.android.view.VirtualJoystickView
                 android:id="@+id/joystick"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight=".25"
+                android:layout_height="0dp"
+                android:layout_weight=".7"
                 android:adjustViewBounds="true" />
             <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight=".25"
+                android:layout_height="0dp"
+                android:layout_weight=".15"
                 android:orientation="horizontal" >
 
-                <Button
+                <ImageButton
                     android:id="@+id/tweet"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tweet" />
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/twitter_icon"/>
 
                 <Button
                     android:id="@+id/resultyes"
@@ -136,12 +139,21 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="No" />
+                
+                <!--
+                <ImageButton
+                    android:id="@+id/conversation"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/conversation_icon"/> -->
             </LinearLayout>
             <TextView
                 android:id="@+id/textarea_test"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight=".50"
+                android:layout_height="0dp"
+                android:layout_weight=".15"
                 android:text="param update searching" >
             </TextView>
             <!--
@@ -162,6 +174,6 @@
      	      android:id="@+id/imagearea"/>
             -->
         </LinearLayout>
-    </LinearLayout>
+     </LinearLayout>
 
 </LinearLayout>

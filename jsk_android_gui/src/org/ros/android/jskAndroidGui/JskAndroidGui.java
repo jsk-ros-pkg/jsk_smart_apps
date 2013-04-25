@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -68,7 +69,8 @@ public class JskAndroidGui extends RosAppActivity {
 	private ParameterTree params;
 	private Node public_node;
 	private ServiceServer<QueryRequest, QueryResponse> server;
-	private Button tweet_button, yes_button, no_button;
+	private Button yes_button, no_button;
+	private ImageButton tweet_button;
 	private RadioGroup radioGroup;
 	private Spinner spots_spinner, tasks_spinner, image_spinner,
 			points_spinner;
@@ -104,7 +106,7 @@ public class JskAndroidGui extends RosAppActivity {
 		
 		jskAndroidGuiNode = new JskAndroidGuiNode();
 
-		tweet_button = (Button) findViewById(R.id.tweet);
+		tweet_button = (ImageButton) findViewById(R.id.tweet);
 		yes_button = (Button) findViewById(R.id.resultyes);
 		no_button = (Button) findViewById(R.id.resultno);
 
