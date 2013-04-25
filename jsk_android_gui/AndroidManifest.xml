@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ros.android.jskAndroidGui"
     android:versionCode="13"
-    android:versionName="4.0" >
+    android:versionName="$Rev$" >
 
     <uses-sdk android:minSdkVersion="9" />
 
