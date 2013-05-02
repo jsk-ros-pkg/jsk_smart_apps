@@ -30,7 +30,7 @@ public:
     xyz.x = point_transformed.point.x;
     xyz.y = point_transformed.point.y;
     xyz.z = point_transformed.point.z;
-    cam_model_.project3dToPixel(xyz,uv_rect);
+    uv_rect = cam_model_.project3dToPixel(xyz);
     res.x=uv_rect.x;res.y=uv_rect.y;
     return true;
   }
