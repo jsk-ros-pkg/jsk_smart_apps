@@ -22,13 +22,13 @@ public class CompressedImageView extends ImageView implements NodeMain {
 	private String messageType;
 	private Bitmap showBitmap;
 	private float aspect;
-	private Talker talker ;
+	private TouchEventTalker talker ;
 
 	public CompressedImageView(Context context) {
 		super(context);
 	}
 	
-	public void setTalker( Talker talker ){
+	public void setTalker( TouchEventTalker talker ){
 		this.talker = talker ;
 	}
 
@@ -111,7 +111,7 @@ public class CompressedImageView extends ImageView implements NodeMain {
 	public boolean onTouchEvent(MotionEvent e) {
 		System.out.println(e.getX() + ":" + e.getY());
 		if ( this.talker != null ){
-			this.talker.setXYWH( e.getX(), e.getY(), this.getWidth(), this.getHeight() ) ;
+			this.talker.publish( e.getX(), e.getY(), this.getWidth(), this.getHeight(), e.getAction() ) ;
 		}
 		return true;
 	}

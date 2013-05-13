@@ -15,19 +15,19 @@ import org.ros.node.NodeMainExecutor;
 public class MainActivity extends RosActivity {
 
 	private CompressedImageView image;
-	private Talker talker;
+	private TouchEventTalker talker;
 	public static float width = 480, height = 640;
 
 	public MainActivity() {
-		super("TapOnImage", "TapOnImage");
+		super("android_image_view", "android_image_view");
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		talker = new Talker();
+		talker = new TouchEventTalker();
 
 		WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 		Display disp = wm.getDefaultDisplay();
