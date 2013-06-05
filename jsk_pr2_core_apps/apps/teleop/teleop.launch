@@ -1,4 +1,3 @@
 <launch>
-  <node pkg="sound_play" type="say.py" name="say"
-        args="'hello world'"/>
+<include file="$(find pr2_teleop_general_jsk_patch)/launch/pr2_teleop_general_joystick.launch" />
 </launch>
