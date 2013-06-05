@@ -23,7 +23,6 @@ import org.ros.android.MessageCallable;
 import org.ros.android.RosActivity;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
-import org.ros.rosjava_tutorial_pubsub.Talker;
 
 //add
 import android.app.AlertDialog;

@@ -1,19 +1,13 @@
 <package>
-  <description brief="local_app_manager">
+  <description brief="jsk_pr2_core_apps">
 
-     local_app_manager
+     jsk_pr2_core_apps
 
   </description>
-  <author>leus</author>
+  <author>murase</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/local_app_manager</url>
-
-  <depend package="app_manager"/>
-
-  <!-- for battery information -->
-  <depend package="turtlebot_node"/>
-  <depend package="diagnostic_aggregator"/>
+  <url>http://ros.org/wiki/jsk_pr2_core_apps</url>
 
 </package>
 

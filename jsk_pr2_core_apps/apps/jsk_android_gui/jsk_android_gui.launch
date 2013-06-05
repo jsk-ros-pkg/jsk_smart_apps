@@ -1,0 +1,3 @@
+<launch>
+  <include file="$(find jsk_android_gui_api9)/set_param.launch" />
+</launch>

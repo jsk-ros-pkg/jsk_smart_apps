@@ -27,6 +27,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ViewFlipper;
 import android.graphics.Color;
 
 import org.ros.node.Node;
@@ -54,10 +55,9 @@ import java.util.ArrayList;
  */
 
 public class JskAndroidGui extends RosAppActivity {
-	
-	
+
 	public JskAndroidGui() {
-		super("jsk android gui","jsk android gui");
+		super("jsk android gui", "jsk android gui");
 	}
 
 	private String robotAppName, cameraTopic;
@@ -69,13 +69,17 @@ public class JskAndroidGui extends RosAppActivity {
 	private ParameterTree params;
 	private Node public_node;
 	private ServiceServer<QueryRequest, QueryResponse> server;
-	private Button yes_button, no_button;
+	private Button yes_button, no_button, x_minus_button, x_plus_button,
+			y_minus_button, y_plus_button, z_minus_button, z_plus_button,
+			start_button, stop_button,movearm_button;
 	private ImageButton tweet_button;
 	private RadioGroup radioGroup;
+	private RadioGroup radioGroup_moveIt;
+	private boolean moveit_pos;
 	private Spinner spots_spinner, tasks_spinner, image_spinner,
 			points_spinner;
-	
-	
+	private ViewFlipper viewFlipper;
+
 	private ArrayList<String> spots_list = new ArrayList(),
 			tasks_list = new ArrayList(), image_list = new ArrayList(),
 			camera_info_list = new ArrayList(), points_list = new ArrayList();
@@ -97,19 +101,31 @@ public class JskAndroidGui extends RosAppActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		
+
 		setDefaultRobotName("pr1040");
 		setDefaultAppName("jsk_android_gui/jsk_android_gui");
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
-		
+
 		jskAndroidGuiNode = new JskAndroidGuiNode();
+
+		viewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 
 		tweet_button = (ImageButton) findViewById(R.id.tweet);
 		yes_button = (Button) findViewById(R.id.resultyes);
 		no_button = (Button) findViewById(R.id.resultno);
+		x_minus_button = (Button) findViewById(R.id.move_x_minus);
+		x_plus_button = (Button) findViewById(R.id.move_x_plus);
+		y_minus_button = (Button) findViewById(R.id.move_y_minus);
+		y_plus_button = (Button) findViewById(R.id.move_y_plus);
+		z_minus_button = (Button) findViewById(R.id.move_z_minus);
+		z_plus_button = (Button) findViewById(R.id.move_z_plus);
+		start_button = (Button) findViewById(R.id.manipulation_start);
+		stop_button = (Button) findViewById(R.id.manipulation_stop);
+		movearm_button = (Button) findViewById(R.id.movearm);
 
+		
 		radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
 		radioGroup.check(R.id.radiobutton_L);
 		radioGroup
@@ -133,6 +149,33 @@ public class JskAndroidGui extends RosAppActivity {
 						}
 					}
 				});
+		radioGroup_moveIt = (RadioGroup) findViewById(R.id.radiogroup_moveit);
+		radioGroup_moveIt.check(R.id.radiobutton_pos);
+		moveit_pos = true;
+		radioGroup_moveIt
+		.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				RadioButton radioButton = (RadioButton) findViewById(checkedId);
+				if (radioButton.getText().equals("pos")) {
+					moveit_pos = true;
+					x_minus_button.setText("x-");
+					x_plus_button.setText("x+");
+					y_minus_button.setText("y-");
+					y_plus_button.setText("y+");
+					z_minus_button.setText("z-");
+					z_plus_button.setText("z+");
+
+				} else {
+					moveit_pos = false;
+					x_minus_button.setText("roll-");
+					x_plus_button.setText("roll+");
+					y_minus_button.setText("pitch-");
+					y_plus_button.setText("pitch+");
+					z_minus_button.setText("yaw-");
+					z_plus_button.setText("yaw+");
+				}
+			}
+		});
 
 		spots_spinner = (Spinner) findViewById(R.id.spinner_spots);
 		ArrayAdapter<String> adapter_spots = new ArrayAdapter<String>(this,
@@ -177,7 +220,7 @@ public class JskAndroidGui extends RosAppActivity {
 		cameraView.setClickable(true);
 		cameraView.SetRobotArm(Action.LARMID);
 		cameraView.setCameraTopic(cameraTopic);
-		
+
 		mHandler = new Handler();
 
 		ImageView ivInContext = (ImageView) findViewById(R.id.image);
@@ -188,17 +231,18 @@ public class JskAndroidGui extends RosAppActivity {
 
 	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
-		
+
 		super.init(nodeMainExecutor);
-		
+
 		NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
-		
+
 		NameResolver appNamespace = getAppNameSpace();
-		nodeMainExecutor.execute(cameraView, nodeConfiguration.setNodeName("android/camera_view"));
-		
-		//cameraView.start(node, appNamespace.resolve(cameraTopic).toString());
+		nodeMainExecutor.execute(cameraView,
+				nodeConfiguration.setNodeName("android/camera_view"));
+
+		// cameraView.start(node, appNamespace.resolve(cameraTopic).toString());
 		cameraView.post(new Runnable() {
 			@Override
 			public void run() {
@@ -206,22 +250,22 @@ public class JskAndroidGui extends RosAppActivity {
 				cameraView.setSelected(true);
 			}
 		});
-		nodeMainExecutor.execute(jskAndroidGuiNode, nodeConfiguration.setNodeName("android/jsk_android_gui"));
-		nodeMainExecutor.execute(joystickView,nodeConfiguration.setNodeName("android/joystick"));
-		
-		
+		nodeMainExecutor.execute(jskAndroidGuiNode,
+				nodeConfiguration.setNodeName("android/jsk_android_gui"));
+		nodeMainExecutor.execute(joystickView,
+				nodeConfiguration.setNodeName("android/joystick"));
+
 		waitForSetupNode();
 	}
-	
-	
-	private void waitForSetupNode (){
-		while (!jskAndroidGuiNode.setupEnd){
 
-		try{
-			Thread.sleep(1000);
-		}catch (Exception e) {
-			
-		}
+	private void waitForSetupNode() {
+		while (!jskAndroidGuiNode.setupEnd) {
+
+			try {
+				Thread.sleep(1000);
+			} catch (Exception e) {
+
+			}
 		}
 
 		setListener();
@@ -251,7 +295,10 @@ public class JskAndroidGui extends RosAppActivity {
 													DialogInterface dialog,
 													int which) {
 
-												jskAndroidGuiNode.tweetTask(editText.getText().toString());
+												jskAndroidGuiNode
+														.tweetTask(editText
+																.getText()
+																.toString());
 												Toast.makeText(
 														JskAndroidGui.this,
 														"tasks: Tweet",
@@ -283,6 +330,59 @@ public class JskAndroidGui extends RosAppActivity {
 				Toast.makeText(JskAndroidGui.this, "tasks: ResultNo",
 						Toast.LENGTH_SHORT).show();
 				Log.i("JskAndroidGui:ButtonClicked", "Sending ResultNo");
+			}
+		});
+		
+		x_minus_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				if(moveit_pos) cameraView.SendMoveItMsg("x-");
+				else cameraView.SendMoveItMsg("roll-");
+			}
+		});
+		x_plus_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				if(moveit_pos) cameraView.SendMoveItMsg("x+");
+				else cameraView.SendMoveItMsg("roll+");
+			}
+		});
+		y_minus_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				if(moveit_pos) cameraView.SendMoveItMsg("y-");
+				else cameraView.SendMoveItMsg("pitch-");
+			}
+		});
+		y_plus_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				if(moveit_pos) cameraView.SendMoveItMsg("y+");
+				else cameraView.SendMoveItMsg("pitch+");
+			}
+		});
+		z_minus_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				if(moveit_pos) cameraView.SendMoveItMsg("z-");
+				else cameraView.SendMoveItMsg("yaw-");
+			}
+		});
+		z_plus_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				if(moveit_pos) cameraView.SendMoveItMsg("z+");
+				else cameraView.SendMoveItMsg("yaw+");
+			}
+		});
+
+		start_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				cameraView.SendMoveItMsg("start");
+			}
+		});
+		stop_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				cameraView.SendMoveItMsg("stop");
+			}
+		});
+		movearm_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				cameraView.SendMoveItMsg("movearm");
 			}
 		});
 		
@@ -553,12 +653,12 @@ public class JskAndroidGui extends RosAppActivity {
 		}
 		});
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		
+
 		Log.i("JskAndroidGui:debug", "onCreateContextMenu");
 		menu.setHeaderTitle("Long touch detected");
 		// Menu.add(int groupId, int itemId, int order, CharSequence title)
@@ -567,7 +667,7 @@ public class JskAndroidGui extends RosAppActivity {
 		menu.add(0, CONTEXT_MENU3_ID, 0, "PLACEONCE");
 		menu.add(0, CONTEXT_MENU4_ID, 0, "GetTemplate");
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.i("JskAndroidGui:debug", "onCreateOptionsMenu");
@@ -627,11 +727,11 @@ public class JskAndroidGui extends RosAppActivity {
 			Log.i("JskAndroidGui:ItemSeleted", "Set PickOnce");
 			cameraView.SetPickOnce();
 			return true;
-		/*case R.id.opendoor:
-			cameraView.unSetMovingFingerInfo();
-			cameraView.SendOpenDoorMsg();
-			Log.i("JskAndroidGui:ItemSeleted", "Send OpenDoorMsg");
-			return true;*/
+			/*
+			 * case R.id.opendoor: cameraView.unSetMovingFingerInfo();
+			 * cameraView.SendOpenDoorMsg(); Log.i("JskAndroidGui:ItemSeleted",
+			 * "Send OpenDoorMsg"); return true;
+			 */
 		case R.id.pushonce:
 			Log.i("JskAndroidGui:ItemSeleted", "Set PushOnce");
 			cameraView.SetPushOnce();
@@ -640,11 +740,11 @@ public class JskAndroidGui extends RosAppActivity {
 			Log.i("JskAndroidGui:ItemSeleted", "Set PlaceOnce");
 			cameraView.SetPlaceOnce();//
 			return true;
-		/*case R.id.closedoor:
-			Log.i("JskAndroidGui:ItemSeleted", "Send CloseDoorMsg");
-			cameraView.SendCloseDoorMsg();//
-			return true;
-*/
+			/*
+			 * case R.id.closedoor: Log.i("JskAndroidGui:ItemSeleted",
+			 * "Send CloseDoorMsg"); cameraView.SendCloseDoorMsg();// return
+			 * true;
+			 */
 		case R.id.passtohumanonce:
 			Log.i("JskAndroidGui:ItemSeleted", "Set PassToHuman");
 			cameraView.SetPassToHumanOnce();//
@@ -724,7 +824,9 @@ public class JskAndroidGui extends RosAppActivity {
 			Toast.makeText(JskAndroidGui.this, "tasks: Switchjoy",
 					Toast.LENGTH_SHORT).show();
 			Log.i("JskAndroidGui:ItemSelected", "Sending switchjoy");
-
+			return true;
+		case R.id.change_layout:
+			viewFlipper.showNext();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

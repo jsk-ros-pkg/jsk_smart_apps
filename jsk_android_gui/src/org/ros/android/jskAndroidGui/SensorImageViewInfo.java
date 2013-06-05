@@ -65,6 +65,7 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 	// we separate the publisher that uses jsk_pcl_ros
 	private Publisher<Tablet> TabletTaskPub;
 	private Publisher<Tablet> TabletPubDebug;
+	private Publisher<Action> TabletMoveIt;
 	private Subscriber<CompressedImage> imageSub;
 	private String cameratopic;
 	private ConnectedNode connectedNode;
@@ -105,6 +106,7 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 				jsk_gui_msgs.Tablet._TYPE);
 		TabletPubDebug = connectedNode.newPublisher("/Tablet/CommandDebug",
 				jsk_gui_msgs.Tablet._TYPE);
+		TabletMoveIt = connectedNode.newPublisher("/Tablet/MoveIt", jsk_gui_msgs.Action._TYPE);
 		MaxWidth = this.getWidth();
 		MaxHeight = this.getHeight();
 		imageSub.addMessageListener(new MessageListener<CompressedImage>() {
@@ -312,6 +314,13 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 		DebugMsg.getTouches().add(TouchMsg);
 		TabletPubDebug.publish(DebugMsg);
 		Log.v("JskAndroidGui:SendDebugMsg", "END");
+	}
+	
+	public void SendMoveItMsg(String task_name) {
+		Action moveItMsg = TabletMoveIt.newMessage();
+		moveItMsg.setArmId(RobotArmId);
+		moveItMsg.setTaskName(task_name);
+		TabletMoveIt.publish(moveItMsg);
 	}
 
 	public void MoveNeck(String direction, float direction_value) {
