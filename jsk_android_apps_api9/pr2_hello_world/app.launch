@@ -1,4 +1,0 @@
-<launch>
-  <node pkg="sound_play" type="say.py" name="say"
-	args="'hello world'"/>
-</launch>
