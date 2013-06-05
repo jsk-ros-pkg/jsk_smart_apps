@@ -1,7 +1,9 @@
 apps:
-  - app: jsk_pr2_startup/startup
+  - app: jsk_pr2_core_apps/jsk_pr2_startup
     display: jsk pr2 startup
-  - app: pr2_hello_world/app
+  - app: jsk_pr2_core_apps/pr2_hello_world
     display: Speak Sample App
-  - app: jsk_android_gui/jsk_android_gui
+  - app: jsk_pr2_core_apps/teleop
+    display: Speak Sample App
+  - app: jsk_pr2_core_apps/jsk_android_gui
     display: App for controlling PR2
