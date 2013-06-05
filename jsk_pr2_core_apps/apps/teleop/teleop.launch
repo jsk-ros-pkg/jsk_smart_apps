@@ -1,3 +1,6 @@
 <launch>
-<include file="$(find pr2_teleop_general_jsk_patch)/launch/pr2_teleop_general_joystick.launch" />
+  <node pkg="topic_tools" type="relay" name="cmd_to_base" args="/cmd_vel /base_controller/command"/>
+  <node pkg="topic_tools" type="throttle" name="image_throttle" args="messages /wide_stereo/right/image_rect_color/compressed 1"/>
+  <node pkg="topic_tools" type="relay" name="image_relay" args="/wide_stereo/right/image_rect_color/compressed_throttle /pr1040/application/camera/rgb/image_color/compressed_throttle"/>
+
 </launch>
