@@ -8,7 +8,7 @@ clients:
 - type: android
   manager:
     api-level: 9
-    intent-action: ros.android.jskandroidgui.JskAndroidGui
+    intent-action: org.ros.android.jskAndroidGui.JskAndroidGui
   app: 
     gravityMode: 0
     camera_topic: /tablet/marked/image_rect_color/compressed_throttle
