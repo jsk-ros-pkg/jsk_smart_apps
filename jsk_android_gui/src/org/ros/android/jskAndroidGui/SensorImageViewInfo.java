@@ -80,16 +80,16 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 
 	public SensorImageViewInfo(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-			}
+	}
 
 	public SensorImageViewInfo(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		
+
 	}
 
 	public void setCameraTopic(String cameratopic) {
 		this.cameratopic = cameratopic;
-		
+
 	}
 
 	@Override
@@ -106,16 +106,17 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 				jsk_gui_msgs.Tablet._TYPE);
 		TabletPubDebug = connectedNode.newPublisher("/Tablet/CommandDebug",
 				jsk_gui_msgs.Tablet._TYPE);
-		TabletMoveIt = connectedNode.newPublisher("/Tablet/MoveIt", jsk_gui_msgs.Action._TYPE);
+		TabletMoveIt = connectedNode.newPublisher("/Tablet/MoveIt",
+				jsk_gui_msgs.Action._TYPE);
 		MaxWidth = this.getWidth();
 		MaxHeight = this.getHeight();
 		imageSub.addMessageListener(new MessageListener<CompressedImage>() {
 			@Override
 			public void onNewMessage(CompressedImage message) {
-				bitmap = BitmapFactory.decodeByteArray(message.getData().array()
-						, message.getData().arrayOffset(), message.getData()
-						.readableBytes());
-								post(SensorImageViewInfo.this);
+				bitmap = BitmapFactory.decodeByteArray(message.getData()
+						.array(), message.getData().arrayOffset(), message
+						.getData().readableBytes());
+				post(SensorImageViewInfo.this);
 			}
 		});
 		nodeStart = true;
@@ -315,11 +316,12 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 		TabletPubDebug.publish(DebugMsg);
 		Log.v("JskAndroidGui:SendDebugMsg", "END");
 	}
-	
-	public void SendMoveItMsg(String task_name) {
+
+	public void SendMoveItMsg(String task_name, String direction) {
 		Action moveItMsg = TabletMoveIt.newMessage();
 		moveItMsg.setArmId(RobotArmId);
 		moveItMsg.setTaskName(task_name);
+		moveItMsg.setDirection(direction);
 		TabletMoveIt.publish(moveItMsg);
 	}
 
@@ -684,7 +686,6 @@ public class SensorImageViewInfo extends ImageView implements Runnable,
 	@Override
 	public void run() {
 
-		
 		// final int bWidth = bitmap.getWidth();
 		// final int bHeight = bitmap.getHeight();
 		// Bitmap bitmap_tmp = Bitmap.createBitmap(bWidth, bHeight,

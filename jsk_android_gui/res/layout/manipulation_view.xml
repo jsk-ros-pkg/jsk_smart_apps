@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".15"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/move_x_minus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="x-" />
+
+        <Button
+            android:id="@+id/move_x_plus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="x+" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".15"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/move_y_minus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="y-" />
+
+        <Button
+            android:id="@+id/move_y_plus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="y+" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".15"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/move_z_minus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="z-" />
+
+        <Button
+            android:id="@+id/move_z_plus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="z+" />
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/radiogroup_moveit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/radiobutton_pos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="pos" />
+
+        <RadioButton
+            android:id="@+id/radiobutton_rpy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="rpy" />
+    </RadioGroup>
+    
+    <RadioGroup
+        android:id="@+id/radiogroup_wrt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/radiobutton_local"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="local" />
+
+        <RadioButton
+            android:id="@+id/radiobutton_world"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="world" />
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".15"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/manipulation_start"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="start" />
+
+        <Button
+            android:id="@+id/manipulation_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="stop" />
+        <Button
+            android:id="@+id/movearm"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="MoveArm" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textarea_test"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".15"
+        android:text="param update searching" >
+    </TextView>
+
+</LinearLayout>
