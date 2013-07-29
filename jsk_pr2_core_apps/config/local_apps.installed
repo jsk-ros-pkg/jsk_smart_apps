@@ -7,3 +7,9 @@ apps:
     display: Speak Sample App
   - app: jsk_pr2_core_apps/jsk_android_gui
     display: App for controlling PR2
+  - app: jsk_2013_04_pr2_610/demo_all
+    display: IRT Demo All For PR2
+  - app: jsk_2013_04_pr2_610/demo_tray
+    display: IRT Demo Tray For PR2
+  - app: jsk_2013_04_pr2_610/demo_wash
+    display: IRT Demo Wash For PR2
