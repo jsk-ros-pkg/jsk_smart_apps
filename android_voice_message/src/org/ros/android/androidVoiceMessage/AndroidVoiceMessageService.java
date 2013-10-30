@@ -91,7 +91,7 @@ public class AndroidVoiceMessageService extends IntentService {
 	}
 
 	public void setStart() {
-		androidVoiceMessageNode.setFlag();
+		androidVoiceMessageNode.setFlag(1);
 	}
 	
 	public void setRawModeStart(AndroidVoiceMessageView androidVoiceMessageView) {
@@ -104,6 +104,10 @@ public class AndroidVoiceMessageService extends IntentService {
 	
 	public void setView(TextView textView,ImageView imageView){
 		androidVoiceMessageNode.setView(textView,imageView);
+	}
+	
+	public void setMode(int mode) {
+		androidVoiceMessageNode.setMode(mode);
 	}
 
 	@Override
