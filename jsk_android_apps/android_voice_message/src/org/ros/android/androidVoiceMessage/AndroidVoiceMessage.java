@@ -62,8 +62,10 @@ public class AndroidVoiceMessage extends RosActivity {
 	private URI masterUri;
 	private TextView textView;
 	private ImageView imageView;
+	private Button button;
 	private String packageName;
 	private int mode;
+	private boolean eternal = false;
 
 	SpeechRecognizer speechRecignizer;
 	private SensorManager sensorManager;
@@ -104,6 +106,22 @@ public class AndroidVoiceMessage extends RosActivity {
 			@Override
 			public void onClick(View v) {
 				androidVoiceMessageService.setStart();
+			}
+		});
+		button = (Button)findViewById(R.id.button);
+		button.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(eternal) {
+					eternal = false;
+					androidVoiceMessageService.setMode(1);
+					button.setText("Once");	
+				}
+				else {
+					eternal = true;
+					androidVoiceMessageService.setMode(-1);
+					button.setText("Eternal");
+				}
 			}
 		});
 
@@ -155,6 +173,7 @@ public class AndroidVoiceMessage extends RosActivity {
 			mode *= -1;
 			if(mode == 1){
 				setContentView(R.layout.main);
+				eternal = false;
 				textView = (TextView) findViewById(R.id.text);
 				imageView = (ImageView) findViewById(R.id.ImageView);
 				imageView.setOnClickListener(new View.OnClickListener() {
@@ -163,10 +182,29 @@ public class AndroidVoiceMessage extends RosActivity {
 						androidVoiceMessageService.setStart();
 					}
 				});
+
+				button = (Button)findViewById(R.id.button);
+				button.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if(eternal) {
+							eternal = false;
+							androidVoiceMessageService.setMode(1);
+							button.setText("Once");	
+						}
+						else {
+							eternal = true;
+							androidVoiceMessageService.setMode(-1);
+							button.setText("Eternal");
+						}
+					}
+				});
+				
 				androidVoiceMessageService.setView(textView,imageView);
 				androidVoiceMessageService.setRawModeStop();
 			}
 			else{
+				androidVoiceMessageService.setMode(1);
 				setContentView(R.layout.main2);
 				SurfaceView surfaceView = (SurfaceView) findViewById(R.id.SV);
 				androidVoiceMessageView.setView(surfaceView);
