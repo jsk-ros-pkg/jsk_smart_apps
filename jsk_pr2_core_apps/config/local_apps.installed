@@ -3,6 +3,8 @@ apps:
     display: jsk pr2 startup
   - app: jsk_pr2_core_apps/pr2_hello_world
     display: Speak Sample App
+  - app: jsk_pr2_core_apps/detect_cans_in_fridge
+    display: refrigerator demo
   - app: jsk_pr2_core_apps/teleop
     display: Speak Sample App
   - app: jsk_pr2_core_apps/jsk_android_gui
