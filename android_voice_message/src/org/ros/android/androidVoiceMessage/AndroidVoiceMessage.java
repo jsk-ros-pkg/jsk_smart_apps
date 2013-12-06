@@ -42,6 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -67,7 +68,6 @@ public class AndroidVoiceMessage extends RosActivity {
 	private int mode;
 	private boolean eternal = false;
 
-	SpeechRecognizer speechRecignizer;
 	private SensorManager sensorManager;
 	private Intent intent;
 	private AndroidVoiceMessageService androidVoiceMessageService;
@@ -81,7 +81,7 @@ public class AndroidVoiceMessage extends RosActivity {
 					.getService();
 			startService(intent);
 			imageView = (ImageView)findViewById(R.id.ImageView);
-			androidVoiceMessageService.setNode(speechRecignizer, textView,imageView, packageName);
+			androidVoiceMessageService.setNode(AndroidVoiceMessage.this, textView,imageView, packageName);
 		}
 
 		@Override
@@ -98,6 +98,9 @@ public class AndroidVoiceMessage extends RosActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
 		setContentView(R.layout.main);
 		mode = 1;
 		textView = (TextView) findViewById(R.id.text);
@@ -127,7 +130,6 @@ public class AndroidVoiceMessage extends RosActivity {
 
 		// add
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		speechRecignizer = SpeechRecognizer.createSpeechRecognizer(this);
 		packageName = getPackageName();
 		androidVoiceMessageView = new AndroidVoiceMessageView(this);
 	}
