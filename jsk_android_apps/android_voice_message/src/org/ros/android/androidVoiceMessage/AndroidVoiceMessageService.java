@@ -13,6 +13,7 @@ import org.ros.node.NodeMainExecutor;
 
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -33,7 +34,6 @@ public class AndroidVoiceMessageService extends IntentService {
 	Intent mintent;
 	NodeMainExecutor nodeMainExecutor;
 	private String packageName;
-	SpeechRecognizer speechRecognizer;
 
 	final IBinder binder = new MyBinder();
 
@@ -55,9 +55,8 @@ public class AndroidVoiceMessageService extends IntentService {
 		return binder;
 	}
 
-	public void setNode(SpeechRecognizer speechRecognizer, TextView textView, ImageView imageView, String packageName) {
+	public void setNode(Context context, TextView textView, ImageView imageView, String packageName) {
 		showNotification();
-		this.speechRecognizer = speechRecognizer;
 		this.packageName = packageName;
 
 		// We use this bundle
@@ -76,7 +75,7 @@ public class AndroidVoiceMessageService extends IntentService {
 				nodeConfiguration.setNodeName("android_voice_message");
 
 				androidVoiceMessageNode = new AndroidVoiceMessageNode(
-						sensorManager, speechRecognizer, packageName);
+						sensorManager, context, packageName);
 				
 				setView(textView,imageView);
 				
