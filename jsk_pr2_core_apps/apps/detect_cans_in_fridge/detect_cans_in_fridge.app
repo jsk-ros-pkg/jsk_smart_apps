@@ -4,3 +4,9 @@ platform: pr2
 launch: jsk_pr2_core_apps/detect_cans_in_fridge.launch
 interface: jsk_pr2_core_apps/detect_cans_in_fridge.interface
 icon: jsk_pr2_core_apps/detect_cans_in_fridge.png
+clients:
+- type: multitask
+  objects:
+    - georgia
+    - wonda
+    - iemon
