@@ -3,5 +3,6 @@
     <arg name="app_manager" value="true" />
     <arg name="wait_query" value="false" />
     <arg name="execute" value="true" />
+    <arg name="DEMOTYPE" value="map" />
   </include>
 </launch>
