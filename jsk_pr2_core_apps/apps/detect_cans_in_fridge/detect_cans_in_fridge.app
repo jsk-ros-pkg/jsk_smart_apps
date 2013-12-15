@@ -6,7 +6,8 @@ interface: jsk_pr2_core_apps/detect_cans_in_fridge.interface
 icon: jsk_pr2_core_apps/detect_cans_in_fridge.png
 clients:
 - type: multitask
-  objects:
+  targets:
     - georgia
     - wonda
     - iemon
+    - mountain_dew
