@@ -2,6 +2,7 @@
 (ros::load-ros-manifest "jsk_smart_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
 (ros::load-ros-manifest "dynamic_tf_publisher")
+(ros::load-ros-manifest "object_snapshotter")
 ;; This script depends on tablet_callback.l
 ;; Use when creating template from imagesift
 (ros::roseus "template_creator")
