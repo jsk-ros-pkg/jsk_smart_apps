@@ -7,3 +7,4 @@ icon: jsk_pr2_core_apps/pour_water_to_cup.png
 clients:
 - type: multitask
   manager:
+    target_1: iemon_500
