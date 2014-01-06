@@ -1,4 +1,6 @@
 <launch>
   <include file="$(find roseus_tutorials)/launch/tabletop-object-detector.launch" />
-  <node pkg="roseus" type="roseus" name="pour_water_to_cup" args="$(find jsk_pr2_core_apps)/apps/pour_water_to_cup/pour_bottle_water_to_cup.l" />
+  <node pkg="roseus" type="roseus" name="pour_water_to_cup"
+        required="true"
+        args="$(find jsk_pr2_core_apps)/apps/pour_water_to_cup/pour_bottle_water_to_cup.l" />
 </launch>

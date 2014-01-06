@@ -127,6 +127,7 @@
   ;;close hand
   (send *ri* :move-gripper :larm 0.080 :effort 30)
   (send *ri* :wait-interpolation)
+  (ros::exit)
   )
 
 
