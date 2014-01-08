@@ -155,6 +155,10 @@
     (send *ri* :wait-interpolation)
     ;; back
     (send *ri* :go-pos-unsafe -0.2 0 0)
+    ;; collar open
+    (send *pr2* :larm :collar-y :joint-angle 100)
+    (send *ri* :angle-vector (send *pr2* :angle-vector))
+    (send *ri* :wait-interpolation)
 )
 
 (defun pick-pet (estimated-center-pose &optional (num 0))
