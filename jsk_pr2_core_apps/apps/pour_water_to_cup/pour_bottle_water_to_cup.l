@@ -11,7 +11,7 @@
 (setq *seq-y* 20)
 (setq *rotate-cap-num* 1) ;;7
 
-(setq *bottle-height* 215)
+(setq *bottle-height* 218)
 (setq *bottle-radius* 14)
 (setq *cup-height* 90)
 (setq *cup-radius* 40)
@@ -43,6 +43,11 @@
   (ros::subscribe "ObjectDetection" posedetection_msgs::ObjectDetection #'objectdetection-cb)
   (setq *tfl* (instance ros::transform-listener :init))
   (setq *tfb* (instance ros::transform-broadcaster :init));;tmp
+  ;; look-at-table
+  (pr2-tuckarm-pose)
+  (send *pr2* :head :neck-p :joint-angle 60)
+  (send *ri* :angle-vector (send *pr2* :angle-vector))
+  (send *ri* :wait-interpolation)
 )
 
 (defun pour-cup (estimated-center-pose &optional (num 0))
@@ -56,6 +61,10 @@
   (send *pr2* :larm :move-end-pos #f(-100 0 50))
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
+  ;; open
+  (send *ri* :stop-grasp :larm)
+  (send *ri* :wait-interpolation)
+
 
   ;; left arm
   ;; approach
@@ -127,10 +136,26 @@
   ;;close hand
   (send *ri* :move-gripper :larm 0.080 :effort 30)
   (send *ri* :wait-interpolation)
+  (carry-pose)
   (ros::exit)
   )
 
-
+(defun carry-pose ()
+    ;;away
+    (send *pr2* :rarm :move-end-pos #f(-115 0 0))
+    (send *ri* :angle-vector (send *pr2* :angle-vector))
+    (send *ri* :wait-interpolation)
+    ;; up
+    (send *pr2* :larm :move-end-pos #f(-100 -30 50))
+    (send *ri* :angle-vector (send *pr2* :angle-vector))
+    (send *ri* :wait-interpolation)
+    ;; tuck-arm only-right
+    (send *pr2* :rarm :angle-vector (cadr *pr2-tuckarm-pose-rarm-free*))
+    (send *ri* :angle-vector (send *pr2* :angle-vector))
+    (send *ri* :wait-interpolation)
+    ;; back
+    (send *ri* :go-pos-unsafe -0.2 0 0)
+)
 
 (defun pick-pet (estimated-center-pose &optional (num 0))
   (send *arrow* :transform estimated-center-pose)
@@ -218,9 +243,6 @@
     ;; up
     (send *pr2* :larm :move-end-pos #f(0 0 50))
     (send *ri* :angle-vector (send *pr2* :angle-vector))
-    (send *ri* :wait-interpolation)
-    ;; open
-    (send *ri* :stop-grasp :larm)
     (send *ri* :wait-interpolation)
     ))
 
