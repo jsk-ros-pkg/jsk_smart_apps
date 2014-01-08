@@ -1,3 +1,0 @@
-<launch>
-<node name="pub_place_info" pkg="task_bridge" type="pub_place_info.py" args="$(find jsk_pr2_core_apps)/robot_place_info.yaml" />
-</launch>
