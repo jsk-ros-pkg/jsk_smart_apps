@@ -9,7 +9,7 @@
 (setq *quant* 2)
 (setq *seq-x* 20)
 (setq *seq-y* 20)
-(setq *rotate-cap-num* 7)
+(setq *rotate-cap-num* 1) ;;7
 
 (setq *bottle-height* 215)
 (setq *bottle-radius* 14)
