@@ -39,15 +39,17 @@
   (setq *base-to-object-pose-list* nil)
   (setq *base-to-camera-pose* nil)
   (ros::set-param "stop_tabletop" 0)
-  (ros::rate (/ 1.0 *rate*))
-  (ros::subscribe "ObjectDetection" posedetection_msgs::ObjectDetection #'objectdetection-cb)
-  (setq *tfl* (instance ros::transform-listener :init))
-  (setq *tfb* (instance ros::transform-broadcaster :init));;tmp
   ;; look-at-table
   (pr2-tuckarm-pose)
   (send *pr2* :head :neck-p :joint-angle 60)
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
+  (unix::sleep 3)
+  ;; ready
+  (ros::rate (/ 1.0 *rate*))
+  (ros::subscribe "ObjectDetection" posedetection_msgs::ObjectDetection #'objectdetection-cb)
+  (setq *tfl* (instance ros::transform-listener :init))
+  (setq *tfb* (instance ros::transform-broadcaster :init));;tmp
 )
 
 (defun pour-cup (estimated-center-pose &optional (num 0))
