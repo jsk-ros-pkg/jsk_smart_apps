@@ -17,7 +17,7 @@
   (setq *object-to-arrow-pose* nil)
   (setq *base-to-object-pose* nil)
 
-  (send *ri* :go-pos-unsafe 0.3 0 0) ;;tmp
+  (send *ri* :go-pos-unsafe 0.2 0 0) ;;tmp
 
   (send *pr2* :angle-vector (send *ri* :reference-vector))
   (send *pr2* :head :neck-p :joint-angle 70)
@@ -70,4 +70,7 @@
 
   (pr2-tuckarm-pose)
   (send *ri* :go-pos-unsafe -0.2 0 0)
+  (ros::exit)
 )
+
+(simulation)
