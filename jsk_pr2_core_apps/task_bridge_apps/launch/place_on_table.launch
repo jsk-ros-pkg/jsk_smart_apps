@@ -1,5 +1,5 @@
 <launch>
 <node name="placepos_tf_publisher" pkg="task_bridge" type="placepos_tf_publisher.py" />
-<include file="$(find task_bridge)/launch/tabletop.launch" />
 <node name="place_on_table" pkg="roseus" type="roseus" args="$(find jsk_pr2_core_apps)/task_bridge_apps/nodes/place_on_table.l" required="true" />
+<include file="$(find task_bridge)/launch/tabletop.launch" />
 </launch>
