@@ -41,11 +41,6 @@
   (send *pr2* :head :neck-p :joint-angle 60)
   (send *ri* :angle-vector (send *pr2* :angle-vector))
   (send *ri* :wait-interpolation)
-  (unix::sleep 3)
-  (ros::wait-for-service "/tabletop_segmentation")
-  (ros::subscribe "ObjectDetection" posedetection_msgs::ObjectDetection #'objectdetection-cb)
-  (setq *tfl* (instance ros::transform-listener :init))
-  (setq *tfb* (instance ros::transform-broadcaster :init));;tmp
 )
 
 (defun spots-cb (msg)
@@ -81,10 +76,19 @@
   (setq *base-to-camera-pose* nil)
   (ros::set-param "stop_tabletop" 0)
   ;; ready
+  (unix::sleep 10)
   (ros::rate (/ 1.0 *rate*))
-  (ros::advertise "/move_base_simple/goal" geometry_msgs::PoseStamped)
-  (ros::subscribe "/spots_marker_array" visualization_msgs::MarkerArray #'spots-cb)
-  (ros::subscribe "/move_base/result" move_base_msgs::MoveBaseActionResult #'result-cb)
+  (start-task)
+  (unix::sleep 10)
+  (ros::wait-for-service "/tabletop_segmentation")
+  (ros::subscribe "ObjectDetection" posedetection_msgs::ObjectDetection #'objectdetection-cb)
+  (setq *tfl* (instance ros::transform-listener :init))
+  (setq *tfb* (instance ros::transform-broadcaster :init));;tmp
+
+
+;;  (ros::advertise "/move_base_simple/goal" geometry_msgs::PoseStamped)
+;;  (ros::subscribe "/spots_marker_array" visualization_msgs::MarkerArray #'spots-cb)
+;;  (ros::subscribe "/move_base/result" move_base_msgs::MoveBaseActionResult #'result-cb)
 )
 
 (defun pour-cup (estimated-center-pose &optional (num 0))
@@ -191,7 +195,7 @@
     (send *ri* :angle-vector (send *pr2* :angle-vector))
     (send *ri* :wait-interpolation)
     ;; back
-    (send *ri* :go-pos-unsafe -0.2 0 0)
+    (send *ri* :go-pos-unsafe -0.3 0 0) ;; -0.2
     ;; collar open
     (send *pr2* :larm :collar-y :joint-angle 100)
     (send *ri* :angle-vector (send *pr2* :angle-vector))
@@ -381,12 +385,12 @@
       (dotimes (y *seq-y*)
     (setq count 0)
     (setq update-estimated-center-pose (send (send base-to-object-pose :copy-worldcoords) :translate (float-vector (* (- x (/ *seq-x* 2.0)) *quant*) (* (- y (/ *seq-y* 2.0)) *quant*) 0)))
-    (dotimes (i 48)
+    (dotimes (i 24)
       (setq float-pose (send
        (send update-estimated-center-pose :copy-worldcoords) :translate
        (float-vector
-        (* obj-radius (cos (* i (/ (* 2 pi) 48))))
-        (* obj-radius (sin (* i (/ (* 2 pi) 48))))
+        (* obj-radius (cos (* i (/ (* 2 pi) 24))))
+        (* obj-radius (sin (* i (/ (* 2 pi) 24))))
         0)))
       ;;
       (setq min 1000)
@@ -409,7 +413,7 @@
                (setq est-y (+ est-y (* (- y (/ *seq-y* 2.0)) *quant*)))
                ))
     )))
-    (if (> max-count 20)
+    (if (> max-count 8)
         (progn
           (send *tfb* :send-transform base-to-object-pose "/base_footprint" "before") ;;tmp
           (setq estimated-center-pose (send (send base-to-object-pose :copy-worldcoords) :translate (float-vector (/ est-x est-count) (/ est-y est-count) 0)))
