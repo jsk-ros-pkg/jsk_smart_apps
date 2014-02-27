@@ -9,3 +9,6 @@ clients:
    manager:
      api-level: 13
      intent-action: org.ros.android.teleop.MainActivity
+   app:
+     gravityMode: 0
+     base_control_topic: /cmd_vel

@@ -321,3 +321,4 @@
     (send *ri* :wait-interpolation)
     ))
 
+(provide :jsk-smart-gui-utils)
