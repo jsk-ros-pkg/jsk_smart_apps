@@ -95,6 +95,7 @@
 
   (while (ros::ok)
     (ros::spin-once)
+    (send *ri* :spin-once)
     (ros::sleep))
   (ros::exit))
 
