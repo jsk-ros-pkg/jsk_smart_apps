@@ -20,5 +20,5 @@ catkin_package()
 
 # Change this to match the maven group name you have specified in the 
 # allprojects closure the root build.gradle
-install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/org/ros/${PROJECT_NAME}/ 
-        DESTINATION ${CATKIN_GLOBAL_MAVEN_DESTINATION}/org/ros/${PROJECT_NAME})
+# install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/org/ros/${PROJECT_NAME}/ 
+#         DESTINATION ${CATKIN_GLOBAL_MAVEN_DESTINATION}/org/ros/${PROJECT_NAME})
