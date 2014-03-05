@@ -1,7 +1,7 @@
 <launch>
   <arg name="ROBOT_NAME" default="local_computer" />
   <arg name="ROBOT_TYPE" default="laptop" />
-  <arg name="MOCK_APPS"  default="$(find local_app_manager)/mock_apps" />
+  <arg name="MOCK_APPS"  default="$(find jsk_pr2_core_apps)/config" />
 
   <param name="robot/name" value="$(arg ROBOT_NAME)"/>
   <!-- rosparam param="robot/name" file="/proc/sys/kernel/hostname" /-->
