@@ -1,56 +1,56 @@
 package org.ros.android.jskAndroidGui;
 
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
+import java.util.ArrayList;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Toast;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.ImageView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ViewFlipper;
-import android.graphics.Color;
-
-import org.ros.node.Node;
-import org.ros.node.NodeConfiguration;
-import org.ros.node.NodeMainExecutor;
-
-import org.ros.node.parameter.ParameterTree;
-import org.ros.node.parameter.ParameterListener;
-import org.ros.node.service.ServiceServer;
-import org.ros.namespace.GraphName;
-import org.ros.namespace.NameResolver;
 import jsk_gui_msgs.Action;
 import jsk_gui_msgs.QueryRequest;
 import jsk_gui_msgs.QueryResponse;
 
 import org.ros.address.InetAddressFactory;
-import org.ros.android.view.VirtualJoystickView;
 import org.ros.android.robotapp.RosAppActivity;
-import java.util.ArrayList;
+import org.ros.android.view.VirtualJoystickView;
+import org.ros.namespace.GraphName;
+import org.ros.namespace.NameResolver;
+import org.ros.node.Node;
+import org.ros.node.NodeConfiguration;
+import org.ros.node.NodeMainExecutor;
+import org.ros.node.parameter.ParameterListener;
+import org.ros.node.parameter.ParameterTree;
+import org.ros.node.service.ServiceServer;
+
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-//import org.itri.html5webview.HTML5WebView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 //import java.util.*;
 
@@ -64,10 +64,11 @@ public class JskAndroidGui extends RosAppActivity {
 		super("jsk android gui", "jsk android gui");
 	}
 
-	private String robotAppName, cameraTopic, moveItWrt = "local";
+	private String robotAppName, cameraTopic, cameraInfoTopic,
+			moveItWrt = "local";
 	private SensorImageViewInfo cameraView;
 	private VirtualJoystickView joystickView;
-	private TextView tview;
+	private TextView postv, rottv;
 	private EditText urltv;
 	private JskAndroidGuiNode jskAndroidGuiNode;
 
@@ -76,16 +77,21 @@ public class JskAndroidGui extends RosAppActivity {
 	private ServiceServer<QueryRequest, QueryResponse> server;
 	private Button yes_button, no_button, x_minus_button, x_plus_button,
 			y_minus_button, y_plus_button, z_minus_button, z_plus_button,
-			start_button, stop_button, movearm_button, url_button;
+			start_button, stop_button, movearm_button, url_button,
+			circle_button, linear_button, cancel_button;
 	private ImageButton tweet_button;
 	private RadioGroup radioGroup;
 	private RadioGroup radioGroup_moveIt;
 	private RadioGroup radioGroup_wrt;
 	private boolean moveit_pos;
+	private SeekBar posbar, rotbar;
+	private int posval, rotval;
 	private Spinner spots_spinner, tasks_spinner, image_spinner,
 			points_spinner;
 	private ViewFlipper viewFlipper, webViewFlipper;
 	private WebView webView;
+	private BoundingBoxView boundingBoxView;
+	private FrameLayout frameLayout;
 
 	private ArrayList<String> spots_list = new ArrayList(),
 			tasks_list = new ArrayList(), image_list = new ArrayList(),
@@ -145,6 +151,50 @@ public class JskAndroidGui extends RosAppActivity {
 		start_button = (Button) findViewById(R.id.manipulation_start);
 		stop_button = (Button) findViewById(R.id.manipulation_stop);
 		movearm_button = (Button) findViewById(R.id.movearm);
+		circle_button = (Button) findViewById(R.id.circular_manipulation);
+		linear_button = (Button) findViewById(R.id.linear_manipulation);
+		cancel_button = (Button) findViewById(R.id.cancel_manipulation);
+
+		posbar = (SeekBar) findViewById(R.id.seekbarpos);
+		rotbar = (SeekBar) findViewById(R.id.seekbarrot);
+		postv = (TextView) findViewById(R.id.posvaluetv);
+		postv.setText("pos: " + posbar.getProgress() + " mm");
+		posval = posbar.getProgress();
+		rottv = (TextView) findViewById(R.id.rotvaluetv);
+		rottv.setText("rot " + rotbar.getProgress() + " degree");
+		rotval = rotbar.getProgress();
+
+		posbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				postv.setText("pos: " + progress + " mm");
+				posval = progress;
+			}
+
+			public void onStartTrackingTouch(SeekBar seekBar) {
+
+			}
+
+			public void onStopTrackingTouch(SeekBar seekBar) {
+
+			}
+		});
+
+		rotbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				rottv.setText("rot: " + progress + " degree");
+				rotval = progress;
+			}
+
+			public void onStartTrackingTouch(SeekBar seekBar) {
+
+			}
+
+			public void onStopTrackingTouch(SeekBar seekBar) {
+
+			}
+		});
 
 		radioGroup = (RadioGroup) findViewById(R.id.radiogroup);
 		radioGroup.check(R.id.radiobutton_L);
@@ -248,19 +298,31 @@ public class JskAndroidGui extends RosAppActivity {
 		} else {
 			cameraTopic = "/tablet/marked/image_rect_color/compressed_throttle";
 		}
+		if (getIntent().hasExtra("camera_info_topic")) {
+			cameraInfoTopic = getIntent().getStringExtra("camera_info_topic");
+		} else {
+			cameraInfoTopic = "/tablet/marked/camera_info";
+		}
 		joystickView = (VirtualJoystickView) findViewById(R.id.joystick);
 		joystickView.setTopicName("android/cmd_vel");
-		cameraView = (SensorImageViewInfo) findViewById(R.id.image);
+		frameLayout = (FrameLayout) findViewById(R.id.image);
+		cameraView = new SensorImageViewInfo(this);
 		cameraView.setClickable(true);
 		cameraView.SetRobotArm(Action.LARMID);
 		cameraView.setCameraTopic(cameraTopic);
+		cameraView.setCameraInfoTopic(cameraInfoTopic);
+		boundingBoxView = new BoundingBoxView(this);
+		cameraView.setView(boundingBoxView);
+		frameLayout.addView(boundingBoxView);
+		frameLayout.addView(cameraView);
 
 		mHandler = new Handler();
-
-		ImageView ivInContext = (ImageView) findViewById(R.id.image);
-		ivInContext.setFocusable(true);
-		ivInContext.setClickable(true);
-		registerForContextMenu(ivInContext);
+		// ImageView ivInContext = (ImageView) findViewById(R.id.image);
+		// ivInContext.setFocusable(true);
+		// ivInContext.setClickable(true);
+		boundingBoxView.setFocusable(true);
+		boundingBoxView.setClickable(true);
+		registerForContextMenu(boundingBoxView);
 	}
 
 	@Override
@@ -370,65 +432,84 @@ public class JskAndroidGui extends RosAppActivity {
 		x_minus_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				if (moveit_pos)
-					cameraView.SendMoveItMsg("x-", moveItWrt);
+					cameraView.SendMoveItMsg("x-", moveItWrt, posval);
 				else
-					cameraView.SendMoveItMsg("roll-", moveItWrt);
+					cameraView.SendMoveItMsg("roll-", moveItWrt, rotval);
 			}
 		});
 		x_plus_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				if (moveit_pos)
-					cameraView.SendMoveItMsg("x+", moveItWrt);
+					cameraView.SendMoveItMsg("x+", moveItWrt, posval);
 				else
-					cameraView.SendMoveItMsg("roll+", moveItWrt);
+					cameraView.SendMoveItMsg("roll+", moveItWrt, rotval);
 			}
 		});
 		y_minus_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				if (moveit_pos)
-					cameraView.SendMoveItMsg("y-", moveItWrt);
+					cameraView.SendMoveItMsg("y-", moveItWrt, posval);
 				else
-					cameraView.SendMoveItMsg("pitch-", moveItWrt);
+					cameraView.SendMoveItMsg("pitch-", moveItWrt, rotval);
 			}
 		});
 		y_plus_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				if (moveit_pos)
-					cameraView.SendMoveItMsg("y+", moveItWrt);
+					cameraView.SendMoveItMsg("y+", moveItWrt, posval);
 				else
-					cameraView.SendMoveItMsg("pitch+", moveItWrt);
+					cameraView.SendMoveItMsg("pitch+", moveItWrt, rotval);
 			}
 		});
 		z_minus_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				if (moveit_pos)
-					cameraView.SendMoveItMsg("z-", moveItWrt);
+					cameraView.SendMoveItMsg("z-", moveItWrt, posval);
 				else
-					cameraView.SendMoveItMsg("yaw-", moveItWrt);
+					cameraView.SendMoveItMsg("yaw-", moveItWrt, rotval);
 			}
 		});
 		z_plus_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
 				if (moveit_pos)
-					cameraView.SendMoveItMsg("z+", moveItWrt);
+					cameraView.SendMoveItMsg("z+", moveItWrt, posval);
 				else
-					cameraView.SendMoveItMsg("yaw+", moveItWrt);
+					cameraView.SendMoveItMsg("yaw+", moveItWrt, rotval);
 			}
 		});
 
 		start_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
-				cameraView.SendMoveItMsg("start", moveItWrt);
+				cameraView.SendMoveItMsg("start", moveItWrt, 0);
 			}
 		});
 		stop_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
-				cameraView.SendMoveItMsg("stop", moveItWrt);
+				cameraView.SendMoveItMsg("stop", moveItWrt, 0);
 			}
 		});
 		movearm_button.setOnClickListener(new OnClickListener() {
 			public void onClick(View viw) {
-				cameraView.SendMoveItMsg("movearm", moveItWrt);
+				cameraView.SendMoveItMsg("movearm", moveItWrt, 0);
+			}
+		});
+
+		circle_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				cameraView.SetCircularManipulation();
+			}
+		});
+
+		linear_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				cameraView.SetLinearManipulation();
+				// cameraView.hoge();
+			}
+		});
+
+		cancel_button.setOnClickListener(new OnClickListener() {
+			public void onClick(View viw) {
+				cameraView.CancelManipulation();
 			}
 		});
 
@@ -518,14 +599,8 @@ public class JskAndroidGui extends RosAppActivity {
 					long arg3) {
 				if (isAdapterSet_camera) {
 					Spinner spinner = (Spinner) parent;
-					defaultImage = (String) spinner.getSelectedItem(); // assume
-																		// that
-																		// the
-																		// first
-																		// element
-																		// is
-																		// "cameras",
-																		// so -1
+					defaultImage = (String) spinner.getSelectedItem();
+					// assume that the first element is "cameras", so -1
 					defaultCameraInfo = camera_info_list.get(arg2 - 1);
 					String str = "((:image " + defaultImage
 							+ ") (:camera_info " + defaultCameraInfo
@@ -854,16 +929,14 @@ public class JskAndroidGui extends RosAppActivity {
 			jskAndroidGuiNode.getSpot();
 			Log.i("JskAndroidGui:ItemSeleted", "Sending GetSpot messgae");
 			return true;
-		case R.id.setdrawline:
-			if (isDrawLine) {
-				Log.i("JskAndroidGui:ItemSeleted", "unSet DrawLine");
-				cameraView.unSetDrawLine();
-				isDrawLine = false;
-			} else {
-				Log.i("JskAndroidGui:ItemSeleted", "Set DrawLine");
-				cameraView.SetDrawLine();
-				isDrawLine = true;
-			}
+		case R.id.gettemplate:
+			cameraView.SetGetTemplate();
+			return true;
+		case R.id.zoomcamera:
+			cameraView.SetZoomCamera();
+			return true;
+		case R.id.endzoomcamera:
+			cameraView.unSetZoomCamera();
 			return true;
 		case R.id.pickonce:
 			Log.i("JskAndroidGui:ItemSeleted", "Set PickOnce");
@@ -919,14 +992,14 @@ public class JskAndroidGui extends RosAppActivity {
 		case R.id.changelongtouch:
 			Log.i("JskAndroidGui:ItemSeleted", "Change LongTouch");
 			if (LongTouchFlag) {
-				ImageView ivInContext = (ImageView) findViewById(R.id.image);
-				unregisterForContextMenu(ivInContext);
+				// ImageView ivInContext = (ImageView) findViewById(R.id.image);
+				unregisterForContextMenu(boundingBoxView);
 				LongTouchFlag = false;
 			} else {
-				ImageView ivInContext = (ImageView) findViewById(R.id.image);
-				ivInContext.setFocusable(true);
-				ivInContext.setClickable(true);
-				registerForContextMenu(ivInContext);
+				// ImageView ivInContext = (ImageView) findViewById(R.id.image);
+				// ivInContext.setFocusable(true);
+				// ivInContext.setClickable(true);
+				registerForContextMenu(boundingBoxView);
 				LongTouchFlag = true;
 			}
 			return true;
