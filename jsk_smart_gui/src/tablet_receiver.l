@@ -64,6 +64,7 @@
 
   (setq *node-debug* nil *visualize* nil *chosen-ret* nil)
   (setq *line* (make-list 2) *door* (make-list 3) *drawer* (make-list 3))
+  (setq *circlecoords* nil *circlediameter* nil *circleangle* nil)
 
   ;;Default *ray_srv* is "/pointcloud_screenpoint_nodelet/screen_to_point"
   (setq *ray_srv* (ros::get-param "~ray_srv"))
@@ -78,6 +79,7 @@
 
   (defvar *tfl* (instance ros::transform-listener :init))
   (defvar *tfb* (instance ros::transform-broadcaster :init))
+  (defvar *pcm* (instance pinhole-camera-model :init))
 
   (ros::advertise "robotsound_jp" sound_play::SoundRequest 5)
   (ros::advertise "ray_coords" geometry_msgs::PoseStamped 1)
@@ -101,6 +103,3 @@
   (ros::exit))
 
 ;;(execute-main)
-
-
-
