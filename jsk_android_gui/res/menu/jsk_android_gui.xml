@@ -20,8 +20,8 @@
                 android:title="PLACE">
             </item>
             <item
-                android:id="@+id/setdrawline"
-                android:title="SetAxis">
+                android:id="@+id/gettemplate"
+                android:title="GetTemplate">
             </item>
         </menu>
     </item>
@@ -61,6 +61,14 @@
                 android:id="@+id/changelongtouch"
                 android:title="ChangeLongTouch">
             </item>
+            <item
+                android:id="@+id/zoomcamera"
+                android:title="startZoomCamera">
+            </item>
+            <item
+                android:id="@+id/endzoomcamera"
+                android:title="endZoomCamera">
+            </item>
         </menu>
     </item>
     <item
@@ -97,8 +105,9 @@
         android:id="@+id/change_layout"
         android:title="Change Layout">
     </item>
-        <item
+    <item
         android:id="@+id/change_webview"
         android:title="Change WebView">
     </item>
+
 </menu>

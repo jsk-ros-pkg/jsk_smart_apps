@@ -67,6 +67,32 @@
             android:text="z+" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/posvaluetv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="pos: mm" />
+
+    <SeekBar
+        android:id="@+id/seekbarpos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="300"
+        android:progress="30" />
+
+    <TextView
+        android:id="@+id/rotvaluetv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="rot: degree" />
+
+    <SeekBar
+        android:id="@+id/seekbarrot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="10" />
+
     <RadioGroup
         android:id="@+id/radiogroup_moveit"
         android:layout_width="fill_parent"
@@ -85,7 +111,7 @@
             android:layout_height="wrap_content"
             android:text="rpy" />
     </RadioGroup>
-    
+
     <RadioGroup
         android:id="@+id/radiogroup_wrt"
         android:layout_width="fill_parent"
@@ -122,6 +148,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:text="stop" />
+
         <Button
             android:id="@+id/movearm"
             android:layout_width="wrap_content"
@@ -129,12 +156,29 @@
             android:text="MoveArm" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textarea_test"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight=".15"
-        android:text="param update searching" >
-    </TextView>
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/circular_manipulation"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Circle" />
+
+        <Button
+            android:id="@+id/linear_manipulation"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Linear" />
+
+        <Button
+            android:id="@+id/cancel_manipulation"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Cancel" />
+    </LinearLayout>
 
 </LinearLayout>
