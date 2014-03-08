@@ -155,7 +155,7 @@
             *ret* *range*)
     (setq *ret2d* (mapcar #'(lambda(x) (point2pixel :px (aref (send x :worldpos) 0) :py (aref (send x :worldpos) 1) :pz (aref (send x :worldpos) 2))) *ret*))
     (unix::sleep 5)
-    (stop-visualize-point)
+    (stop-visualize)
     (open-gripper *current-arm*)
     (when grab
       (cond
@@ -169,7 +169,7 @@
                                 :translate #f(0 0 0) :local) :rotate di :x)
                 :rotation-axis t :sec 1000)
       (grasp-gripper *current-arm*)
-    ))
+    )))
 
 (defun OpenDoorExecute (hand chosen-ret)
   (let ((a (elt *door* 0)) (b (elt *door* 1)) (c (elt *door* 2))
@@ -185,7 +185,7 @@
         (setq ret (generate-circle-path c b a rad))))
     (ros::ros-warn "Evaluated degree: ~A [deg]" (rad2deg rad))
     (show-markers (mapcar #'(lambda(x) (copy-object (send x :worldpos))) ret))
-    (stop-visualize-point)
+    (stop-visualize)
     
     (dolist (r (cdr ret))
       (setq rr (send r :copy-worldcoords))
@@ -230,7 +230,7 @@
     (print ret)
     (ros::ros-warn "Evaluated degree: ~A [deg]" (rad2deg rad))
     (show-markers (mapcar #'(lambda(x) (copy-object (send x :worldpos))) ret))
-    (stop-visualize-point)
+    (stop-visualize)
 
     (dolist (r (cdr ret))
       (setq rr (send r :copy-worldcoords))
@@ -263,3 +263,32 @@
     (setq *door* (make-list 3))
     (setq *visualize* nil *chosen-ret* nil)
     ))
+
+(defun CircularManipulationExecute (arm-id touches)
+  (let ((dnum (ceiling (/ (abs *circleangle*) 10.0)))
+        inithandcds
+        (avs nil)
+        )
+    (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+    (setq inithandcds (send (send *circlecoords* :copy-worldcoords) :transformation (send *pr2* arm-id :end-coords :copy-worldcoords)))
+    (dotimes (i dnum)
+      (let ((rotmat (make-coords :rot (matrix (float-vector (cos (deg2rad (* (1+ i) (/ *circleangle* dnum)))) (- (sin (deg2rad (* (1+ i) (/ *circleangle* dnum))))) 0) (float-vector (sin (deg2rad (* (1+ i) (/ *circleangle* dnum)))) (cos (deg2rad (* (1+ i) (/ *circleangle* dnum)))) 0) (float-vector 0 0 1)))) av)
+        (send rotmat :transform inithandcds)
+        (send rotmat :transform *circlecoords* :world)
+        (print rotmat)
+        (setq av (send *pr2* :inverse-kinematics rotmat :move-arm arm-id :use-torso nil))
+        (if av
+            (push av avs)
+          (progn
+            (setq av (send *pr2* :inverse-kinematics rotmat :move-arm arm-id :use-torso t))
+            (when av
+              (push av avs))))
+        )
+      )
+    (send *ri* :angle-vector-sequence (reverse avs) (make-sequence 'list (length avs) :initial-element 500))
+    (send *ri* :wait-interpolation)
+    (stop-visualize-line)
+    (stop-visualize-circle)
+    (stop-visualize-text)
+    )
+  )

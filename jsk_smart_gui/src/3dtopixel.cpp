@@ -47,7 +47,7 @@ public:
 int
 main (int argc, char** argv)
 {
-  ros::init(argc,argv,"3dtopixel");
+  ros::init(argc,argv,"threedtopixel");
   TransformPixel r;
   ros::spin();
 }

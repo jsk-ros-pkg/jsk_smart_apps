@@ -3,6 +3,8 @@
 (load "package://jsk_smart_gui/src/get_template.l")
 (load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://jsk_smart_gui/src/greetings.l")
+(load "package://jsk_smart_gui/src/moveit.l")
+(load "package://jsk_smart_gui/src/eusimage_geometry.l")
 
 (require "package://euslib/irteus_proposals/string.l");;
 
@@ -30,6 +32,10 @@
 
   ;; (ros::subscribe "/Tablet/CommandDebug"
   ;;   jsk_gui_msgs::Tablet #'tablet-command-debug-cb)
+
+  (ros::subscribe "/Tablet/MoveIt" jsk_gui_msgs::Action #'moveit-cb)
+
+  (ros::subscribe "/tablet/marked/camera_info" sensor_msgs::CameraInfo #'caminfo-cb)
   )
 
 
@@ -204,6 +210,19 @@
        (ros::ros-info "DrawLine called")
        ;; assumed that touches = 2
        (DrawLineExecute touches))
+      ('DrawCircle
+       (ros::ros-info "DrawCircle called")
+       ;; assumed that touches = 3
+       (DrawCircleExecute arm-id touches))
+      ('CircularManipulation
+       (ros::ros-info "CircularManipulation called")
+       ;; assumed that touches = 3
+       (CircularManipulationExecute arm-id touches))
+      ('CancelManipulation
+       (ros::ros-info "CancelManipulation called")
+       (stop-visualize-line)
+       (stop-visualize-circle)
+       (stop-visualize-text))
 
       ;; ('pick
       ;;  (ros::ros-info "pick-cb")
@@ -336,6 +355,7 @@
         ;;for depth_image_creator
         (send mux-req3 :topic (format nil "~A" (elt points 1)))
         (ros::service-call "/points_mux/select" mux-req3))
+      (ros::subscribe "/tablet/marked/camera_info" sensor_msgs::CameraInfo #'caminfo-cb)
       )))
 
 (defun MoveNeckExecute (direction value)
@@ -393,3 +413,47 @@
       (ros::service-call "prosilica_driver/set_parameters" req)
       (unix::usleep (* 500 1000))
       )))
+
+(defun caminfo-cb(msg)
+  (ros::ros-info "Get CameraInfo: ~A" (send msg :header :frame_id))
+  (send *pcm* :from-camera-info msg)
+  (ros::unsubscribe "/tablet/marked/camera_info")
+  )
+
+(defun DrawCircleExecute (arm-id touches)
+  (unless (eq (length touches) 3)
+    (ros::ros-warn "DrawCircleExecute: ~A touches, returning" (length touches))
+    (return-from DrawCircleExecute nil))
+  (let ((axis-line nil) (touch3rd (find-if #'(lambda(x) (= (send x :finger_id) 2)) touches)) touchv handpos footp footv x-axis y-axis z-axis circleply camcds intersectpoint cangle asign
+        (ocolor (float-vector 0.0 1.0 0.0))
+        fcolor pose)
+    (setq touchv (send *pcm* :project-pixel-to-3dray (float-vector (send touch3rd :x) (send touch3rd :y))))
+    (send *pr2* :angle-vector (send *ri* :state :potentio-vector))
+    (if (<= (elt (elt *drawer* 0) 2) (elt (elt *drawer* 1) 2))
+        (setq axis-line (make-line (elt *drawer* 0) (elt *drawer* 1)))
+      (setq axis-line (make-line (elt *drawer* 1) (elt *drawer* 0)))
+      )
+    (setq handpos (send (send *pr2* arm-id :end-coords :copy-worldcoords) :worldpos))
+    (setq footp (send axis-line :foot handpos))
+    (setq footv (send axis-line :point footp))
+    (setq z-axis (send axis-line :direction))
+    (setq x-axis (normalize-vector (v- handpos footv)))
+    (setq y-axis (v* z-axis x-axis))
+    (setq *circlecoords* (make-coords :pos footv :rot (transpose (matrix x-axis y-axis z-axis))))
+    (setq *circlediameter* (send axis-line :distance handpos))
+    (setq circleply (instance polygon :init :vertices (list footv handpos (v+ footv (scale *circlediameter* y-axis)))))
+    (setq camcds (send *pr2* (intern (string-upcase (string-left-trim "/" (send *pcm* :tf-frame))) *keyword-package*) :copy-worldcoords))
+    (setq intersectpoint (cadr (send circleply :intersect-point-vector (send camcds :worldpos) (normalize-vector (transform (send camcds :worldrot) touchv)))))
+    (if (< (elt (v* x-axis (v- intersectpoint footv)) 2) 0)
+        (progn
+          (setq asign -1)
+          (setq fcolor (float-vector 1.0 0.0 0.0)))
+      (progn
+        (setq asign 1)
+        (setq fcolor (float-vector 0.0 0.0 1.0))))
+    (setq cangle (rad2deg (acos (v. x-axis (normalize-vector (v- intersectpoint footv))))))
+    (setq *circleangle* (* asign cangle))
+    (visualize-circle *circlecoords* *circlediameter* :angle *circleangle* :width 5 :outline-color ocolor :fill-color fcolor)
+    (visualize-text (format nil "~A degree" *circleangle*) (send *circlecoords* :worldpos) :scale 0.5 :color fcolor)
+    )
+  )
