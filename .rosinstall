@@ -5,6 +5,9 @@
     uri: https://github.com/jsk-ros-pkg/jsk_roseus.git
     local-name: jsk-ros-pkg/jsk_roseus
 - git:
+    uri: https://github.com/jsk-ros-pkg/jsk_demos.git
+    local-name: jsk-ros-pkg/jsk_demos
+- git:
     uri: https://github.com/jsk-ros-pkg/jsk_recognition.git
     local-name: jsk-ros-pkg/jsk_recognition
 - git:
