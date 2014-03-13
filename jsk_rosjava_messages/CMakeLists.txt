@@ -5,6 +5,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(jsk_rosjava_messages)
 
+if($ENV{ROS_DISTRO} STREQUAL "groovy")
+  message("jsk_rosjava_message is not supported on rosjava")
+  return()
+endif($ENV{ROS_DISTRO} STREQUAL "groovy")
+
 ##############################################################################
 # Catkin
 ##############################################################################
