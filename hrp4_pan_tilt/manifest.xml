@@ -9,7 +9,8 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/hrp4_pan_tilt</url>
 
-  <depend package="hrpsys" />
+  <!-- it's runtime dependency so omit -->
+  <!-- <depend package="hrpsys" /> -->
 
 </package>
 
