@@ -10,9 +10,9 @@
 - git:
     uri: https://github.com/jsk-ros-pkg/jsk_recognition.git
     local-name: jsk-ros-pkg/jsk_recognition
-# - git:
-#     uri: https://github.com/velveteenrobot/appmanandroid.git
-#     local-name: appmanandroid
+- git:
+    uri: https://github.com/velveteenrobot/appmanandroid.git
+    local-name: appmanandroid
 - git:
     local-name: rosjava_core
     uri: git://github.com/rosjava/rosjava_core.git
