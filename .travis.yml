@@ -7,7 +7,7 @@ python:
 compiler:
   - gcc
 env:
-  - ROS_DISTRO=groovy ROSWS=rosws BUILDER=rosbuild BUILD_PACKAGES="android_voice_message hrp4_pan_tilt startup local_app_manager jsk_pr2_core_apps jsk_android_setup android_image_view android_camera_viewer android_sensor_message jsk_android_gui jsk_smart_gui my_android_package jsk_android_gui_api9"
+  - ROS_DISTRO=groovy ROSWS=rosws BUILDER=rosbuild BUILD_PACKAGES="android_voice_message hrp4_pan_tilt startup local_app_manager jsk_pr2_core_apps android_image_view android_camera_viewer android_sensor_message jsk_android_gui jsk_smart_gui my_android_package jsk_android_gui_api9" # jsk_android_setup
   - ROS_DISTRO=hydro ROSWS=wstool BUILDER=catkin
   - ROS_DISTRO=groovy ROSWS=wstool BUILDER=catkin
 #notifications:
