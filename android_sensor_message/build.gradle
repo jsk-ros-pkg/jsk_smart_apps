@@ -25,7 +25,6 @@
 */
 
 dependencies {
-  compile fileTree(dir: './libs', include:'*.jar')
   compile 'org.ros.android_core:android_gingerbread_mr1:[0.1,)'
   compile 'org.ros.jsk_rosjava_messages:jsk_gui_msgs:0.1.0'
 }
@@ -33,6 +32,9 @@ dependencies {
 apply plugin: 'android'
 
 android {
+      lintOptions {
+          checkReleaseBuilds false
+      }
     packagingOptions {
             exclude 'META-INF/NOTICE.txt'
             exclude 'META-INF/LICENSE.txt'
