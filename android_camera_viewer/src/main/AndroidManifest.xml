@@ -34,8 +34,14 @@
 		</activity>
 		<activity android:name="org.ros.android.MasterChooser" />
 
-		<service android:name="org.ros.android.NodeMainExecutorService" />
-		<service android:name="AndroidAudioRecordService" />
+        <service android:name="org.ros.android.NodeMainExecutorService">
+          <intent-filter>
+            <action
+                android:name="org.ros.android.NodeMainExecutorService">
+            </action>
+          </intent-filter>
+        </service>
+        <service android:name="AndroidAudioRecordService" />
 	</application>
 
 
