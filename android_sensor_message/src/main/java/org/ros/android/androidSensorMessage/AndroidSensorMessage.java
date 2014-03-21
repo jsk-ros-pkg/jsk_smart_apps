@@ -118,12 +118,12 @@ public class AndroidSensorMessage extends RosActivity implements
 
 			androidSensorMessageService.setNode(publishedSensor,
 					androidSensorMessageView, textViewX, textViewY, textViewZ);
-                        //			ribbonMenuView.setItemIcon(R.drawable.noncheck, R.drawable.check);
+                        			ribbonMenuView.setItemIcon(R.drawable.noncheck, R.drawable.check);
 			for (int i = 0; i < 13; i++) {
 				if (availableSensor[i] != -1) {
-                                    /*					selectedSensor[i] = ribbonMenuView.addItem(
+                                    					selectedSensor[i] = ribbonMenuView.addItem(
 							androidSensorMessageService.getSensorName(i),
-							publishedSensor[i]);*/
+							publishedSensor[i]);
 				}
 			}
 
@@ -139,7 +139,7 @@ public class AndroidSensorMessage extends RosActivity implements
 				public void onClick(View v) {
 					androidSensorMessageService.changeSensor(currentSensor);
 					ribbonMenuView.setMenuItems(R.menu.ribbon_menu);
-                                        //					ribbonMenuView.clearButtonId();
+                                        					ribbonMenuView.clearButtonId();
 					publishedSensor[currentSensor] *= -1;
 					if (publishedSensor[currentSensor] == -1) {
 						setButton.setText("ON");
@@ -148,8 +148,8 @@ public class AndroidSensorMessage extends RosActivity implements
 					}
 					for (int i = 0; i < 13; i++) {
 						if (availableSensor[i] != -1) {
-                                                    /*							ribbonMenuView.addItem(androidSensorMessageService
-                                                                                                        .getSensorName(i), publishedSensor[i]);*/
+                                                    							ribbonMenuView.addItem(androidSensorMessageService
+                                                                                                        .getSensorName(i), publishedSensor[i]);
 						}
 					}
 				}

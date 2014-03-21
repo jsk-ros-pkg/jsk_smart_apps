@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2014 murase.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,9 +14,29 @@
  * the License.
  */
 
+/* 
+ Examples of 
+   1) dependencies from another project in this gradle stack.
+   2,3) open ranged dependencies from a maven repository.
+   
+   It's a good idea to restrict the open ranged dependency to
+   the patch version to avoid breakages due to api changes
+   which usually occur on minor and major version numbers.
+*/
+
 dependencies {
-  compile 'ros.rosjava_core:rosjava_tutorial_pubsub:0.0.0-SNAPSHOT'
+  compile fileTree(dir: './libs', include:'*.jar')
+  compile 'org.ros.android_core:android_gingerbread_mr1:[0.1,)'
+  compile 'org.ros.jsk_rosjava_messages:jsk_gui_msgs:0.1.0'
 }
 
-debug.dependsOn project(':android_gingerbread_mr1').tasks.debug
+apply plugin: 'android'
 
+android {
+    packagingOptions {
+            exclude 'META-INF/NOTICE.txt'
+            exclude 'META-INF/LICENSE.txt'
+    }
+    compileSdkVersion 13
+}
+ 

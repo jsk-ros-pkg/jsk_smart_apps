@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2011 Google Inc.
  *
@@ -14,4 +15,6 @@
  * the License.
  */
 
-include 'android_gingerbread_mr1', 'my_android_package','android_camera_viewer', 'android_sensor_message','android_voice_message', 'jsk_android_gui', 'android_image_view','jsk_android_gui_new'
+/*include 'android_gingerbread_mr1', 'my_android_package','android_camera_viewer', 'android_sensor_message','android_voice_message', 'jsk_android_gui', 'android_image_view','jsk_android_gui_new', include 'rapiro_teleop'*/
+include 'android_sensor_message'
+include 'android_voice_message'
