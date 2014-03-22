@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2014 murase
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,5 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
-/*include 'android_gingerbread_mr1', 'jsk_android_gui', 'android_image_view','jsk_android_gui_new', include 'rapiro_teleop'*/
+include 'android_sensor_message'
+include 'android_voice_message'
+include 'android_camera_viewer'
