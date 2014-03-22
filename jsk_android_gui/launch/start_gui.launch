@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find jsk_android_gui_api9)/set_param.launch" />
+  <include file="$(find jsk_android_gui)/launch/set_param.launch" />
   <sphinxdoc><![CDATA[
   jsk_android_gui: tap, pinch and sweep and use multi fingers to manipulate the Robots.
   Avaiable on Google Play.

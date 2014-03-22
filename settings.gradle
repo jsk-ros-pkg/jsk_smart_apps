@@ -15,4 +15,4 @@
  * the License.
  */
 
-/*include 'android_gingerbread_mr1', 'jsk_android_gui', 'jsk_android_gui_new'*/
+include 'android_gingerbread_mr1', 'jsk_android_gui', 'jsk_android_gui_new'
