@@ -16,3 +16,4 @@
 include 'android_sensor_message'
 include 'android_voice_message'
 include 'android_camera_viewer'
+include 'android_image_view'

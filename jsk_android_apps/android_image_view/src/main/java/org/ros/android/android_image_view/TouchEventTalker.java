@@ -6,7 +6,7 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Publisher;
 
 import android.view.MotionEvent;
-import android_image_view.TouchEvent;
+import jsk_gui_msgs.TouchEvent;
 
 public class TouchEventTalker extends AbstractNodeMain {
 
