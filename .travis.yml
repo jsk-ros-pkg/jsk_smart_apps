@@ -42,8 +42,11 @@ install: # Use this to install any prerequisites or dependencies necessary to ru
   - if [ $ROSWS = rosws ] ; then $ROSWS set --git $REPOSITORY_NAME https://dummy.com/dummy -y; fi
   - ln -s $CI_SOURCE_PATH . # Link the repo we are testing to the new workspace
   # merge for android
-  - wstool init -j4 https://raw.github.com/rosjava/rosjava/hydro/android_apps.rosinstall
-  - wstool update
+  - $ROSWS set --git android_core https://github.com/rosjava/android_core --version=hydro -y
+  - $ROSWS set --git android_apps https://github.com/rosjava/android_apps --version=hydro -y
+  - $ROSWS set --git android_extras https://github.com/rosjava/android_extras --version=hydro -y
+  - $ROSWS set --git android_remocons https://github.com/rosjava/android_remocons --version=hydro -y
+  - $ROSWS update
   - cd ../
   # Install dependencies for source repos
   - find -L src -name package.xml -exec dirname {} \; | xargs -n 1 -i find {} -name manifest.xml | xargs -n 1 -i mv {} {}.deprecated
