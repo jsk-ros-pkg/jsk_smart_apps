@@ -1,0 +1,34 @@
+<!--                                                                                                                                                                              
+  Standard launch configuration for an app manager in standalone mode.                                                                                                            
+  i.e. no android, no multimaster concert. You should be able to play                                                                                                             
+  the basic apps (chirp and talker etc with this).                                                                                                                                
+ -->
+<launch>
+  <!-- ************************* Public Arguments ****************************** -->
+  <arg name="robot_name" default="pr1040"/>
+  <arg name="robot_type" default="pr2"/>
+  <arg name="robot_icon" default="pr2_rocon_app_manager/pr2.jpg"/>
+  <arg name="rapp_lists" default="jsk_pr2_core_apps/rocon.rapps"/> <!-- semi colon separated list of rapp list resource names -->
+  <arg name="gateway_watch_loop_period" default="10"/> <!-- Polling period for multimaster advertising/flipping -->
+  <arg name="hub_whitelist" default=""/> <!-- semi-colon separated hub names/regex patterns -->
+  <arg name="disable_uuids" default="false"/>
+
+  <!-- ******************************* Zeroconf ******************************** -->
+  <node ns="zeroconf" pkg="zeroconf_avahi" type="zeroconf" name="zeroconf"/>
+
+  <!-- ******************************** Gateway ******************************** -->
+  <include file="$(find rocon_app_manager)/launch/includes/_app_manager_gateway.xml">
+    <arg name="gateway_name" value="$(arg robot_name)" />
+    <arg name="disable_uuids" value="$(arg disable_uuids)"/>
+    <arg name="gateway_watch_loop_period" value="$(arg gateway_watch_loop_period)" />
+    <arg name="hub_whitelist" value="$(arg hub_whitelist)" />
+  </include>
+
+  <!-- ****************************** App Manager ****************************** -->
+  <include file="$(find rocon_app_manager)/launch/includes/_app_manager.xml">
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="robot_type" value="$(arg robot_type)" />
+    <arg name="robot_icon" value="$(arg robot_icon)" />
+    <arg name="rapp_lists" value="$(arg rapp_lists)" />
+  </include>
+</launch>

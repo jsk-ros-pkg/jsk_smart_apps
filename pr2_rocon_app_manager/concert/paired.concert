@@ -1,0 +1,4 @@
+<concert>
+  <launch package="pr2_rocon_app_manager" name="paired_public.launch" port="11311"/>
+  <launch package="pr2_rocon_app_manager" name="paired_private.launch" port="11312"/>
+</concert>
