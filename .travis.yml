@@ -17,12 +17,21 @@ before_install: # Use this to prepare the system to install prerequisites or dep
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin ros-$ROS_DISTRO-ros python-rosinstall
+  - sudo apt-get install -qq -y openjdk-7-jdk ia32-libs python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin ros-$ROS_DISTRO-ros python-rosinstall ros-$ROS_DISTRO-rosjava
   # Setup rosdep
   - sudo rosdep init
   - rosdep update
-
 install: # Use this to install any prerequisites or dependencies necessary to run your build
+  # Setup for android
+  - cd ~
+#  - wget http://dl.google.com/android/studio/install/0.4.2/android-studio-bundle-133.970939-linux.tgz
+#  - tar xvzf android-studio-bundle-133.970939-linux.tgz
+#  - export PATH=$PATH:~/android-studio/sdk/tools:~/android-studio/sdk/platform-tools:~/android-studio/bin
+#  - export ANDROID_HOME=~/android-studio/sdk
+  - export COMPONENTS=build-tools-18.1.1,android-13,sysimg-13,extra
+  - curl -L https://raw.github.com/embarkmobile/android-sdk-installer/master/android-sdk-installer | bash /dev/stdin --install=$COMPONENTS
+  - source ~/.android-sdk-installer/env
+  - export TERM=dumb # to get clean gradle output
   # Create workspace
   - mkdir -p ~/ros/ws_$REPOSITORY_NAME/src
   - cd ~/ros/ws_$REPOSITORY_NAME/src
