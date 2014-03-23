@@ -46,7 +46,7 @@ install: # Use this to install any prerequisites or dependencies necessary to ru
   - $ROSWS set --git android_apps https://github.com/rosjava/android_apps --version=hydro -y
   - $ROSWS set --git android_extras https://github.com/rosjava/android_extras --version=hydro -y
   - $ROSWS set --git android_remocons https://github.com/rosjava/android_remocons --version=hydro -y
-  - $ROSWS update
+  - yes d | $ROSWS update
   - cd ../
   # Install dependencies for source repos
   - find -L src -name package.xml -exec dirname {} \; | xargs -n 1 -i find {} -name manifest.xml | xargs -n 1 -i mv {} {}.deprecated
