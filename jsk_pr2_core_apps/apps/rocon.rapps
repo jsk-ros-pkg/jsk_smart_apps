@@ -1,0 +1,4 @@
+apps:
+ - jsk_pr2_core_apps/pr2_hello_world
+ - jsk_pr2_core_apps/jsk_android_gui
+

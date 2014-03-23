@@ -1,7 +1,7 @@
 <launch>
-  <include file="$(find jsk_android_gui)/launch/set_param.launch" />
+  <include file="$(find jsk_pr2_core_apps)/launch/set_param.launch" />
   <sphinxdoc><![CDATA[
-  jsk_android_gui: tap, pinch and sweep and use multi fingers to manipulate the Robots.
+  jsk_pr2_core_apps: tap, pinch and sweep and use multi fingers to manipulate the Robots.
   Avaiable on Google Play.
 
 <Setup>
@@ -10,14 +10,14 @@ On api-9 ros-android applications, app_manager and appmaster are needed.
 You can launch them by "roslaunch local_app_manager app_manager.launch".
 Currently we include this launches on robot.launch(/etc/ros/fuerte/robot.launch), so all the app_manager will be launched on ROBOT START.
 
-When you start jsk_android_gui(this application) from the application "App Chooser", jsk_android_gui/start_gui.launch will be launched on the background. Thie launch file sets camera,points,spots,tasks parameter for auto-creating the buttons of GUI.
+When you start jsk_pr2_core_apps(this application) from the application "App Chooser", jsk_pr2_core_apps/start_gui.launch will be launched on the background. Thie launch file sets camera,points,spots,tasks parameter for auto-creating the buttons of GUI.
 
 <Images>
 
 The Default Subscribing topic is /tablet/marked/image_rect_color/compressed_throttle as sensor_msgs/CompressedImage.
 We use mux to switch cameras and 3D sensors and  use image_view2 to illustrate.
 
- - jsk_android_gui/cameras_and_points_mux.launch is generated from cameras.yaml and points.yaml. If you changed sensors of ROBOT, you should add or delete the image topic (on cameras.yaml) or the pointcloud topic (on points.yaml).
+ - jsk_pr2_core_apps/cameras_and_points_mux.launch is generated from cameras.yaml and points.yaml. If you changed sensors of ROBOT, you should add or delete the image topic (on cameras.yaml) or the pointcloud topic (on points.yaml).
 
  - RULE of cameras.yaml: please put a new camera's name to CameraList, and add new lines for the new camera: (new camera name): [(new topic name of image), (new topic name of camera_info)], and run create_mux_launch.py to re-generate cameras_and_points_mux.launch.
 
@@ -85,12 +85,12 @@ buttons
 <SPECIAL>
 
 ROS parameterListener
- - "/Tablet/UserList": This is for demonstration. Users need to add user-name/tasks to jsk_android_gui/tasks.yaml or set ROS parameter /Tablet/UserList and /Tablet/User/(user's name) to changed the names of tasks button.
+ - "/Tablet/UserList": This is for demonstration. Users need to add user-name/tasks to jsk_pr2_core_apps/tasks.yaml or set ROS parameter /Tablet/UserList and /Tablet/User/(user's name) to changed the names of tasks button.
  - "/Tablet/Found"
 
 
 GetSpot: Create temp-scene.l on jsk_spots/src, you just need to copy the new spots to eng-scene.l and the new spots will be added on restart.
-jsk_android_gui/spots.yaml is being generated everytime tablet_receiver.l launches.
+jsk_pr2_core_apps/spots.yaml is being generated everytime tablet_receiver.l launches.
 
   ]]></sphinxdoc>
 </launch>
