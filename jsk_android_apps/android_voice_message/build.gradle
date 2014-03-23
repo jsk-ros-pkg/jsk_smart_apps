@@ -26,7 +26,7 @@
 
 dependencies {
   compile 'org.ros.android_core:android_gingerbread_mr1:[0.1,)'
-  compile 'org.ros.jsk_rosjava_messages:jsk_gui_msgs:0.1.0'
+  compile 'org.ros.jsk_rosjava_messages:jsk_gui_msgs:[0.1,)'
   compile 'org.ros.rosjava_messages:audio_common_msgs:[0.1,)'
 }
 

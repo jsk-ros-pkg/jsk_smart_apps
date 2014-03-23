@@ -28,8 +28,8 @@ dependencies {
   compile 'org.ros.android_core:android_gingerbread_mr1:[0.1,)'
   compile 'org.ros.android_core:android_honeycomb_mr2:[0.1,)'
   compile 'com.github.rosjava.android_apps:application_management:[0.1,0.2)'
-  compile 'org.ros.jsk_rosjava_messages:jsk_gui_msgs:0.1.0'
-  compile 'org.ros.jsk_rosjava_messages:roseus:0.1.0'
+  compile 'org.ros.jsk_rosjava_messages:jsk_gui_msgs:[0.1,)'
+  compile 'org.ros.jsk_rosjava_messages:roseus:[0.1,)'
 }
 
 apply plugin: 'android'
