@@ -1,0 +1,21 @@
+apps:
+  - app: jsk_pr2_core_apps/jsk_pr2_startup
+    display: jsk pr2 startup
+  - app: jsk_pr2_core_apps/pr2_hello_world
+    display: Speak Sample App
+  - app: jsk_pr2_core_apps/detect_cans_in_fridge
+    display: refrigerator demo
+  - app: jsk_pr2_core_apps/pour_water_to_cup
+    display: pour water demo
+  - app: jsk_pr2_core_apps/teleop
+    display: Speak Sample App
+  - app: jsk_pr2_core_apps/jsk_android_gui
+    display: App for controlling PR2
+  - app: jsk_2013_04_pr2_610/demo_all
+    display: IRT Demo All For PR2
+  - app: jsk_2013_04_pr2_610/demo_tray
+    display: IRT Demo Tray For PR2
+  - app: jsk_2013_04_pr2_610/demo_wash
+    display: IRT Demo Wash For PR2
+  - app: local_pr2_demo/demo_tray
+    display: Demo Tray for PR2
