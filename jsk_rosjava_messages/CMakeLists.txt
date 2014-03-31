@@ -14,6 +14,8 @@ endif($ENV{ROS_DISTRO} STREQUAL "groovy")
 # Catkin
 ##############################################################################
 
+set(ENV{ROS_MAVEN_DEPLOYMENT_REPOSITORY} ${CATKIN_DEVEL_PREFIX}/share/maven)
+
 find_package(catkin REQUIRED rosjava_build_tools)
 # Set the gradle targets you want catkin's make to run by default
 catkin_rosjava_setup(publishMavenJavaPublicationToMavenRepository)
