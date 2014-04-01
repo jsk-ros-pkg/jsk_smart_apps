@@ -15,7 +15,7 @@
  */
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
+    gradleVersion = '1.10'
 }
 
 buildscript {
@@ -38,33 +38,16 @@ buildscript {
 }
 
 apply plugin: 'catkin'
-project.catkin.tree.generate()
-
-project.catkin.tree.generate()
-
 
 
 allprojects {
-    /*
-      A github url provides a good standard unique name for your project
-      Example below, but you may wish to switch to your own unique url.
-    */
-    group 'org.ros.jsk_rosjava_messages'
+    /* A github url provides a good standard unique name for your project */
+    group 'com.github.rosjava.jsk_android_apps'
     version = project.catkin.pkg.version
 }
 
 subprojects {
-    /*
-      See https://github.com/rosjava/rosjava_bootstrap (look for gradle_plugins)
-      to see what is going on under the hood.
-    */
-    apply plugin: 'ros-java'
+    /* See https://github.com/rosjava/rosjava_bootstrap (look for gradle_plugins)
+       to see what is going on under the hood. */
+    apply plugin: 'ros-android'
 }
-
-/*
-  Some useful tasks:
-    install: deploys jar's to MavenLocal() (i.e. ~/.m2/repository)
-    publishMavenJavaPublicationToMavenRepository : deploys jar's to devel/share/maven
-    installApp : assembles java apps in the _subproject_/build directories.
-*/
-defaultTasks 'install'

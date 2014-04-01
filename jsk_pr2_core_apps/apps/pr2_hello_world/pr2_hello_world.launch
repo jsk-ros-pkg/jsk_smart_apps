@@ -1,5 +1,5 @@
 <launch>
- <node pkg="sound_play" type="say.py" name="say"
-       args="'hello world'"/>
-
+  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" />
+  <node pkg="sound_play" type="say.py" name="say" required="true"
+        args="'hello world'"/>
 </launch>

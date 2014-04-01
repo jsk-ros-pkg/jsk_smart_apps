@@ -1,0 +1,11 @@
+display: JSK ANDROID GUI
+description: Control pan and tilt angles of PR2's head, direction and velocity of PR2's base.
+platform: linux.ros.*
+launch: jsk_pr2_core_apps/jsk_android_gui.launch
+interface:  jsk_pr2_core_apps/jsk_android_gui.interface
+icon:  jsk_pr2_core_apps/jsk_android_gui.png
+pairing_clients:
+- type: android
+  manager:
+    api-level: 10
+    intent-action: org.ros.android.jskAndroidGui.JskAndroidGui

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 murase
+ * Copyright (C) 2014 murase
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
-include 'jsk_gui_msgs'
-include 'roseus'
+include 'android_sensor_message'
+include 'android_voice_message'
+include 'android_camera_viewer'
+include 'android_image_view'
