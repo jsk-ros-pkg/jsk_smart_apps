@@ -1,0 +1,18 @@
+<launch>
+  <arg name="ROBOT_NAME" default="local_computer" />
+  <arg name="ROBOT_TYPE" default="laptop" />
+  <arg name="MOCK_APPS"  default="$(find local_app_manager)/mock_apps" />
+
+  <param name="robot/name" value="$(arg ROBOT_NAME)"/>
+  <!-- rosparam param="robot/name" file="/proc/sys/kernel/hostname" /-->
+  <param name="robot/type" value="$(arg ROBOT_TYPE)"/> <!-- only pr2,turtlebot ?? -->
+  <!-- param name="robot/exchange_url" value="https://kforge.ros.org/pr2apps/pr2_exchange/raw-file/tip" /-->
+
+  <node pkg="app_manager" type="appmaster" name="appmaster" args="-p 11312"/>
+
+  <node pkg="app_manager" type="app_manager" name="app_manager"
+        args="--applist $(arg MOCK_APPS)"
+        output="screen" cwd="node">
+    <param name="interface_master" value="http://localhost:11312"/>
+  </node>
+</launch>
