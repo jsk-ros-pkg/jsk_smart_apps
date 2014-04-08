@@ -1,7 +1,7 @@
 <launch>
   <arg name="USE_NODELET" default="false" />
   <arg name="POINTS_NODELET_MANAGER" default="/openni_nodelet_manager" />
-  <arg name="IMAGE_NODELET_MANAGER" default="/image_nodelet_manager" />
+  <arg name="IMAGE_NODELET_MANAGER" default="/openni_nodelet_manager" />
 
   <group unless="$(arg USE_NODELET)">
     <node pkg="topic_tools" type="mux" output="screen"
@@ -45,10 +45,6 @@
 
   <!-- USE NODELET -->
   <group if="$(arg USE_NODELET)">
-    <node pkg="nodelet" type="nodelet"
-          name="image_nodelet_manager" args="manager"
-          output="screen"/>
-
     <node pkg="nodelet" type="nodelet"
           name="image_mux" respawn="true"
           args="load jsk_topic_tools/MUX $(arg IMAGE_NODELET_MANAGER)"
