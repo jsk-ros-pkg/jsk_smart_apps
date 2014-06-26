@@ -2,7 +2,6 @@
 (ros::load-ros-manifest "jsk_smart_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
 (ros::load-ros-manifest "dynamic_tf_publisher")
-(ros::load-ros-manifest "object_snapshotter")
 ;; This script depends on tablet_callback.l
 ;; Use when creating template from imagesift
 (ros::roseus "template_creator")
@@ -461,8 +460,8 @@
 ;;    (ros::service-call "cropbox_manager/set_parameters" req)))
 
 (defun save_img (name)
-  (let ((req (instance object_snapshotter::SaveImgRequest :init)) res)
-    (send req :file_name name)
+  (let ((req (instance jsk_pcl_ros::CallPolygonRequest :init)) res)
+    (send req :filename name)
     (if (and
 	 (ros::service-exists "/save_image")
 	 (ros::wait-for-service "/save_image" 30))

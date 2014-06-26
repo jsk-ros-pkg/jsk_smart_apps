@@ -2,7 +2,6 @@
 (ros::load-ros-manifest "jsk_smart_gui")
 (ros::load-ros-manifest "jsk_pcl_ros")
 (ros::load-ros-manifest "roseus")
-(ros::load-ros-manifest "object_snapshotter")
 
 (ros::roseus "tablet_robot_controller")
 
