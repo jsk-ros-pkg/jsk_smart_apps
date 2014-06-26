@@ -10,6 +10,11 @@ if($ENV{ROS_DISTRO} STREQUAL "groovy")
   return()
 endif($ENV{ROS_DISTRO} STREQUAL "groovy")
 
+find_package(rosjava_build_tools QUIET)
+if(NOT rosjava_build_tools_FOUND)
+  message("rosjava_build_tools is not found")
+  return()
+endif()
 ##############################################################################
 # Catkin
 ##############################################################################
