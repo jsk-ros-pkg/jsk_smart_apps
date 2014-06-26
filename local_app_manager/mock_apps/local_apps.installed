@@ -17,5 +17,5 @@ apps:
     display: IRT Demo Tray For PR2
   - app: jsk_2013_04_pr2_610/demo_wash
     display: IRT Demo Wash For PR2
-  - app: local_pr2_demo/demo_tray
-    display: Demo Tray for PR2
+#  - app: local_pr2_demo/demo_tray
+#    display: Demo Tray for PR2
