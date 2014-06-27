@@ -57,7 +57,8 @@
 
 ;; (send (car (send *scene* :find-object "/eng2/7f/room73B2-sink-front")) :worldcoords)
 ;; (send *ri* :move-to  (car (send *scene* :find-object "/eng2/7f/room73B2-sink-front")))
-(defun execute-main ()
+(defun execute-main
+ ()
   (if (not (boundp '*pr2*)) (pr2))
   (if (not (boundp '*ri*)) (setq *ri* (instance pr2-interface :init)))
 
@@ -76,7 +77,8 @@
   ;;(make-spots-js (get-current-spot))
   (make-spots-yaml (get-current-spot))
 
-  (defvar *tfl* (instance ros::transform-listener :init))
+  ;;(defvar *tfl* (instance ros::transform-listener :init))
+  (defvar *tfl* (instance ros::buffer-client :init))
   (defvar *tfb* (instance ros::transform-broadcaster :init))
   (defvar *pcm* (instance pinhole-camera-model :init))
 
