@@ -14,22 +14,28 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 # variables.
 #list(APPEND CPACK_SOURCE_IGNORE_FILES /core/experimental)
 rosbuild_make_distribution(0.1.0)
-rosbuild_find_ros_stack(android_core)
-rosbuild_find_ros_stack(turtlebot_android)
-rosbuild_find_ros_stack(pr2_android_utilities)
-set(android_gingerbread_mr1_path "${android_core_STACK_PATH}/android_gingerbread_mr1")
-set(android_honeycomb_mr2_path "${android_core_STACK_PATH}/android_honeycomb_mr2")
-set(turtlebot_core_components_path "${turtlebot_android_STACK_PATH}/turtlebot_android_core_components")
-set(pr2_core_components_path "${pr2_android_utilities_STACK_PATH}/pr2_android_core_components")
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
- ${android_gingerbread_mr1_path} "${PROJECT_SOURCE_DIR}/android_gingerbread_mr1"
-)
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
- ${android_honeycomb_mr2_path} "${PROJECT_SOURCE_DIR}/android_honeycomb_mr2"
-)
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
- ${turtlebot_core_components_path} "${PROJECT_SOURCE_DIR}/turtlebot_android_core_components"
-)
-EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
- ${pr2_core_components_path} "${PROJECT_SOURCE_DIR}/pr2_android_core_components"
-)
+rosbuild_find_ros_package(android_core)
+rosbuild_find_ros_package(turtlebot_android)
+rosbuild_find_ros_package(pr2_android_utilities)
+set(android_gingerbread_mr1_path "${android_core_PACKAGE_PATH}/android_gingerbread_mr1")
+set(android_honeycomb_mr2_path "${android_core_PACKAGE_PATH}/android_honeycomb_mr2")
+set(turtlebot_core_components_path "${turtlebot_android_PACKAGE_PATH}/turtlebot_android_core_components")
+set(pr2_core_components_path "${pr2_android_utilities_PACKAGE_PATH}/pr2_android_core_components")
+if(android_core_PACKAGE_PATH)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${android_gingerbread_mr1_path} "${PROJECT_SOURCE_DIR}/android_gingerbread_mr1"
+    )
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${android_honeycomb_mr2_path} "${PROJECT_SOURCE_DIR}/android_honeycomb_mr2"
+    )
+endif()
+if(turtlebot_android_PACKAGE_PATH)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${turtlebot_core_components_path} "${PROJECT_SOURCE_DIR}/turtlebot_android_core_components"
+    )
+endif()
+if(pr2_android_utilities_PACKAGE_PATH)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
+    ${pr2_core_components_path} "${PROJECT_SOURCE_DIR}/pr2_android_core_components"
+    )
+endif()
