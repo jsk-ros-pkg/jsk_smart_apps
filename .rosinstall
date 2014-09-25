@@ -11,10 +11,6 @@
     uri: https://github.com/velveteenrobot/appmanandroid.git
     local-name: appmanandroid
 - git:
-    local-name: rosjava_core
-    uri: git://github.com/rosjava/rosjava_core.git
-    version: hydro
-- git:
     local-name: android_core
     uri: git://github.com/rosjava/android_core.git
     version: hydro

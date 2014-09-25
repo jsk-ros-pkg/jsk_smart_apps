@@ -46,8 +46,9 @@ target_link_libraries(pointtopixel ${catkin_LIBRARIES})
 add_dependencies(pointtopixel ${PROJECT_NAME}_gencpp)
 
 
-install(DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install(DIRECTORY src
+        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+        USE_SOURCE_PERMISSIONS)
 
 install(TARGETS eusimage_geometry pointtopixel
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
