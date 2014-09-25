@@ -1,29 +1,20 @@
 - git:
-    uri: https://github.com/jsk-ros-pkg/jsk_common.git
-    local-name: jsk-ros-pkg/jsk_common
-- git:
-    uri: https://github.com/jsk-ros-pkg/jsk_roseus.git
-    local-name: jsk-ros-pkg/jsk_roseus
-- git:
     uri: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
     local-name: jsk-ros-pkg/jsk_pr2eus
 - git:
     uri: https://github.com/jsk-ros-pkg/jsk_demos.git
     local-name: jsk-ros-pkg/jsk_demos
 - git:
-    uri: https://github.com/jsk-ros-pkg/jsk_recognition.git
-    local-name: jsk-ros-pkg/jsk_recognition
-- git:
     uri: https://github.com/velveteenrobot/appmanandroid.git
     local-name: appmanandroid
 - git:
     local-name: rosjava_core
     uri: git://github.com/rosjava/rosjava_core.git
-    version: groovy
+    version: hydro
 - git:
     local-name: android_core
     uri: git://github.com/rosjava/android_core.git
-    version: groovy
+    version: hydro
 - hg:
     local-name: osrf_rosandroid
     uri: https://bitbucket.org/osrf/rosandroid
