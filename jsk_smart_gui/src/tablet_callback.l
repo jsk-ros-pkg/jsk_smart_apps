@@ -1,12 +1,12 @@
 (load "package://jsk_smart_gui/src/utils.l")
 (load "package://jsk_smart_gui/src/get_spot.l")
-(load "package://jsk_smart_gui/src/get_template.l")
+;;(load "package://jsk_smart_gui/src/get_template.l")
 (load "package://jsk_smart_gui/src/extra_actions.l")
 (load "package://jsk_smart_gui/src/greetings.l")
-(load "package://jsk_smart_gui/src/moveit.l")
+;;(load "package://jsk_smart_gui/src/moveit.l")
 (load "package://jsk_smart_gui/src/eusimage_geometry.l")
 
-(require "package://euslib/irteus_proposals/string.l");;
+;;(require "package://euslib/irteus_proposals/string.l");;
 
 (defun subscribe-tablet ()
   (ros::subscribe "/Tablet/Command"
@@ -33,7 +33,7 @@
   ;; (ros::subscribe "/Tablet/CommandDebug"
   ;;   jsk_gui_msgs::Tablet #'tablet-command-debug-cb)
 
-  (ros::subscribe "/Tablet/MoveIt" jsk_gui_msgs::Action #'moveit-cb)
+  ;;(ros::subscribe "/Tablet/MoveIt" jsk_gui_msgs::Action #'moveit-cb)
 
   (ros::subscribe "/tablet/marked/camera_info" sensor_msgs::CameraInfo #'caminfo-cb)
   )

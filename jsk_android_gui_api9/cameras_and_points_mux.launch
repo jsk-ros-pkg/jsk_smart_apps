@@ -1,8 +1,7 @@
 <launch>
   <arg name="USE_NODELET" default="false" />
-  <arg name="POINTS_NODELET_MANAGER" default="/openni_nodelet_manager" />
-  <arg name="IMAGE_NODELET_MANAGER" default="/openni_nodelet_manager" />
-
+  <arg name="POINTS_NODELET_MANAGER" default="/openni/openni_nodelet_manager" />
+  <arg name="IMAGE_NODELET_MANAGER" default="/openni/openni_nodelet_manager" />
   <group unless="$(arg USE_NODELET)">
     <node pkg="topic_tools" type="mux" output="screen"
           name="mux_for_image" respawn="true"

@@ -8,7 +8,7 @@
 (load "package://pr2eus/speak.l")
 (load "package://jsk_smart_gui/src/tablet_callback.l")
 
-(load "package://pr2eus_openrave/pr2eus-openrave.l")
+;;(load "package://pr2eus_openrave/pr2eus-openrave.l")
 (load "package://jsk_2011_07_pr2_semantic/euslisp/actions.l")
 
 (defconstant *default-deg* pi)
