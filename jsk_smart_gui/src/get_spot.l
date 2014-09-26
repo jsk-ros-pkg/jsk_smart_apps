@@ -2,7 +2,32 @@
 (ros::load-ros-manifest "jsk_smart_gui")
 ;; Load this when creating jsk_maps' spots
 (ros::roseus "spot-creator")
-(require "package://euslib/irteus_proposals/string.l")
+;;(require "package://euslib/irteus_proposals/string.l")
+
+(defun split-string (str &optional (separator #\ ))
+  (let ((chars (coerce str cons)))
+    (labels ((rec (rest-chars processing result)
+               (cond ((null rest-chars)
+                      (append result (list processing)))
+                     ((= (car rest-chars) separator)
+                      (rec (cdr rest-chars)
+                           nil
+                           (append result (list processing))))
+                     (t
+                      (rec (cdr rest-chars)
+                           (append processing (list (car rest-chars)))
+                           result)))))
+      (mapcar #'(lambda (x)
+                  (coerce x string))
+              (rec chars nil nil)))))
+(defun string-left= (match str)
+  (let ((match-length (length match)))
+    (string= match (subseq str 0 match-length))))
+
+(defun string-right= (match str)
+  (let ((match-length (length match)))
+    (string= match (subseq str (- (length str) match-length)))))
+
 
 #|
 rostopic pub "/Tablet/GetSpot" std_msgs/Empty  -1

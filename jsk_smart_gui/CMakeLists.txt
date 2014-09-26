@@ -1,3 +1,8 @@
+if(NOT USE_ROSBUILD)
+  include(catkin.cmake)
+  return()
+endif()
+
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
@@ -32,6 +37,7 @@ endif()
 
 rosbuild_add_compile_flags(eusimage_geometry ${COMPILE_FLAGS})
 set_target_properties(eusimage_geometry PROPERTIES PREFIX "" SUFFIX ".so")
+
 
 #uncomment if you have defined messages
 rosbuild_genmsg()

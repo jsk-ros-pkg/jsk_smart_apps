@@ -1,0 +1,49 @@
+<package>
+  <name>jsk_smart_gui</name>
+  <version>0.0.0</version>
+  <description>
+     jsk_smart_gui for tablets
+  </description>
+  <maintainer email="chen@jsk.t.u-tokyo.ac.jp">chen</maintainer>
+  <license>BSD</license>
+  <url>http://ros.org/wiki/jsk_smart_gui</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>roseus</build_depend>
+  <build_depend>jsk_gui_msgs</build_depend>
+  <build_depend>jsk_pcl_ros</build_depend>
+  <build_depend>jsk_maps</build_depend>
+  <build_depend>image_view2</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>sound_play</build_depend>
+  <build_depend>topic_tools</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>image_geometry</build_depend>
+  <build_depend>dynamic_tf_publisher</build_depend>
+  <build_depend>posedetection_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+  <run_depend>roseus</run_depend>
+  <run_depend>jsk_gui_msgs</run_depend>
+  <run_depend>jsk_pcl_ros</run_depend>
+  <run_depend>jsk_maps</run_depend>
+  <run_depend>image_view2</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>sound_play</run_depend>
+  <run_depend>topic_tools</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>image_geometry</run_depend>
+  <run_depend>dynamic_tf_publisher</run_depend>
+  <run_depend>posedetection_msgs</run_depend>
+
+</package>
+
+
