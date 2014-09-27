@@ -34,7 +34,8 @@ else()
  add_definitions(-Di486)
 endif()
 
-include_directories(/usr/include /usr/X11R6/include ${euslisp_SOURCE_DIR}/jskeus/eus/include include)
+
+include_directories(/usr/include /usr/X11R6/include ${euslisp_SOURCE_DIR}/jskeus/eus/lisp/c include ${euslisp_PREFIX}/jskeus/eus/lisp/c ${catkin_INCLUDE_DIRS})
 add_library(eusimage_geometry SHARED src/eusimage_geometry.cpp)
 target_link_libraries(eusimage_geometry ${catkin_LIBRARIES})
 add_dependencies(eusimage_geometry ${PROJECT_NAME}_gencpp)
