@@ -166,6 +166,7 @@ mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION
 mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Resources
 mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Headers
 mkdir -p $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Documentation
+touch $FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/Documentation/.gitkeep
 
 echo "Framework: Creating symlinks..."
 ln -s $FRAMEWORK_VERSION               $FRAMEWORK_BUNDLE/Versions/Current
