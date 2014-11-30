@@ -115,18 +115,31 @@ cd $OS_BUILDDIR
 
 cmake -DCMAKE_TOOLCHAIN_FILE=./ios-cmake/toolchain/iOS.cmake -GXcode ..
 
-# for ios
-if (! xcodebuild -configuration Release -target ALL_BUILD -sdk iphoneos ARCHS="${ARCHS_IOS_64BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${SRCDIR}/${IOS64}")
+# build for ios 32bit
+if (! xcodebuild -configuration Release -target ALL_BUILD -sdk iphoneos ARCHS="${ARCHS_IOS_32BIT}" ONLY_ACTIVE_ARCH=NO clean build TARGET_BUILD_DIR="${IOS32}")
     then
         exit 1
 fi
+
+# build for ios 64bit
+if (! xcodebuild -configuration Release -target ALL_BUILD -sdk iphoneos ARCHS="${ARCHS_IOS_64BIT}" ONLY_ACTIVE_ARCH=NO clean build TARGET_BUILD_DIR="${IOS64}")
+    then
+        exit 1
+fi
+
 
 cd $SIMULATOR_BUILDDIR
 
 cmake -DCMAKE_TOOLCHAIN_FILE=./ios-cmake/toolchain/iOS.cmake -DIOS_PLATFORM=SIMULATOR -GXcode ..
 
-# for sim
-if (! xcodebuild -configuration Release -target ALL_BUILD -sdk iphonesimulator ARCHS="${ARCHS_SIM_64BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${SRCDIR}/${SIM64}")
+# build for simulator 32bit
+if (! xcodebuild -configuration Release -target ALL_BUILD -sdk iphonesimulator ARCHS="${ARCHS_SIM_32BIT}" ONLY_ACTIVE_ARCH=NO clean build TARGET_BUILD_DIR="${SIM32}")
+    then
+        exit 1
+fi
+
+# build for simulator 64bit
+if (! xcodebuild -configuration Release -target ALL_BUILD -sdk iphonesimulator ARCHS="${ARCHS_SIM_64BIT}" ONLY_ACTIVE_ARCH=NO clean build TARGET_BUILD_DIR="${SIM64}")
     then
         exit 1
 fi
@@ -164,7 +177,8 @@ ln -s Versions/Current/$FRAMEWORK_NAME $FRAMEWORK_BUNDLE/$FRAMEWORK_NAME
 FRAMEWORK_INSTALL_NAME=$FRAMEWORK_BUNDLE/Versions/$FRAMEWORK_VERSION/$FRAMEWORK_NAME
 
 echo "Lipoing library into $FRAMEWORK_INSTALL_NAME..."
-lipo -create $OS_BUILDDIR/Release-iphoneos/lib$LOG4CXX.a $SIMULATOR_BUILDDIR/Release-iphonesimulator/lib$LOG4CXX.a -o $FRAMEWORK_INSTALL_NAME
+#lipo -create $SIM32/lib$LOG4CXX.a $IOS32/lib$LOG4CXX.a -output $FRAMEWORK_INSTALL_NAME
+lipo -create $SIM64/lib$LOG4CXX.a $IOS64/lib$LOG4CXX.a -output $FRAMEWORK_INSTALL_NAME
 
 echo "Framework: Copying includes..."
 
