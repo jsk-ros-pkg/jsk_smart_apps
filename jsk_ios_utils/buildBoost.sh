@@ -58,6 +58,7 @@ makeFramework()
         rm -rf $SRCDIR/boost.framework
     fi
     mkdir -p $A/Documentation $A/Headers $A/Resources
+    touch $A/Documentation/.gitkeep
     cp $BOOST_LIBS/boost.a $A/boost
     cp -R $BOOST_INCLUDE/* $A/Headers
     makeInfoPlist $A/Resources
