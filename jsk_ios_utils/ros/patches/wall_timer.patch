@@ -1,0 +1,9 @@
+@@ -95,5 +95,6 @@ WallTimer::WallTimer(const WallTimerOptions& ops)
+   impl_->callback_ = ops.callback;
+   impl_->callback_queue_ = ops.callback_queue;
+   impl_->tracked_object_ = ops.tracked_object;
+-  impl_->has_tracked_object_ = ops.tracked_object;
++  auto hoge = const_cast<VoidConstPtr *>(&ops.tracked_object);
++  impl_->has_tracked_object_ = reinterpret_cast<bool *>(&hoge);
+   impl_->oneshot_ = ops.oneshot;
+ }
