@@ -1,0 +1,6 @@
+20a21
+> #include <fcntl.h>
+390c391
+<     if (fdatasync(thefile->filedes)) {
+---
+>     if (fcntl(thefile->filedes, F_FULLFSYNC)) {
