@@ -167,6 +167,15 @@ git clean -df $SRCDIR/log4cxx
 mv -f $SRCDIR/frameworks $SRCDIR/ros/frameworks
 ) >> $LOGFILE 2>&1
 
+echo "Archiving frameworks to zip"
+
+(
+    cd $SRCDIR/ros/frameworks
+    for f in `\ls | grep .framework`; do zip -r $f.zip $f; done
+    mkdir $SRCDIR/frameworks
+    mv -f $SRCDIR/ros/frameworks/*.zip $SRCDIR/frameworks
+) >> $LOGFILE 2>&1
+
 echo "Finished !"
 
 #===============================================================================
