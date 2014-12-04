@@ -25,8 +25,7 @@ add_service_files(FILES point2screenpoint.srv)
 generate_messages(DEPENDENCIES geometry_msgs)
 catkin_package(CATKIN_DEPENDS)
 
-set(COMPILE_FLAGS "-O2 -Wno-write-strings -Wno-comment")
-add_definitions(-DLINUX -DLinux -D_REENTRANT -DVERSION='\"${8.26}\"' -DTHREADED -DPTHREAD -DX11R6_1)
+add_definitions(-O2 -Wno-write-strings -Wno-comment -falign-functions=16 -DLINUX -DLinux -D_REENTRANT -DVERSION='\"${8.26}\"' -DTHREADED -DPTHREAD -DX11R6_1)
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES amd64* OR
    ${CMAKE_SYSTEM_PROCESSOR} MATCHES x86_64* )
  add_definitions(-Dx86_64)
