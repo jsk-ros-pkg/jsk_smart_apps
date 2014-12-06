@@ -32,7 +32,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ImageView;
-import jsk_gui_msgs.VoiceMessage;
+import speech_recognition_msgs.SpeechRecognitionCandidates;
 import android.view.View;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -46,8 +46,8 @@ public class AndroidVoiceMessageNode implements NodeMain,
 		VoiceNodeListenerInterface, Runnable {
 
 	// for text_message
-	private Publisher<jsk_gui_msgs.VoiceMessage> voice_pub;
-	private jsk_gui_msgs.VoiceMessage voice_msg;
+	private Publisher<speech_recognition_msgs.SpeechRecognitionCandidates> voice_pub;
+	private speech_recognition_msgs.SpeechRecognitionCandidates voice_msg;
 	private int startFlag = 0;
 	private int not_working_flag = 0;
 	private int mode = 1;
@@ -70,7 +70,7 @@ public class AndroidVoiceMessageNode implements NodeMain,
 
 	@Override
 	public GraphName getDefaultNodeName() {
-		return GraphName.of("jsk_gui_msgs/VoiceMessage");
+		return GraphName.of("speech_recognition_msgs/SpeechRecognitionCandidates");
 	}
 
 	public AndroidVoiceMessageNode(SensorManager manager, Context context,
@@ -103,7 +103,7 @@ public class AndroidVoiceMessageNode implements NodeMain,
 
 		try {
 			voice_pub = connectedNode.newPublisher("Tablet/voice",
-					"jsk_gui_msgs/VoiceMessage");
+					"speech_recognition_msgs/SpeechRecognitionCandidates");
 			audio_pub = connectedNode.newPublisher("audio",
 					"audio_common_msgs/AudioData");
 			startFlag = 1;
@@ -301,14 +301,14 @@ public class AndroidVoiceMessageNode implements NodeMain,
 			voice_msg = voice_pub.newMessage();
 			ArrayList<String> candidates = results
 					.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-			voice_msg.setTexts(candidates);
+			voice_msg.setTranscript(candidates);
 			textView.setText("recognized text candidates:\n");
 			for (int i = 0; i < candidates.size(); i++) {
 				textView.setText(textView.getText() + "" + (i + 1) + ") "
 						+ candidates.get(i) + "\n");
 			}
 			Log.v("voice", "publish ready");
-			voice_msg.setTexts(candidates);
+			voice_msg.setTranscript(candidates);
 			Log.v("test", "publish ready");
 			if (startFlag == 1) {
 				voice_pub.publish(voice_msg);
