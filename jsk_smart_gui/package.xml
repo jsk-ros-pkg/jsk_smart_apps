@@ -15,7 +15,6 @@
   <build_depend>roseus</build_depend>
   <build_depend>jsk_gui_msgs</build_depend>
   <build_depend>jsk_pcl_ros</build_depend>
-  <build_depend>jsk_maps</build_depend>
   <build_depend>image_view2</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>sound_play</build_depend>
@@ -27,6 +26,7 @@
   <build_depend>posedetection_msgs</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>euslisp</build_depend>
+  <build_depend>cmake_modules</build_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
@@ -45,6 +45,7 @@
   <run_depend>dynamic_tf_publisher</run_depend>
   <run_depend>posedetection_msgs</run_depend>
   <run_depend>euslisp</run_depend>
+  <run_depend>cmake_modules</run_depend>
 </package>
 
 
