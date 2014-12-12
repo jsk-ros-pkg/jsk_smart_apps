@@ -15,7 +15,6 @@
   <build_depend>roseus</build_depend>
   <build_depend>jsk_gui_msgs</build_depend>
   <build_depend>jsk_pcl_ros</build_depend>
-  <build_depend>jsk_maps</build_depend>
   <build_depend>image_view2</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>sound_play</build_depend>

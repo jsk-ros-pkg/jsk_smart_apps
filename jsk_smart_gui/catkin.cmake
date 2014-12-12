@@ -8,7 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   roseus
   jsk_gui_msgs
   jsk_pcl_ros
-  jsk_maps
   image_view2
   tf
   euslisp
