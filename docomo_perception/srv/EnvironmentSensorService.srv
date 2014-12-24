@@ -1,0 +1,6 @@
+string[] base_id
+float32 latitude
+float32 longtitude
+float32 range
+---
+docomo_perception/EnvironmentSensor[] data

@@ -7,6 +7,7 @@ add_message_files(
    FILES
    TextToSpeech.msg
    ImageRecognitionCandidate.msg
+   EnvironmentSensor.msg
  )
 
 add_service_files(
@@ -16,6 +17,7 @@ add_service_files(
   ImageRecognition.srv
   SentenseUnderstanding.srv
   TextToSpeechService.srv
+  EnvironmentSensorService.srv
 )
 
 generate_messages(
