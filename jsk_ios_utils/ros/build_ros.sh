@@ -12,7 +12,6 @@ ROS_BRANCH=groovy-devel
 echo "Installing CMake iOS toolchain ..."
 if [ ! -d ios-cmake ]
     then
-#    hg clone https://code.google.com/p/ios-cmake/
     git clone https://github.com/furushchev/ios-cmake.git
 fi
 
