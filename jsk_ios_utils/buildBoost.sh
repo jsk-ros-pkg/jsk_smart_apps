@@ -1,10 +1,10 @@
 SRCDIR=`pwd`
 LOGFILE=$SRCDIR/log.txt
 
-if [ -d $SRCDIR/boost/libs/boost ]; then
+if [ -e $SRCDIR/boost/libs/boost ]; then
     rm -rf $SRCDIR/boost
-    git clone https://github.com/danoli3/ofxiOSBoost.git boost
 fi
+git clone https://github.com/danoli3/ofxiOSBoost.git boost
 
 BOOST_ROOT=$SRCDIR/boost/libs/boost
 BOOST_LIBS=$BOOST_ROOT/ios
