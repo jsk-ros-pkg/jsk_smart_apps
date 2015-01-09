@@ -20,7 +20,6 @@ fi
 echo "Installing CMake iOS toolchain ..."
 if [ ! -d ios-cmake ]
     then
-#    hg clone https://code.google.com/p/ios-cmake/
     git clone https://github.com/furushchev/ios-cmake.git
 fi
 
@@ -155,27 +154,46 @@ echo "Building ..."
 mkdir $OS_BUILDDIR
 mkdir $SIMULATOR_BUILDDIR
 
+IOS32=`mktemp -d $OS_BUILDDIR/ios32.XXXXXX`
+IOS64=`mktemp -d $OS_BUILDDIR/ios64.XXXXXX`
+SIM32=`mktemp -d $OS_BUILDDIR/sim32.XXXXXX`
+SIM64=`mktemp -d $OS_BUILDDIR/sim64.XXXXXX`
+ARCHS_IOS_32BIT="armv7 armv7s"
+ARCHS_IOS_64BIT="armv7 armv7s arm64"
+ARCHS_SIM_32BIT="i386"
+ARCHS_SIM_64BIT="x86_64 i386"
+
 cd $OS_BUILDDIR
 
 cmake -DCMAKE_TOOLCHAIN_FILE=$SRCDIR/ios-cmake/toolchain/iOS.cmake -GXcode ..
 
-BOOSTFRAMEWORK=$SRCDIR/../boostonios/ios/framework/boost # .framework
-OLDFLAGS="${inherited} -framework $BOOSTFRAMEWORK"
+if (! xcodebuild -sdk iphoneos -configuration Release -target ALL_BUILD ARCHS="${ARCHS_IOS_32BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${IOS32}" ) ; then
+    exit 1
+fi
 
-xcodebuild -sdk iphoneos -configuration Release -target ALL_BUILD #OTHER_LDFLAGS=$OLDFLAGS
+if (! xcodebuild -sdk iphoneos -configuration Release -target ALL_BUILD ARCHS="${ARCHS_IOS_64BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${IOS64}" ) ; then
+    exit 1
+fi
 
 cd $SIMULATOR_BUILDDIR
 
 cmake -DCMAKE_TOOLCHAIN_FILE=$SRCDIR/ios-cmake/toolchain/iOS.cmake -DIOS_PLATFORM=SIMULATOR -GXcode ..
 
-xcodebuild -sdk iphonesimulator -configuration Release -target ALL_BUILD #OTHER_LDFLAGS=$OLDFLAGS
+if (! xcodebuild -sdk iphonesimulator -configuration Release -target ALL_BUILD ARCHS="${ARCHS_SIM_32BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${SIM32}" ) ; then
+    exit 1
+fi
+
+if (! xcodebuild -sdk iphonesimulator -configuration Release -target ALL_BUILD ARCHS="${ARCHS_SIM_64BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${SIM64}" ) ; then
+    exit 1
+fi
 
 #===============================================================================
 cd $SRCDIR
 FRAMEWORK_NAME=$PACKAGE_NAME
 
 mv $2/include/$PACKAGE_NAME/*.h $2
-sh framework_gen.sh $FRAMEWORK_NAME $OS_BUILDDIR/Release-iphoneos $SIMULATOR_BUILDDIR/Release-iphonesimulator $2
+#sh framework_gen.sh $FRAMEWORK_NAME $IOS32 $SIM32 $2
+sh framework_gen.sh $FRAMEWORK_NAME $IOS64 $SIM64 $2
 
 else
 mkdir -p $SRCDIR/$PACKAGE_NAME

@@ -11,7 +11,6 @@ PACKAGE_NAME=`basename $1`
 echo "Installing CMake iOS toolchain ..."
 if [ ! -d ios-cmake ]
     then
-#    hg clone https://code.google.com/p/ios-cmake/
     git clone https://github.com/furushchev/ios-cmake.git
 fi
 
@@ -54,28 +53,44 @@ echo "Building ..."
 mkdir $OS_BUILDDIR
 mkdir $SIMULATOR_BUILDDIR
 
+IOS32=`mktemp -d $OS_BUILDDIR/ios32.XXXXXX`
+IOS64=`mktemp -d $OS_BUILDDIR/ios64.XXXXXX`
+SIM32=`mktemp -d $OS_BUILDDIR/sim32.XXXXXX`
+SIM64=`mktemp -d $OS_BUILDDIR/sim64.XXXXXX`
+ARCHS_IOS_32BIT="armv7 armv7s"
+ARCHS_IOS_64BIT="armv7 armv7s arm64"
+ARCHS_SIM_32BIT="i386"
+ARCHS_SIM_64BIT="x86_64 i386"
+
 cd $OS_BUILDDIR
 
 cmake -DCMAKE_TOOLCHAIN_FILE=./ios-cmake/toolchain/iOS.cmake -GXcode ..
 
-if (! xcodebuild -configuration Release -target ALL_BUILD)
-    then
-        exit 1
+if (! xcodebuild -sdk iphoneos -configuration Release -target ALL_BUILD ARCHS="${ARCHS_IOS_32BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${IOS32}" ) ; then
+    exit 1
+fi
+
+if (! xcodebuild -sdk iphoneos -configuration Release -target ALL_BUILD ARCHS="${ARCHS_IOS_64BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${IOS64}" ) ; then
+    exit 1
 fi
 
 cd $SIMULATOR_BUILDDIR
 
 cmake -DCMAKE_TOOLCHAIN_FILE=./ios-cmake/toolchain/iOS.cmake -DIOS_PLATFORM=SIMULATOR -GXcode ..
 
-if (! xcodebuild -configuration Release -target ALL_BUILD)
-    then
-        exit 1
+if (! xcodebuild -sdk iphonesimulator -configuration Release -target ALL_BUILD ARCHS="${ARCHS_SIM_32BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${SIM32}" ) ; then
+    exit 1
+fi
+
+if (! xcodebuild -sdk iphonesimulator -configuration Release -target ALL_BUILD ARCHS="${ARCHS_SIM_64BIT}" ONLY_ACTIVE_ARCH=NO TARGET_BUILD_DIR="${SIM64}" ) ; then
+    exit 1
 fi
 
 #===============================================================================
 cd $SRCDIR
 FRAMEWORK_NAME=`basename $1`
 
-sh framework_gen.sh $FRAMEWORK_NAME $OS_BUILDDIR/Release-iphoneos $SIMULATOR_BUILDDIR/Release-iphonesimulator $1/include/$FRAMEWORK_NAME/
+# sh framework_gen.sh $FRAMEWORK_NAME $IOS32 $SIM32 $1/include/$FRAMEWORK_NAME/
+sh framework_gen.sh $FRAMEWORK_NAME $IOS64 $SIM64 $1/include/$FRAMEWORK_NAME/
 
 echo "build_package : done !"

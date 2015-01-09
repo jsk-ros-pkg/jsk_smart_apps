@@ -44,7 +44,7 @@ fi
 
 buildBoost()
 {
-if (sh $SRCDIR/buildBoost.sh) >> $LOGFILE 2>&1;
+if (sh $SRCDIR/buildBoost.sh && mv $SRCDIR/boost.framework $SRCDIR/ros/frameworks) >> $LOGFILE 2>&1;
     then
     echo "OK!"
 else
@@ -131,8 +131,7 @@ echo "Building ROS core :"
 (
 [ -d $SRCDIR/ros/frameworks ] && rm -rf $SRCDIR/ros/frameworks
 mkdir $SRCDIR/ros/frameworks
-#mv $SRCDIR/boostonios/ios/framework/boost.framework $SRCDIR/ros/frameworks
-cp -R $SRCDIR/boost.framework $SRCDIR/ros/frameworks/
+#mv $SRCDIR/boost.framework $SRCDIR/ros/frameworks/
 mv $SRCDIR/log4cxx/log4cxx.framework $SRCDIR/ros/frameworks/
 mv $SRCDIR/ros/std_msgs.framework $SRCDIR/ros/frameworks/
 mv $SRCDIR/ros/geometry_msgs.framework $SRCDIR/ros/frameworks/
