@@ -1,24 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(jsk_smart_gui)
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
   sensor_msgs
   geometry_msgs
-  visualization_msgs
   roseus
-  jsk_gui_msgs
-  jsk_pcl_ros
-  image_view2
-  tf
-  euslisp
-  sound_play
-  topic_tools
-  dynamic_reconfigure
-  image_transport
   image_geometry
-  message_generation
-  dynamic_tf_publisher
-  posedetection_msgs)
+  message_generation)
 
 add_service_files(FILES point2screenpoint.srv)
 generate_messages(DEPENDENCIES geometry_msgs)
