@@ -1,24 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(jsk_smart_gui)
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
   sensor_msgs
   geometry_msgs
-  visualization_msgs
   roseus
-  jsk_gui_msgs
-  jsk_pcl_ros
-  image_view2
-  tf
-  euslisp
-  sound_play
-  topic_tools
-  dynamic_reconfigure
-  image_transport
   image_geometry
-  message_generation
-  dynamic_tf_publisher
-  posedetection_msgs)
+  message_generation)
 
 add_service_files(FILES point2screenpoint.srv)
 generate_messages(DEPENDENCIES geometry_msgs)
@@ -33,7 +20,18 @@ else()
 endif()
 
 
-include_directories(/usr/include /usr/X11R6/include ${euslisp_SOURCE_DIR}/jskeus/eus/lisp/c include ${euslisp_PREFIX}/share/euslisp/jskeus/eus/lisp/c ${catkin_INCLUDE_DIRS})
+find_package(euslisp REQUIRED)
+if(NOT euslisp_INCLUDE_DIRS)
+  if(EXISTS ${euslisp_SOURCE_DIR}/jskeus)
+    set(euslisp_PACKAGE_PATH ${euslisp_SOURCE_DIR})
+  else()
+    set(euslisp_PACKAGE_PATH ${euslisp_PREFIX}/share/euslisp)
+  endif()
+  message("-- Set euslisp_PACKAGE_PATH to ${euslisp_PACKAGE_PATH}")
+  set(euslisp_INCLUDE_DIRS ${euslisp_PACKAGE_PATH}/jskeus/eus/include)
+endif()
+message("-- Set euslisp_INCLUDE_DIRS to ${euslisp_INCLUDE_DIRS}")
+include_directories(/usr/include /usr/X11R6/include ${euslisp_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 add_library(eusimage_geometry SHARED src/eusimage_geometry.cpp)
 target_link_libraries(eusimage_geometry ${catkin_LIBRARIES})
 add_dependencies(eusimage_geometry ${PROJECT_NAME}_gencpp)
