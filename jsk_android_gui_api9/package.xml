@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>jsk_android_gui_api9</name>
+  <version>0.0.0</version>
+  <description>The jsk_android_gui_api9 package</description>
+  <maintainer email="chen@jsk.imi.i.u-tokyo.ac.jp">Haseru Azuma</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/jsk_android_gui_api9</url>
+  <author email="chen@jsk.imi.i.u-tokyo.ac.jp">Haseru Azuma</author>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roseus</build_depend>
+  <run_depend>roseus</run_depend>
+  <export>
+  </export>
+</package>
