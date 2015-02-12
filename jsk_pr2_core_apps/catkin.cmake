@@ -5,10 +5,10 @@ find_package(catkin REQUIRED COMPONENTS
   detect_cans_in_fridge_201202
   jsk_android_gui_api9
   jsk_pr2_startup
-  roseus
   roseus_tutorials
   sound_play
   topic_tools
+  roseus
 )
 
 catkin_package(
