@@ -9,9 +9,15 @@
   <url>http://ros.org/wiki/jsk_smart_gui</url>
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>dynamic_tf_publisher</build_depend>
+  <build_depend>image_view2</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>roseus</build_depend>
+  <build_depend>jsk_pcl_ros</build_depend>
+  <build_depend>jsk_2011_07_pr2_semantic</build_depend>
+  <build_depend>jsk_maps</build_depend>
+  <build_depend>pr2eus</build_depend>
   <build_depend>image_geometry</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>cmake_modules</build_depend>

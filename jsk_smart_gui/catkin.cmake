@@ -1,15 +1,21 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(jsk_smart_gui)
 find_package(catkin REQUIRED COMPONENTS
+  dynamic_tf_publisher
   sensor_msgs
   geometry_msgs
-  roseus
   image_geometry
-  message_generation)
+  image_view2
+  jsk_pcl_ros
+  jsk_2011_07_pr2_semantic
+  jsk_maps
+  pr2eus
+  message_generation
+  roseus)
 
 add_service_files(FILES point2screenpoint.srv)
 generate_messages(DEPENDENCIES geometry_msgs)
-catkin_package(CATKIN_DEPENDS)
+catkin_package(CATKIN_DEPENDS roseus)
 
 add_definitions(-O2 -Wno-write-strings -Wno-comment -falign-functions=16 -DLINUX -DLinux -D_REENTRANT -DVERSION='\"${8.26}\"' -DTHREADED -DPTHREAD -DX11R6_1)
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES amd64* OR
