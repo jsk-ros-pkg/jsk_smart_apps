@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package>
+  <name>jsk_pr2_core_apps</name>
+  <version>0.0.0</version>
+  <description>The jsk_pr2_core_apps package</description>
+  <maintainer email="murase@jsk.imi.i.u-tokyo.ac.jp">Kazuto Murase</maintainer>
+  <license>BSD</license>
+  <url type="website">http://wiki.ros.org/jsk_pr2_core_apps</url>
+  <author email="murase@jsk.imi.i.u-tokyo.ac.jp">Kazuto Murase</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>detect_cans_in_fridge_201202</build_depend>
+  <build_depend>jsk_android_gui_api9</build_depend>
+  <build_depend>jsk_pr2_startup</build_depend>
+  <build_depend>roseus</build_depend>
+  <build_depend>roseus_tutorials</build_depend>
+  <build_depend>sound_play</build_depend>
+  <build_depend>topic_tools</build_depend>
+  <run_depend>detect_cans_in_fridge_201202</run_depend>
+  <run_depend>jsk_android_gui_api9</run_depend>
+  <run_depend>jsk_pr2_startup</run_depend>
+  <run_depend>roseus</run_depend>
+  <run_depend>roseus_tutorials</run_depend>
+  <run_depend>sound_play</run_depend>
+  <run_depend>topic_tools</run_depend>
+
+  <export>
+  </export>
+</package>

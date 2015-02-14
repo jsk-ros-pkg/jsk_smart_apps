@@ -1,0 +1,6 @@
+- git:
+    uri: https://github.com/jsk-ros-pkg/jsk_demos.git
+    local-name: jsk-ros-pkg/jsk_demos
+- git:
+    uri: https://github.com/code-iai/snap_map_icp.git
+    local-name: snap_map_icp
