@@ -21,6 +21,7 @@
   <build_depend>image_geometry</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>cmake_modules</build_depend>
+  <build_depend>jsk_android_gui</build_depend>
 
   <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
