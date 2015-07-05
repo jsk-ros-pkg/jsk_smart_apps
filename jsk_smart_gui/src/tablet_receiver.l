@@ -69,8 +69,8 @@
   ;;Default *ray_srv* is "/pointcloud_screenpoint_nodelet/screen_to_point"
   (setq *ray_srv* (ros::get-param "~ray_srv"))
   ;;(setq *ray_srv* "/pointcloud_screenpoint_nodelet/screen_to_point")
-  (setq *current-image* "/openni/rgb/image_color")
-  (setq *current-camera* "/openni/rgb")
+  (setq *current-image* "/kinect_head/rgb/image_color")
+  (setq *current-camera* "/kinect_head/rgb")
   (change-inflation-range 0.15)
 
   ;;load all current spot and convert to javascript/yaml
