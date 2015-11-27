@@ -2,7 +2,7 @@
   <arg name="USE_NODELET" default="false" />
   <arg name="POINTS_NODELET_MANAGER" default="/kinect_head/openni_nodelet_manager" />
   <arg name="IMAGE_NODELET_MANAGER" default="/kinect_head/openni_nodelet_manager" />
-  <include file="$(find pr2_machine)/pr2.machine" />
+  <include file="$(find pr2_machine)/$(env ROBOT).machine" />
   <group unless="$(arg USE_NODELET)">
     <node pkg="topic_tools" type="mux" output="screen"
           name="mux_for_image" respawn="true"
