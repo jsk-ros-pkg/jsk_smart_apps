@@ -78,7 +78,7 @@ public class MainActivity extends RosActivity {
 
 
   public MainActivity() {
-    super("AndroidCameraViewer", "AndroidCameraViewer");
+    super("ROS Camera Viewer", "ROS Camera Viewer");
   }
 
 

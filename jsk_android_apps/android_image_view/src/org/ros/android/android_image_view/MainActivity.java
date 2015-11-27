@@ -19,7 +19,7 @@ public class MainActivity extends RosActivity {
 	public static float width = 480, height = 640;
 
 	public MainActivity() {
-		super("android_image_view", "android_image_view");
+		super("ROS Image Viewer", "ROS Image Viewer");
 	}
 
 //	@SuppressWarnings("unchecked")

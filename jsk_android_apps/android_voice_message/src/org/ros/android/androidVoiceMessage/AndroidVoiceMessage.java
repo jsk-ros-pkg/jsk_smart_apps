@@ -92,7 +92,7 @@ public class AndroidVoiceMessage extends RosActivity {
 	};
 
 	public AndroidVoiceMessage() {
-		super("AndroidVoiceMessage", "AndroidVoiceMessage");
+		super("ROS Voice Recognition", "ROS Voice Recognition");
 	}
 
 	@Override

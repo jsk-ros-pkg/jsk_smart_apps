@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">AndroidVoiceMessage</string>
+    <string name="app_name">ROS Voice Recognition</string>
     <string name="change_mode">Mode Change</string>
     <string name="app_about">About Android Voice Message</string>
     <string name="str_exit">Exit</string>

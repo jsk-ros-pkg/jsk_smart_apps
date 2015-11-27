@@ -204,7 +204,7 @@ public class AndroidSensorMessage extends RosActivity implements
 	};
 
 	public AndroidSensorMessage() {
-		super("AndroidSensorMessage", "AndroidSensorMessage");
+		super("ROS Sensor Message", "ROS Sensor Message");
 
 	}
 
