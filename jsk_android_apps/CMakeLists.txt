@@ -3,7 +3,9 @@ project(jsk_android_apps)
 
 find_package(catkin REQUIRED rosjava_build_tools)
 
-catkin_android_setup(assembleRelease uploadArchives)
+if(EXISTS $ENV{ANDROID_HOME})
+  catkin_android_setup(assembleRelease uploadArchives)
+endif()
 
 catkin_package()
 
