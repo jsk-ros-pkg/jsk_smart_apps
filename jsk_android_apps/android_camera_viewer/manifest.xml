@@ -1,0 +1,13 @@
+<package>
+  <description brief="android_camera_viewer">
+     android_camera_viewer
+  </description>
+  <author>Damon Kohler (damonkohler@google.com)</author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes="" />
+  <url>http://ros.org/wiki/android_camera_viewer</url>
+  <depend package="std_msgs"/>
+  <export>
+    <rosdoc config="rosdoc.yaml" />
+  </export>
+</package>

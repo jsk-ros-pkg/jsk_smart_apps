@@ -1,0 +1,45 @@
+<launch>
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen">
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+  <node name="local_image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/usb_cam/image_raw"/>
+  </node>
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen" args="_image_transport:=compressed">
+    <remap from="image" to="/camera/image" />
+  </node>
+  <sphinxdoc><![CDATA[  
+
+
+.. image:: launch/images/image1.png
+  :width: 200
+This application communicates the camera image on the PC with the camera image on the android.
+
+(PC)
+
+1. start up roscore
+2. launch usb_cam.launch
+
+(android)
+
+3. put ROS_MASTER_URI into the text box
+4. push OK button
+
+.. image:: launch/images/image3.png
+  :width: 400
+
+(android)
+
+5. tap the screen to change in/out camera
+
+please download from `this URL <http://play.google.com/store/apps/details?id=org.ros.android.android_camera_viewer&feature=search_result#?t=W251bGwsMSwxLDEsIm9yZy5yb3MuYW5kcm9pZC5hbmRyb2lkX2NhbWVyYV92aWV3ZXIiXQ..>`_
+
+   ]]></sphinxdoc>
+</launch>
+
+
