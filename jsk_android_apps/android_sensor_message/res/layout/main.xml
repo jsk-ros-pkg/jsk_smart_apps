@@ -1,0 +1,107 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/LinearLayout01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <SurfaceView
+            android:id="@+id/SV"
+            android:layout_width="fill_parent"
+            android:layout_height="300dip" >
+        </SurfaceView>
+
+        <LinearLayout
+            android:id="@+id/LinearLayout02"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/menuButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/menu_btn" />
+            <Button
+                android:id="@+id/setButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/set_btn" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/sensorName"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="SensorName"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sensorX"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="x:"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sensorY"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="y:"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sensorZ"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="z:"
+            android:textSize="20sp" />
+
+    <LinearLayout
+        android:id="@+id/LinearLayout02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/viewBaseButton"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="BaseLine" >
+        </Button>
+
+        <Button
+            android:id="@+id/viewXButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="X" >
+        </Button>
+
+        <Button
+            android:id="@+id/viewYButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="Y" >
+        </Button>
+
+        <Button
+            android:id="@+id/viewZButton"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:text="Z" >
+        </Button>
+    </LinearLayout>
+
+
+    </LinearLayout>
+    <com.darvds.ribbonmenu.RibbonMenuView
+        android:id="@+id/ribbonMenuView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>
