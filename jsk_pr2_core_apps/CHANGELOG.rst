@@ -2,8 +2,8 @@
 Changelog for package jsk_pr2_core_apps
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-11-27)
+------------------
 * CMakeLists.txt: remove find_package which is not actually used
 * no more rosmake
 * put find_package roseus down in jsk_pr2_core_apps; revert unexpectedly deleted manifest.xml

@@ -2,8 +2,8 @@
 Changelog for package jsk_android_gui_api9
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-11-27)
+------------------
 * use ROBOT environment
 * [jsk_smart_apps] use kinect_head instead of openni following pr2 default naming
 * [jsk_android_gui_api9] Obsolate package

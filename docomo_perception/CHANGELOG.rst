@@ -2,8 +2,8 @@
 Changelog for package docomo_perception
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-11-27)
+------------------
 * add environment sensor api for ros
   Former-commit-id: cf10f7bb9c3a5fa5e266599ed47bf1a6e926bcf8
 * add depends to python-requests

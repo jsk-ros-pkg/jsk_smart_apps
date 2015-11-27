@@ -2,8 +2,8 @@
 Changelog for package jsk_smart_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-11-27)
+------------------
 * CMakeLists.txt: remove find_package which is not actually used
 * [jsk_smart_apps] use kinect_head instead of openni following pr2 default naming
 * [jsk_smart_gui] add missing deps jsk_android_gui for tablet_receiver.l

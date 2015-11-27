@@ -2,8 +2,8 @@
 Changelog for package jsk_android_gui
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-11-27)
+------------------
 * catkinize jsk_android_gui
 * update manipulation interface(add functions:get template image, zoomin/out camera view, circular manipulation)
 * added webview to layout

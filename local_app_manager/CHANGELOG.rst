@@ -2,8 +2,8 @@
 Changelog for package local_app_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-11-27)
+------------------
 * CMakeLists.txt: remove find_package which is not actually used
 * no more rosmake
 * catkinize local_app_manager and its deps; still jsk_android_gui_api9 is not set deps correctly
