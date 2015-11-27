@@ -32,7 +32,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.widget.Button;
-import jsk_gui_msgs.VoiceMessage;
+import speech_recognition_msgs.SpeechRecognitionCandidates;
 import android.view.View;
 
 //add
