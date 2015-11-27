@@ -1,5 +1,0 @@
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/ribbon_menu">
-    <item android:id="@+id/ribbon_menu_back" android:title="BACK" android:icon="@drawable/noncheck"></item>
-</menu>
