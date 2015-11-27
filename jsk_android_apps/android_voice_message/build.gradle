@@ -22,6 +22,7 @@ dependencies {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
 
 android {
   compileSdkVersion 15
@@ -31,9 +32,4 @@ android {
     applicationId "org.ros.android.android_voice_message"
     targetSdkVersion 15
   }
-
-  lintOptions {
-    abortOnError false
-  }
 }
-

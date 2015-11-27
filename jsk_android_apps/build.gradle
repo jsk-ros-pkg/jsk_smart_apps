@@ -107,6 +107,13 @@ configure(subprojects.findAll { it.name.startsWith("android_") }) {
               versionName gitVersionName
               versionCode gitVersionCode
             }
+            lintOptions {
+              checkReleaseBuilds false
+              abortOnError false
+            }
+        }
+        play {
+          jsonFile = file('key.json')
         }
     }
 }

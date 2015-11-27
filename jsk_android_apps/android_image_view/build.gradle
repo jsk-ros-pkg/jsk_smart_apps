@@ -21,6 +21,7 @@ dependencies {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
 
 android {
   compileSdkVersion 10
@@ -29,10 +30,6 @@ android {
     minSdkVersion 10
     applicationId "org.ros.android.android_image_view"
     targetSdkVersion 10
-  }
-
-  lintOptions {
-    abortOnError false
   }
 }
 

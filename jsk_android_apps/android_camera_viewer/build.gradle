@@ -21,6 +21,7 @@ dependencies {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
 
 android {
   compileSdkVersion 10
@@ -30,8 +31,5 @@ android {
     applicationId "org.ros.android.android_camera_viewer"
     targetSdkVersion 10
   }
-
-  lintOptions {
-    abortOnError false
-  }
 }
+
