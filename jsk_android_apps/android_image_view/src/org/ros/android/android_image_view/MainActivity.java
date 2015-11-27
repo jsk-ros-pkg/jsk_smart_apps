@@ -45,7 +45,7 @@ public class MainActivity extends RosActivity {
 	public void onResume() {
 		super.onResume();
 		Bitmap bmp = BitmapFactory.decodeResource(this.getResources(),
-				R.drawable.robot);
+				R.drawable.icon);
 		this.image.setBitmap(bmp);
 	}
 
