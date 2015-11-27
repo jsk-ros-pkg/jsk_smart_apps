@@ -14,9 +14,28 @@
  * the License.
  */
 
+
 dependencies {
-  compile 'ros.rosjava_core:rosjava_tutorial_pubsub:0.0.0-SNAPSHOT'
+  compile 'org.ros.rosjava_messages:audio_common_msgs:[0.2,0.3)'
+  compile 'org.ros.rosjava_messages:jsk_gui_msgs:[1.0,1.1)'
+  compile 'org.ros.android_core:android_15:[0.2,0.3)'
 }
 
-debug.dependsOn project(':android_gingerbread_mr1').tasks.debug
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion 15
+
+  defaultConfig {
+    minSdkVersion 15
+    applicationId "org.ros.android.android_voice_message"
+    targetSdkVersion 15
+    versionCode 1
+    versionName "1.0"
+  }
+
+  lintOptions {
+    abortOnError false
+  }
+}
 
