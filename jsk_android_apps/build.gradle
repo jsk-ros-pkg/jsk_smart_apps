@@ -15,58 +15,66 @@
  */
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.0-milestone-9'
+    gradleVersion = "2.2.1"
 }
+
+buildscript {
+    apply from: project.file("buildscript.gradle")
+}
+
+apply plugin: "catkin"
 
 allprojects {
-  group 'ros.jsk_smart_apps'
-  version = '0.0.0-SNAPSHOT'
+    group "org.ros.android_core"
+    version = project.catkin.pkg.version
 }
 
-subprojects {
-  if (name != 'docs') {
-//    apply plugin: 'java'
-//    apply plugin: 'osgi'
-    apply plugin: 'eclipse'
-//    apply plugin: 'maven'
+configure(subprojects.findAll { it.name.startsWith("android_") }) {
+    /*
+     * The android plugin configures a few things:
+     *
+     *  - local deployment repository : where it dumps the jars and packaged artifacts)
+     *  - local maven repositories    : where it finds your locally installed/built artifacts)
+     *  - external maven repositories : where it goes looking if it can't find dependencies locally
+     *  - android build tools version : which version we use across the board
+     * 
+     * To modify, or add repos to the default external maven repositories list, pull request against this code:
+     *
+     *   https://github.com/rosjava/rosjava_bootstrap/blob/indigo/gradle_plugins/src/main/groovy/org/ros/gradle_plugins/RosPlugin.groovy#L31
+     * 
+     * To modify the build tools version, pull request against this code:
+     * 
+     *   https://github.com/rosjava/rosjava_bootstrap/blob/indigo/gradle_plugins/src/main/groovy/org/ros/gradle_plugins/RosAndroid.groovy#L14
+     */
+    apply plugin: "ros-android"
+    afterEvaluate { project ->
+        // Change the layout of Android projects to be compatible with Eclipse.
+        android {
+            sourceSets {
+                //noinspection GroovyAssignabilityCheck
+                main {
+                    manifest.srcFile "AndroidManifest.xml"
+                    res.srcDirs "res"
+                    assets.srcDirs "assets"
+                    java.srcDirs "src"
+                }
+            }
 
-//    sourceCompatibility = 1.6
-//    targetCompatibility = 1.6
+            // Copy JAR dependencies into the libs directory for Eclipse.
+            task deployLibs(type: Copy) {
+                from { configurations.compile }
+                into { "${project.projectDir}/libs" }
+            }
 
-    repositories {
-      mavenLocal()
-      maven {
-        url 'http://robotbrains.hideho.org/nexus/content/groups/ros-public'
-      }
+            // Exclude a few files that are duplicated across our dependencies and
+            // prevent packaging Android applications.
+            packagingOptions {
+                /* https://github.com/rosjava/android_core/issues/194 */
+                exclude "META-INF/LICENSE.txt"
+                exclude "META-INF/NOTICE.txt"
+            }
+        }
     }
-
-    configurations.add('compile') {
-      exclude group: 'junit'
-      exclude group: 'xml-apis'
-    }
-
-    task deployLibs(type: Copy) {
-      from { configurations.compile }
-      into "${projectDir}/libs"
-    }
-
-    task clean << {
-      ant.delete file: "${projectDir}/local.properties"
-      ant.delete file: "${projectDir}/proguard-project.txt"
-      ant.delete file: "${projectDir}/build.xml"
-      ant.delete dir: "${projectDir}/bin"
-      ant.delete dir: "${projectDir}/gen"
-      ant.delete dir: "${projectDir}/libs"
-    }
-
-    task updateProject(type: Exec) {
-      commandLine 'android', 'update', 'project', '-p', projectDir
-    }
-
-    task debug(type: Exec) {
-      dependsOn updateProject, deployLibs
-      commandLine 'ant', 'debug'
-    }
-  }
 }
 
+defaultTasks 'assembleRelease', 'uploadArchives'

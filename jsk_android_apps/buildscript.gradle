@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2014 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,11 +14,9 @@
  * the License.
  */
 
-include 'android_camera_viewer'
-include 'android_image_view'
-include 'android_sensor_message'
-include 'android_voice_message'
-/*
-include 'jsk_android_gui'
-include 'jsk_android_gui_new'
-*/
+rootProject.buildscript {
+  apply from: "https://github.com/rosjava/rosjava_bootstrap/raw/indigo/buildscript.gradle"
+  dependencies {
+    classpath "com.android.tools.build:gradle:1.0.+"
+  }
+}
