@@ -1,0 +1,4 @@
+test:
+  override:
+    - cd jsk_android_apps; ./gradlew assemble || ./gradlew assembleDebug
+    - find -iname '*-release.apk' -print -exec cp {} $CIRCLE_ARTIFACTS \;
