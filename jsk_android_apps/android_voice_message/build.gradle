@@ -30,8 +30,6 @@ android {
     minSdkVersion 15
     applicationId "org.ros.android.android_voice_message"
     targetSdkVersion 15
-    versionCode 1
-    versionName "1.0"
   }
 
   lintOptions {

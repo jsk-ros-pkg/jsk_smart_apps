@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-	package="org.ros.android.android_camera_viewer" android:versionCode="4"
-	android:versionName="1.0">
+	package="org.ros.android.android_camera_viewer" >
 
 	<uses-sdk android:minSdkVersion="10" />
 

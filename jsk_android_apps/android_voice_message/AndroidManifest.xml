@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-    package="org.ros.android.androidVoiceMessage"
-    android:versionCode="4"
-    android:versionName="4" >
+    package="org.ros.android.androidVoiceMessage" >
 
     <uses-sdk android:minSdkVersion="10" />
 

@@ -29,8 +29,6 @@ android {
     minSdkVersion 10
     applicationId "org.ros.android.android_camera_viewer"
     targetSdkVersion 10
-    versionCode 1
-    versionName "1.0"
   }
 
   lintOptions {

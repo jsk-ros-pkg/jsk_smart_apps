@@ -26,11 +26,17 @@ buildscript {
     }
 
     dependencies {
-        // ...
         classpath 'com.github.triplet.gradle:play-publisher:1.1.4'
+        classpath 'org.ajoberstar:grgit:1.4.+'
     }
 
 }
+
+ext {
+  git = org.ajoberstar.grgit.Grgit.open(file('..'))
+  gitVersionName = "${git.describe()}"
+}
+def gitVersionCode = 'git rev-list --count HEAD'.execute([], project.rootDir).text.trim().toInteger();
 
 apply plugin: "catkin"
 
@@ -96,6 +102,10 @@ configure(subprojects.findAll { it.name.startsWith("android_") }) {
               release {
                 signingConfig signingConfigs.release
               }
+            }
+            defaultConfig {
+              versionName gitVersionName
+              versionCode gitVersionCode
             }
         }
     }
