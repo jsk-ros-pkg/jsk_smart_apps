@@ -1,2 +1,12 @@
-Android app for publising speech-to-text results as ROS topic
+Android app for publishing speech-to-text results as ROS topic.
+
+You have to configure Speech-To-Text from Setting > Language & Input > Google Voice Typing
+
+You can subscribe the recognized voice text as:
+
+ rostopic echo /Tablet/voice
+
+and for Multi-byte users (like Japanese), you have to decode the text to UTF character. This is some example to show as Kanji/Hiragana
+
+ rostopic echo --filter "print('texts: [%s]\n---'%(', '.join(map(lambda x: '\'%s\''%(x.decode('utf-8')), m.texts))))" /Tablet/voice
 
