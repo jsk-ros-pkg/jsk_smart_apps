@@ -33,3 +33,7 @@ android {
     targetSdkVersion 15
   }
 }
+
+play {
+  uploadImages = true
+}
