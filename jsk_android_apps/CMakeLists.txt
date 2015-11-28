@@ -13,5 +13,7 @@ catkin_package()
 # Installation
 ##############################################################################
 
-install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/com/github/rosjava/jsk_android_apps/
+if(EXISTS $ENV{ANDROID_HOME})
+  install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/com/github/rosjava/jsk_android_apps/
         DESTINATION ${CATKIN_GLOBAL_MAVEN_DESTINATION}/com/github/rosjava/jsk_android_apps)
+endif()
