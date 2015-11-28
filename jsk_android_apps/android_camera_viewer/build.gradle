@@ -33,3 +33,6 @@ android {
   }
 }
 
+play {
+  uploadImages = true
+}
