@@ -1,1 +1,35 @@
-Android app for subscribing and displaing ROS image topic
+Android app for subscribing and displaying ROS image topic
+
+1. Run camera node on your machine:
+
+        rosetip ;; this set ROS_IP with ip address (export ex, ROS_IP=192.168.111.5)
+        rosrun usb_cam usb_cam_node
+
+2. Run 'ROS Image Viewer' on your Android device
+
+3. It also publishes the touch event
+
+        rostopic echo /touchEvent
+
+  You can check the semantics of the data by following command
+
+        $ rosmsg show jsk_gui_msgs/TouchEvent
+        byte DOWN=0
+        byte UP=1
+        byte MOVE=2
+        byte state
+        float32 x
+        float32 y
+        float32 w
+        float32 h
+
+
+= Limitation
+
+ Current version only subscribes image topic named `/usb_cam/image_raw/compressed`, so you need to use topic relay tool (http://wiki.ros.org/topic_tools/relay) to rename the image
+
+= Trouble Shooting
+
+ If you can not get any images on your android device, please make sure that your IP address can be reached from the android device. So set ROS_IP before you run camera node may solve this problem
+
+
