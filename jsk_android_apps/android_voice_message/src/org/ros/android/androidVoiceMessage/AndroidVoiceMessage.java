@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import org.ros.node.topic.Publisher;
 
 import java.util.List;
-import jsk_gui_msgs.VoiceMessage;
+import speech_recognition_msgs.SpeechRecognitionCandidates;
 
 
 public class AndroidVoiceMessage extends RosActivity {
