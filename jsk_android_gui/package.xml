@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>jsk_android_gui</name>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <description>jsk_android_gui written in new rosjava</description>
 
   <maintainer email="murase@jsk.imi.i.u-tokyo.ac.jp">Kazuto Murase</maintainer>

@@ -2,8 +2,8 @@
 Changelog for package jsk_android_apps
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2015-11-29)
+------------------
 * jsk_android_apps: add key.json.pgp and use them in circleci
 * jsk_android_apps: update README.md
 * android_sensor_message: updagte full description
