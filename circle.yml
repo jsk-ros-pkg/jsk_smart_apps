@@ -12,6 +12,8 @@ deployment:
   release:
     tag: /[0-9]+(\.[0-9]+)*/
     commands:
+      - sed -i "s@play {@play{\n\t\ttrack = 'production'@" jsk_android_apps/build.gradle
+      - cd jsk_android_apps; ./gradlew publishApkRelease
       - git clone -b v2.2.2 https://github.com/github/hub.git;
       - cd hub; ./script/build; sudo cp hub /usr/local/bin/
       - mkdir -p ~/.config/
