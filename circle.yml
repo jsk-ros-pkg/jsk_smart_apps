@@ -5,6 +5,7 @@ test:
     - echo $PASSWORD | gpg --batch --passphrase-fd 0 -o jsk_android_apps/key.json -d jsk_android_apps/key.json.gpg
     # temporary disable android_camera_viewer
     - sed -i "s@include 'android_camera_viewer'@/*include 'android_camera_viewer'*/@" jsk_android_apps/settings.gradle
+    - git fetch --unshallow
     - cd jsk_android_apps; ./gradlew publishListingRelease
     - cd jsk_android_apps; ./gradlew publishApkRelease
 deployment:
