@@ -2,6 +2,9 @@
 Changelog for package jsk_pr2_core_apps
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.0.1 (2015-11-27)
 ------------------
 * CMakeLists.txt: remove find_package which is not actually used

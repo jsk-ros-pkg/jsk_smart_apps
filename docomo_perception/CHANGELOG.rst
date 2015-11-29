@@ -2,6 +2,9 @@
 Changelog for package docomo_perception
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.0.1 (2015-11-27)
 ------------------
 * add environment sensor api for ros

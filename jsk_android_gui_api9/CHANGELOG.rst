@@ -2,6 +2,9 @@
 Changelog for package jsk_android_gui_api9
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.0.1 (2015-11-27)
 ------------------
 * use ROBOT environment
