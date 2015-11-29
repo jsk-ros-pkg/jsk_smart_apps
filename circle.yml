@@ -3,7 +3,8 @@ test:
     - cd jsk_android_apps; ./gradlew assemble || ./gradlew assembleDebug
     - find -iname '*-release.apk' -print -exec cp {} $CIRCLE_ARTIFACTS \;
     - echo $PASSWORD | gpg --batch --passphrase-fd 0 -o jsk_android_apps/key.json -d jsk_android_apps/key.json.gpg
-pps/settings.gradle
+    # temporary disable android_camera_viewer
+    - sed -i "s@include 'android_camera_viewer'@/*include 'android_camera_viewer'*/@" jsk_android_apps/settings.gradle
     - cd jsk_android_apps; ./gradlew publishListingRelease
     - cd jsk_android_apps; ./gradlew publishApkRelease
 deployment:
