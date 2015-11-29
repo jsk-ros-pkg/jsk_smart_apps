@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>jsk_android_apps</name>
+  <version>0.0.1</version>
+  <description>
+    Android/ROS Applications
+  </description>
+  <maintainer email="kattyokaccho3616@gmail.com">Kazuto Murase</maintainer>
+  <author email="kattyokaccho3616@gmail.com">Kazuto Murase</author>
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rosjava_build_tools</build_depend>
+  <build_depend>rosjava_bootstrap</build_depend>
+  <build_depend>android_core</build_depend>
+  <build_depend>android_extras</build_depend>
+  <build_depend>android_remocons</build_depend>
+  <build_depend>rosjava_messages</build_depend>
+</package>

@@ -1,0 +1,13 @@
+Android app for publishing and device's sensor data as ROS message.
+
+This app publishes folloiwng sensor informations
+
+        $ rosnode  info   android_sensor_message
+        --------------------------------------------------------------------------------
+        Node [/android_sensor_message]
+        Publications:
+         * /gravity [jsk_gui_msgs/Gravity]
+         * /rosout [rosgraph_msgs/Log]
+         * /imu [sensor_msgs/Imu]
+         * /device [jsk_gui_msgs/DeviceSensor]
+         * /magneticfield [jsk_gui_msgs/MagneticField]

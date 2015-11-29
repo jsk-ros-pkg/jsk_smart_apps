@@ -1,0 +1,16 @@
+Android app for subscribing and publishing ROS image and audio topic for video conferencing
+
+1. Download and compile latest audio_common package
+
+  Obtain source code from http://github.com/ros-drivers/audio_common, as of today (2015/11/28) latest version if 40f34ef
+
+2. running image capture, view and audio capture, playr at your computer
+
+  rosrun audio_capture audio_capture audio:=audio2 _format:=wave _bitrate:=128 _sample_rate:=11025
+  rosrun audio_play  audio_play _dst:=alsasink
+  rosrun image_view image_view image:=/camera/image _ima_transport:=compressed
+  rosrun usb_cam usb_cam_node _name:=camera
+
+Known Bugs
+
+  Currently we're not able to play sound captured by Android device, (at least for me)
