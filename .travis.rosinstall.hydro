@@ -1,0 +1,8 @@
+- git:
+    uri: https://github.com/jsk-ros-pkg/jsk_recognition.git
+    local-name: jsk-ros-pkg/jsk_recognition
+    version: 0.3.29
+- git:
+    uri: https://github.com/tork-a/jsk_topic_tools.git
+    local-name: jsk_topic_tools
+    version: release/indigo/jsk_topic_tools/2.0.4-1
