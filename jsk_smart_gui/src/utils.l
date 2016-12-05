@@ -75,7 +75,7 @@
 
 ;; (defun point-srvcall (msg) ;; deprecated
 ;;   (let* ((x (send msg :point :x)) (y (send msg :point :y))
-;; 	 (req (instance jsk_pcl_ros::TransformScreenpointRequest :init
+;; 	 (req (instance jsk_recognition_msgs::TransformScreenpointRequest :init
 ;; 			:x x :y y)) res)
 ;;     ;;(ros::wait-for-service *ray_srv* 1)
 ;;     (setq res (ros::service-call *ray_srv* req))
@@ -113,7 +113,7 @@
 ;;       )))
 
 (defun screenpoint-srvcall (x y)
-  (let* ((req (instance jsk_pcl_ros::TransformScreenpointRequest :init
+  (let* ((req (instance jsk_recognition_msgs::TransformScreenpointRequest :init
 			:x x :y y)) res)
     ;;(ros::wait-for-service *ray_srv* 1)
     (setq res (ros::service-call *ray_srv* req))

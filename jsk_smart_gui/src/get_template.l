@@ -1,6 +1,6 @@
 #!/usr/bin/env roseus
 (ros::load-ros-manifest "jsk_smart_gui")
-(ros::load-ros-manifest "jsk_pcl_ros")
+(ros::load-ros-manifest "jsk_recognition_msgs")
 (ros::load-ros-manifest "dynamic_tf_publisher")
 ;; This script depends on tablet_callback.l
 ;; Use when creating template from imagesift
@@ -460,7 +460,7 @@
 ;;    (ros::service-call "cropbox_manager/set_parameters" req)))
 
 (defun save_img (name)
-  (let ((req (instance jsk_pcl_ros::CallPolygonRequest :init)) res)
+  (let ((req (instance jsk_recognition_msgs::CallPolygonRequest :init)) res)
     (send req :filename name)
     (if (and
 	 (ros::service-exists "/save_image")

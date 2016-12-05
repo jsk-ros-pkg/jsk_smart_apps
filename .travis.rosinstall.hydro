@@ -1,0 +1,12 @@
+- git:
+    uri: https://github.com/tork-a/jsk_recognition-release.git
+    local-name: jsk_recognition_msgs
+    version: release/indigo/jsk_recognition_msgs/0.3.29-0
+- git:
+    uri: https://github.com/tork-a/jsk_common-release.git
+    local-name: jsk_topic_tools
+    version: release/indigo/jsk_topic_tools/2.0.4-1
+- git:
+    uri: https://github.com/tork-a/jsk_common-release.git
+    local-name: jsk_data
+    version: release/indigo/jsk_data/2.0.14-0
