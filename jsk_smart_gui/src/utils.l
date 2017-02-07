@@ -2,6 +2,9 @@
 ;;utils
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(ros::load-ros-manifest "jsk_smart_gui")
+(ros::load-ros-manifest "jsk_pcl_ros")
+
 (defun ros::tf-translation->pos (trans)
   (float-vector (send trans :x) (send trans :y) (send trans :z)))
 
