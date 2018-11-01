@@ -127,11 +127,15 @@ pointer EUSPINHOLE_CAMERA_MODEL_PROJECT_3D_TO_PIXEL(register context *ctx,int n,
 
 pointer ___eusimage_geometry(register context *ctx, int n, pointer *argv, pointer env)
 {
-  defun(ctx,"EUSPINHOLE-CAMERA-MODEL",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL, NULL);
-  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-DISPOSE",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_DISPOSE, NULL);
-  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-FROM-CAMERA-INFO",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_FROM_CAMERA_INFO, NULL);
-  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-PROJECT-PIXEL-TO-3DRAY",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_PROJECT_PIXEL_TO_3DRAY, NULL);
-  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-PROJECT-3D-TO-PIXEL",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_PROJECT_3D_TO_PIXEL, NULL);
-
+  defun(ctx,"EUSPINHOLE-CAMERA-MODEL",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL,
+    "Instantiate euspinhole-camera-model cobject");
+  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-DISPOSE",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_DISPOSE,
+    "Dispose euspinhole-camera-model cobject");
+  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-FROM-CAMERA-INFO",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_FROM_CAMERA_INFO,
+    "set camera info to euspinhoke-camera-model cobject");
+  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-PROJECT-PIXEL-TO-3DRAY",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_PROJECT_PIXEL_TO_3DRAY,
+    "Compute 3D Ray from 2D pixel on the projected camera screen");
+  defun(ctx,"EUSPINHOLE-CAMERA-MODEL-PROJECT-3D-TO-PIXEL",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_PROJECT_3D_TO_PIXEL,
+    "Compute 2D pixel on the projected camera screen from 3D pose");
   return 0;
 }
