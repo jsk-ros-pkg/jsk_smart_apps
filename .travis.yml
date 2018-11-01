@@ -5,13 +5,23 @@ python:
   - "2.7"
 compiler:
   - gcc
+services:
+  - docker
 env:
-  - ROS_DISTRO=indigo ROSWS=wstool BUILDER=catkin   USE_DEB=true
-  - ROS_DISTRO=kinetic ROSWS=wstool BUILDER=catkin   USE_DEB=true
-  - ROS_DISTRO=melodic ROSWS=wstool BUILDER=catkin   USE_DEB=true
+  global:
+    - USE_JENKINS=false
+    - USE_TRAVIS=true
+    - USE_DOCKER=true
+    - ROSWS=wstool
+    - BUILDER=catkin
+    - USE_DEB=true
+  matrix:
+    - ROS_DISTRO=indigo
+    - ROS_DISTRO=kinetic
+    - ROS_DISTRO=melodic
 matrix:
   allow_failures:
-    - env: ROS_DISTRO=melodic ROSWS=wstool BUILDER=catkin   USE_DEB=true
+    - env: ROS_DISTRO=melodic
 before_script:
   - export ROS_PARALLEL_JOBS="-j2 -l2"
 script: source .travis/travis.sh
