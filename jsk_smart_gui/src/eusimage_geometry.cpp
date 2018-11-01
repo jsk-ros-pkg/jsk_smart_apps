@@ -137,6 +137,5 @@ pointer ___eusimage_geometry(register context *ctx, int n, pointer *argv, pointe
     "Compute 3D Ray from 2D pixel on the projected camera screen");
   defun(ctx,"EUSPINHOLE-CAMERA-MODEL-PROJECT-3D-TO-PIXEL",argv[0],(pointer (*)())EUSPINHOLE_CAMERA_MODEL_PROJECT_3D_TO_PIXEL,
     "Compute 2D pixel on the projected camera screen from 3D pose");
-
   return 0;
 }
